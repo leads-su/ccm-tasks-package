@@ -1,0 +1,50 @@
+image: docker.leads.su:443/ccm/application-image:latest
+
+before_script:
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan gitlab.leads.local >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+
+cache:
+  paths:
+    - vendor/
+
+stages:
+  - qa
+  - test
+  - publish
+
+qa:
+  stage: qa
+  tags:
+    - shared-docker-runner
+  only:
+    - master
+  script:
+    - pecl install xdebug
+    - docker-php-ext-enable xdebug
+    - composer install
+    - composer test:coverage-gitlab
+
+test:
+  stage: test
+  tags:
+    - shared-docker-runner
+  only:
+    - tags
+  script:
+    - composer install
+    - composer test
+
+publish:
+  stage: publish
+  tags:
+    - shared-docker-runner
+  only:
+    - tags
+  script:
+    - 'curl --header "Job-Token: $CI_JOB_TOKEN" --data tag=$CI_COMMIT_TAG "${CI_API_V4_URL}/projects/$CI_PROJECT_ID/packages/composer"'
