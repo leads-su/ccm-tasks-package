@@ -21,10 +21,7 @@
     "require": {
         "php": "^8.0",
         "ext-json": "*",
-        "ext-ldap": "*",
-        "ccm/domain": "^1.0",
-        "doctrine/dbal": "^3.1",
-        "illuminate/database": "^8.0"
+        "ccm/domain": "^1.0"
     },
     "require-dev": {
         "ccm/testing": "^1.0"
@@ -87,7 +84,8 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
-        "secure-http": false
+        "secure-http": false,
+        "gitlab-domains": ["gitlab.leads.local"]
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
