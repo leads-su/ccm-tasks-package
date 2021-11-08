@@ -1,13 +1,15 @@
-image: docker.leads.su:443/ccm/application-image:latest
+variables:
+  GIT_DEPTH: 10
 
-before_script:
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - ssh-keyscan gitlab.leads.local >> ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
+.before_script_template:
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.leads.local >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
 
 cache:
   paths:
@@ -19,18 +21,20 @@ stages:
   - publish
 
 qa:
+  image: docker.leads.su:443/ccm/application-image:latest_debug
+  extends: .before_script_template
   stage: qa
   tags:
     - shared-docker-runner
   only:
-    - master
+    - main
   script:
-    - pecl install xdebug
-    - docker-php-ext-enable xdebug
     - composer install
     - composer test:coverage-gitlab
 
 test:
+  image: docker.leads.su:443/ccm/application-image:latest
+  extends: .before_script_template
   stage: test
   tags:
     - shared-docker-runner
@@ -41,6 +45,7 @@ test:
     - composer test
 
 publish:
+  image: curlimages/curl:latest
   stage: publish
   tags:
     - shared-docker-runner
