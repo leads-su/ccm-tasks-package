@@ -1,4 +1,6 @@
-<?php namespace ConsulConfigManager\Tasks\Providers;
+<?php
+
+namespace ConsulConfigManager\Tasks\Providers;
 
 use Illuminate\Support\Facades\Route;
 use ConsulConfigManager\Tasks\TaskDomain;
@@ -8,12 +10,13 @@ use ConsulConfigManager\Domain\DomainServiceProvider;
  * Class TasksServiceProvider
  * @package ConsulConfigManager\Tasks\Providers
  */
-class TasksServiceProvider extends DomainServiceProvider {
-
+class TasksServiceProvider extends DomainServiceProvider
+{
     /**
      * @inheritDoc
      */
-    public function boot(): void {
+    public function boot(): void
+    {
         $this->registerRoutes();
         $this->offerPublishing();
         $this->registerMigrations();
@@ -23,7 +26,8 @@ class TasksServiceProvider extends DomainServiceProvider {
     /**
      * @inheritDoc
      */
-    public function register(): void {
+    public function register(): void
+    {
         $this->registerConfiguration();
         parent::register();
     }
@@ -32,12 +36,13 @@ class TasksServiceProvider extends DomainServiceProvider {
      * Register package routes
      * @return void
      */
-    protected function registerRoutes(): void {
+    protected function registerRoutes(): void
+    {
         if (TaskDomain::shouldRegisterRoutes()) {
             Route::group([
                 'prefix'        =>  config('domain.tasks.prefix'),
                 'middleware'    =>  config('domain.tasks.middleware'),
-            ], function(): void {
+            ], function (): void {
                 $this->loadRoutesFrom(__DIR__ . '/../../routes/routes.php');
             });
         }
@@ -47,7 +52,8 @@ class TasksServiceProvider extends DomainServiceProvider {
      * Register package configuration
      * @return void
      */
-    protected function registerConfiguration(): void {
+    protected function registerConfiguration(): void
+    {
         $this->mergeConfigFrom(__DIR__ . '/../../config/tasks.php', 'domain.tasks');
     }
 
@@ -55,17 +61,17 @@ class TasksServiceProvider extends DomainServiceProvider {
      * Register package migrations
      * @return void
      */
-    protected function registerMigrations(): void {
-
+    protected function registerMigrations(): void
+    {
     }
 
     /**
      * Register package commands
      * @return void
      */
-    protected function registerCommands(): void {
+    protected function registerCommands(): void
+    {
         if ($this->app->runningInConsole()) {
-
         }
     }
 
@@ -73,7 +79,8 @@ class TasksServiceProvider extends DomainServiceProvider {
      * Offer resources for publishing
      * @return void
      */
-    protected function offerPublishing(): void {
+    protected function offerPublishing(): void
+    {
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/../../config/tasks.php'         =>  config_path('domain/tasks.php'),
@@ -84,22 +91,21 @@ class TasksServiceProvider extends DomainServiceProvider {
     /**
      * @inheritDoc
      */
-    protected function registerFactories(): void {
-
+    protected function registerFactories(): void
+    {
     }
 
     /**
      * @inheritDoc
      */
-    protected function registerRepositories(): void {
-
+    protected function registerRepositories(): void
+    {
     }
 
     /**
      * @inheritDoc
      */
-    protected function registerInterceptors(): void {
-
+    protected function registerInterceptors(): void
+    {
     }
-
 }

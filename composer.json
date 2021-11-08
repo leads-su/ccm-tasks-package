@@ -27,10 +27,7 @@
         "illuminate/database": "^8.0"
     },
     "require-dev": {
-        "mockery/mockery": "^1.4",
-        "orchestra/testbench": "^6.0",
-        "phpunit/phpunit": "^9.0",
-        "sempro/phpunit-pretty-print": "^1.4"
+        "ccm/testing": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -54,8 +51,20 @@
         }
     },
     "scripts": {
+        "psr": [
+            "vendor/bin/php-cs-fixer fix"
+        ],
         "test": [
             "phpunit --color=always"
+        ],
+        "test:feature": [
+            "phpunit --color=always --testsuite \"Feature Test Suite\""
+        ],
+        "test:integration": [
+            "phpunit --color=always --testsuite \"Integration Test Suite\""
+        ],
+        "test:unit": [
+            "phpunit --color=always --testsuite \"Unit Test Suite\""
         ],
         "test:coverage": [
             "@putenv XDEBUG_MODE=coverage",
@@ -83,6 +92,10 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "repositories": [
+        {
+            "type": "git",
+            "url": "git@gitlab.leads.local:ccm/ccm-testing-package.git"
+        },
         {
             "type": "git",
             "url": "git@gitlab.leads.local:ccm/ccm-domain-package.git"

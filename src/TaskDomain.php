@@ -1,11 +1,13 @@
-<?php namespace ConsulConfigManager\Tasks;
+<?php
+
+namespace ConsulConfigManager\Tasks;
 
 /**
  * Class TaskDomain
  * @package ConsulConfigManager\Tasks
  */
-class TaskDomain {
-
+class TaskDomain
+{
     /**
      * Indicates if package will run its migrations
      * @var bool
@@ -22,7 +24,8 @@ class TaskDomain {
      * Determine if package should run its migrations
      * @return bool
      */
-    public static function shouldRunMigrations(): bool {
+    public static function shouldRunMigrations(): bool
+    {
         return static::$runsMigrations;
     }
 
@@ -30,7 +33,8 @@ class TaskDomain {
      * Determine if package should register its routes
      * @return bool
      */
-    public static function shouldRegisterRoutes(): bool {
+    public static function shouldRegisterRoutes(): bool
+    {
         return static::$registersRoutes;
     }
 
@@ -38,36 +42,39 @@ class TaskDomain {
      * Configure package to not register its migrations
      * @return static
      */
-    public static function ignoreMigrations(): static {
+    public static function ignoreMigrations(): static
+    {
         static::$runsMigrations = false;
-        return new static;
+        return new static();
     }
 
     /**
      * Configure package to register its migrations
      * @return static
      */
-    public static function registerMigrations(): static {
+    public static function registerMigrations(): static
+    {
         static::$runsMigrations = true;
-        return new static;
+        return new static();
     }
 
     /**
      * Configure package to not register its routes
      * @return static
      */
-    public static function ignoreRoutes(): static {
+    public static function ignoreRoutes(): static
+    {
         static::$registersRoutes = false;
-        return new static;
+        return new static();
     }
 
     /**
      * Configure package to register its routes
      * @return static
      */
-    public static function registerRoutes(): static {
+    public static function registerRoutes(): static
+    {
         static::$registersRoutes = true;
-        return new static;
+        return new static();
     }
-
 }

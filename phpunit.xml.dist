@@ -20,10 +20,13 @@
         </include>
     </coverage>
     <testsuites>
-        <testsuite name="Users Domain Unit Test Suite">
+        <testsuite name="Integration Test Suite">
+            <directory suffix="Test.php">./tests/Integration</directory>
+        </testsuite>
+        <testsuite name="Unit Test Suite">
             <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
-        <testsuite name="Users Domain Feature Test Suite">
+        <testsuite name="Feature Test Suite">
             <directory suffix="Test.php">./tests/Feature</directory>
         </testsuite>
     </testsuites>
