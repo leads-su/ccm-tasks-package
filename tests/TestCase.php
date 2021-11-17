@@ -5,7 +5,13 @@ namespace ConsulConfigManager\Tasks\Test;
 use Illuminate\Foundation\Application;
 use ConsulConfigManager\Tasks\TaskDomain;
 use ConsulConfigManager\Testing\Concerns;
+use ConsulConfigManager\Users\Models\User;
+use Spatie\EventSourcing\EventSourcingServiceProvider;
 use ConsulConfigManager\Tasks\Providers\TasksServiceProvider;
+use ConsulConfigManager\Users\Providers\UsersServiceProvider;
+use ConsulConfigManager\Users\Domain\ValueObjects\EmailValueObject;
+use ConsulConfigManager\Users\Domain\ValueObjects\PasswordValueObject;
+use ConsulConfigManager\Users\Domain\ValueObjects\UsernameValueObject;
 
 /**
  * Class TestCase
@@ -14,12 +20,15 @@ use ConsulConfigManager\Tasks\Providers\TasksServiceProvider;
 abstract class TestCase extends \ConsulConfigManager\Testing\TestCase
 {
     use Concerns\WithQueueMigrations;
+    use Concerns\WithEventSourcingMigrations;
 
     /**
      * @inheritDoc
      */
     protected array $packageProviders = [
+        EventSourcingServiceProvider::class,
         TasksServiceProvider::class,
+        UsersServiceProvider::class,
     ];
 
     /**
@@ -43,6 +52,21 @@ abstract class TestCase extends \ConsulConfigManager\Testing\TestCase
     /**
      * @inheritDoc
      */
+    public function runAfterSetUp(): void
+    {
+        User::create([
+            'first_name'    =>  'System',
+            'last_name'     =>  'User',
+            'username'      =>  new UsernameValueObject('system'),
+            'email'         =>  new EmailValueObject('admin@leads.su'),
+            'password'      =>  new PasswordValueObject('1234567890'),
+        ]);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
     public function runBeforeTearDown(): void
     {
         TaskDomain::ignoreRoutes();
@@ -53,5 +77,16 @@ abstract class TestCase extends \ConsulConfigManager\Testing\TestCase
      */
     public function setUpEnvironment(Application $app): void
     {
+        $this->setConfigurationValue(
+            'event-sourcing.snapshot_repository',
+            \Spatie\EventSourcing\Snapshots\EloquentSnapshotRepository::class,
+            $app
+        );
+
+        $this->setConfigurationValue(
+            'event-sourcing.stored_event_repository',
+            \Spatie\EventSourcing\StoredEvents\Repositories\EloquentStoredEventRepository::class,
+            $app
+        );
     }
 }

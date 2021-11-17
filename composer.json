@@ -21,7 +21,11 @@
     "require": {
         "php": "^8.0",
         "ext-json": "*",
-        "ccm/domain": "^1.0"
+        "ccm/consul-agent": "^1.0",
+        "ccm/consul-kv": "^1.0",
+        "ccm/domain": "^1.0",
+        "ccm/users": "^1.0",
+        "spatie/laravel-event-sourcing": "^5.0"
     },
     "require-dev": {
         "ccm/testing": "^1.0"
@@ -97,6 +101,18 @@
         {
             "type": "git",
             "url": "git@gitlab.leads.local:ccm/ccm-domain-package.git"
+        },
+        {
+            "type": "git",
+            "url": "git@gitlab.leads.local:ccm/ccm-users-package.git"
+        },
+        {
+            "type": "git",
+            "url": "git@gitlab.leads.local:ccm/ccm-consul-kv-package.git"
+        },
+        {
+            "type": "git",
+            "url": "git@gitlab.leads.local:ccm/ccm-consul-agent-package.git"
         }
     ]
 }

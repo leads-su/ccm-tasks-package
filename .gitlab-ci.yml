@@ -21,7 +21,7 @@ stages:
   - publish
 
 qa:
-  image: docker.leads.su:443/ccm/application-image:latest_debug
+  image: docker.leads.su:443/ccm/application-image:8.0_debug
   extends: .before_script_template
   stage: qa
   tags:
@@ -32,8 +32,20 @@ qa:
     - composer install
     - composer test:coverage-gitlab
 
-test:
-  image: docker.leads.su:443/ccm/application-image:latest
+test_8.0:
+  image: docker.leads.su:443/ccm/application-image:8.0
+  extends: .before_script_template
+  stage: test
+  tags:
+    - shared-docker-runner
+  only:
+    - tags
+  script:
+    - composer install
+    - composer test
+
+test_8.1:
+  image: docker.leads.su:443/ccm/application-image:8.1
   extends: .before_script_template
   stage: test
   tags:
