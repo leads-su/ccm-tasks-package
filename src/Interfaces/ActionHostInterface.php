@@ -2,7 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Interface ActionHostInterface
@@ -25,26 +25,26 @@ interface ActionHostInterface
 
     /**
      * Get service id
-     * @return int
+     * @return string
      */
-    public function getServiceId(): int;
+    public function getServiceUuid(): string;
 
     /**
      * Set service id
-     * @param int $id
+     * @param string $id
      * @return ActionHostInterface
      */
-    public function setServiceId(int $id): ActionHostInterface;
+    public function setServiceUuid(string $id): ActionHostInterface;
 
     /**
      * Get action reference model
-     * @return HasOne
+     * @return BelongsTo
      */
-    public function action(): HasOne;
+    public function action(): BelongsTo;
 
     /**
      * Get service reference model
-     * @return HasOne
+     * @return BelongsTo
      */
-    public function service(): HasOne;
+    public function service(): BelongsTo;
 }

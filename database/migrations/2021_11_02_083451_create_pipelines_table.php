@@ -23,7 +23,7 @@ class CreatePipelinesTable extends Migration
     {
         Schema::create($this->tableName, function (Blueprint $table): void {
             $table->id();
-            $table->string('uuid');
+            $table->uuid('uuid');
             $table->string('name');
             $table->string('description');
             $table->softDeletes();

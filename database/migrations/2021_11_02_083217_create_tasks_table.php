@@ -23,9 +23,12 @@ class CreateTasksTable extends Migration
     {
         Schema::create($this->tableName, function (Blueprint $table): void {
             $table->id();
-            $table->string('uuid');
+            $table->uuid('uuid');
             $table->string('name');
             $table->string('description');
+            /**
+             * @see \ConsulConfigManager\Tasks\Enums\TaskType
+             */
             $table->integer('type');
             $table->softDeletes();
             $table->timestamps();

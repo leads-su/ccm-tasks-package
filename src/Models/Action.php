@@ -5,8 +5,11 @@ namespace ConsulConfigManager\Tasks\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use ConsulConfigManager\Consul\Agent\Models\Service;
 use ConsulConfigManager\Tasks\Factories\ActionFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Class Action
@@ -15,6 +18,7 @@ use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 class Action extends Model implements ActionInterface
 {
     use SoftDeletes;
+    use HasFactory;
 
     /**
      * @inheritDoc
@@ -107,6 +111,23 @@ class Action extends Model implements ActionInterface
     public function setID(int $id): ActionInterface
     {
         $this->attributes['id'] = (int) $id;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUuid(): string
+    {
+        return (string) $this->attributes['uuid'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setUuid(string $uuid): ActionInterface
+    {
+        $this->attributes['uuid'] = (string) $uuid;
         return $this;
     }
 
@@ -261,5 +282,20 @@ class Action extends Model implements ActionInterface
     {
         $this->attributes['fail_on_error'] = (bool) $failOnError;
         return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hosts(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Service::class,
+            ActionHost::class,
+            'action_uuid',
+            'uuid',
+            'uuid',
+            'service_uuid'
+        );
     }
 }

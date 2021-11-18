@@ -2,6 +2,8 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+
 /**
  * Interface ActionInterface
  * @package ConsulConfigManager\Tasks\Interfaces
@@ -28,6 +30,19 @@ interface ActionInterface
      * @return $this
      */
     public function setID(int $id): self;
+
+    /**
+     * Get action uuid
+     * @return string
+     */
+    public function getUuid(): string;
+
+    /**
+     * Set action uuid
+     * @param string $uuid
+     * @return $this
+     */
+    public function setUuid(string $uuid): self;
 
     /**
      * Get action name
@@ -145,4 +160,10 @@ interface ActionInterface
      * @return $this
      */
     public function failOnError(bool $failOnError): self;
+
+    /**
+     * Get list of hosts bound to action
+     * @return HasManyThrough
+     */
+    public function hosts(): HasManyThrough;
 }

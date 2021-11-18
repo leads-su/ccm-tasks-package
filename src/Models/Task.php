@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use ConsulConfigManager\Tasks\Factories\TaskFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * Class Task
@@ -15,6 +17,7 @@ use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 class Task extends Model implements TaskInterface
 {
     use SoftDeletes;
+    use HasFactory;
 
     /**
      * @inheritDoc
@@ -101,6 +104,23 @@ class Task extends Model implements TaskInterface
     /**
      * @inheritDoc
      */
+    public function getUuid(): string
+    {
+        return (string) $this->attributes['uuid'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setUuid(string $uuid): TaskInterface
+    {
+        $this->attributes['uuid'] = (string) $uuid;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getName(): string
     {
         return (string) $this->attributes['name'];
@@ -147,5 +167,21 @@ class Task extends Model implements TaskInterface
     {
         $this->attributes['type'] = (int) $type;
         return $this;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function actions(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Action::class,
+            TaskAction::class,
+            'task_uuid',
+            'uuid',
+            'uuid',
+            'action_uuid'
+        );
     }
 }

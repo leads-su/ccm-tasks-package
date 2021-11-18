@@ -22,23 +22,13 @@ class CreateActionHostsTable extends Migration
     public function up(): void
     {
         Schema::create($this->tableName, function (Blueprint $table): void {
-            $table->unsignedBigInteger('action_uuid');
-            $table->unsignedBigInteger('service_id');
-
-            $table->foreign('action_uuid')
-                ->references('uuid')
-                ->on('actions')
-                ->onDelete('cascade');
-
-            $table->foreign('service_id')
-                ->references('id')
-                ->on('consul_services')
-                ->onDelete('cascade');
+            $table->foreignUuid('action_uuid');
+            $table->foreignUuid('service_uuid');
 
             $table->primary([
                 'action_uuid',
-                'service_id',
-            ], $this->tableName . '_action_uuid_service_id_primary');
+                'service_uuid',
+            ], $this->tableName . '_action_uuid_service_uuid_primary');
         });
     }
 

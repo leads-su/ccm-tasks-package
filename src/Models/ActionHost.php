@@ -2,17 +2,22 @@
 
 namespace ConsulConfigManager\Tasks\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use ConsulConfigManager\Consul\Agent\Models\Service;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ConsulConfigManager\Tasks\Factories\ActionHostFactory;
 use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
 
 /**
  * Class ActionHost
  * @package ConsulConfigManager\Tasks\Models
  */
-class ActionHost extends Model implements ActionHostInterface
+class ActionHost extends Pivot implements ActionHostInterface
 {
+    use HasFactory;
+
     /**
      * @inheritDoc
      */
@@ -29,7 +34,7 @@ class ActionHost extends Model implements ActionHostInterface
      */
     protected $fillable = [
         'action_uuid',
-        'service_id',
+        'service_uuid',
     ];
 
     /**
@@ -37,7 +42,7 @@ class ActionHost extends Model implements ActionHostInterface
      */
     protected $casts = [
         'action_uuid'       =>  'string',
-        'service_id'        =>  'integer',
+        'service_uuid'      =>  'string',
     ];
 
     /**
@@ -54,6 +59,14 @@ class ActionHost extends Model implements ActionHostInterface
      * @inheritDoc
      */
     protected $dates = [];
+
+    /**
+     * @inheritDoc
+     */
+    protected static function newFactory(): Factory
+    {
+        return ActionHostFactory::new();
+    }
 
     /**
      * @inheritDoc
@@ -75,33 +88,33 @@ class ActionHost extends Model implements ActionHostInterface
     /**
      * @inheritDoc
      */
-    public function getServiceId(): int
+    public function getServiceUuid(): string
     {
-        return (int) $this->attributes['service_id'];
+        return (string) $this->attributes['service_uuid'];
     }
 
     /**
      * @inheritDoc
      */
-    public function setServiceId(int $id): ActionHostInterface
+    public function setServiceUuid(string $id): ActionHostInterface
     {
-        $this->attributes['service_id'] = (int) $id;
+        $this->attributes['service_uuid'] = (string) $id;
         return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function action(): HasOne
+    public function action(): BelongsTo
     {
-        return $this->hasOne(Action::class, 'uuid', 'action_uuid');
+        return $this->belongsTo(Action::class, 'action_uuid', 'uuid');
     }
 
     /**
      * @inheritDoc
      */
-    public function service(): HasOne
+    public function service(): BelongsTo
     {
-        return $this->hasOne(Service::class, 'id', 'service_id');
+        return $this->belongsTo(Service::class, 'service_uuid', 'uuid');
     }
 }

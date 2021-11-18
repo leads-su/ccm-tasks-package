@@ -22,19 +22,9 @@ class CreatePipelineTasksTable extends Migration
     public function up(): void
     {
         Schema::create($this->tableName, function (Blueprint $table): void {
-            $table->unsignedBigInteger('pipeline_uuid');
-            $table->unsignedBigInteger('task_uuid');
+            $table->foreignUuid('pipeline_uuid');
+            $table->foreignUuid('task_uuid');
             $table->integer('order');
-
-            $table->foreign('pipeline_uuid')
-                ->references('uuid')
-                ->on('pipelines')
-                ->onDelete('cascade');
-
-            $table->foreign('task_uuid')
-                ->references('uuid')
-                ->on('tasks')
-                ->onDelete('cascade');
 
             $table->primary([
                 'pipeline_uuid',

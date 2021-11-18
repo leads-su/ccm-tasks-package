@@ -22,7 +22,9 @@ class PipelineFactory extends Factory
     public function definition(): array
     {
         return [
-
+            'uuid'              =>  $this->faker->uuid(),
+            'name'              =>  $this->faker->words(2),
+            'description'       =>  $this->faker->realTextBetween(),
         ];
     }
 }

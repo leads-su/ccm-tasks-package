@@ -16,7 +16,7 @@ class ActionType
     public const LOCAL = 0;
 
     /**
-     * Action Type Constant: Local
+     * Action Type Constant: Remote
      * This action should be executed remotely
      * @var integer
      */

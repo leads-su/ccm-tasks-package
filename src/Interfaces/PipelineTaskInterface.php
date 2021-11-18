@@ -2,7 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Interface PipelineTaskInterface
@@ -12,13 +12,13 @@ interface PipelineTaskInterface
 {
     /**
      * Get pipeline reference model
-     * @return HasOne
+     * @return BelongsTo
      */
-    public function pipeline(): HasOne;
+    public function pipeline(): BelongsTo;
 
     /**
      * Get task reference model
-     * @return HasOne
+     * @return BelongsTo
      */
-    public function task(): HasOne;
+    public function task(): BelongsTo;
 }

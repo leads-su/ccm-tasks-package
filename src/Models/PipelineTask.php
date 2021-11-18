@@ -2,16 +2,21 @@
 
 namespace ConsulConfigManager\Tasks\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ConsulConfigManager\Tasks\Factories\PipelineTaskFactory;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 
 /**
  * Class PipelineTask
  * @package ConsulConfigManager\Tasks\Models
  */
-class PipelineTask extends Model implements PipelineTaskInterface
+class PipelineTask extends Pivot implements PipelineTaskInterface
 {
+    use HasFactory;
+
     /**
      * @inheritDoc
      */
@@ -29,6 +34,7 @@ class PipelineTask extends Model implements PipelineTaskInterface
     protected $fillable = [
         'pipeline_uuid',
         'task_uuid',
+        'order',
     ];
 
     /**
@@ -37,6 +43,7 @@ class PipelineTask extends Model implements PipelineTaskInterface
     protected $casts = [
         'pipeline_uuid'     =>  'string',
         'task_uuid'         =>  'string',
+        'order'             =>  'integer',
     ];
 
     /**
@@ -57,16 +64,75 @@ class PipelineTask extends Model implements PipelineTaskInterface
     /**
      * @inheritDoc
      */
-    public function pipeline(): HasOne
+    protected static function newFactory(): Factory
     {
-        return $this->hasOne(Pipeline::class, 'uuid', 'pipeline_uuid');
+        return PipelineTaskFactory::new();
     }
 
     /**
      * @inheritDoc
      */
-    public function task(): HasOne
+    public function getPipelineUuid(): string
     {
-        return $this->hasOne(Task::class, 'uuid', 'task_uuid');
+        return (string) $this->attributes['pipeline_uuid'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setPipelineUuid(string $uuid): PipelineTaskInterface
+    {
+        $this->attributes['pipeline_uuid'] = (string) $uuid;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTaskUuid(): string
+    {
+        return (string) $this->attributes['task_uuid'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTaskUuid(string $uuid): PipelineTaskInterface
+    {
+        $this->attributes['task_uuid'] = (string) $uuid;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getOrder(): int
+    {
+        return (int) $this->attributes['order'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setOrder(int $order): PipelineTaskInterface
+    {
+        $this->attributes['order'] = (int) $order;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function pipeline(): BelongsTo
+    {
+        return $this->belongsTo(Pipeline::class, 'pipeline_uuid', 'uuid');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function task(): BelongsTo
+    {
+        return $this->belongsTo(Task::class, 'task_uuid', 'uuid');
     }
 }

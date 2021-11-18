@@ -2,6 +2,8 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+
 /**
  * Interface TaskInterface
  * @package ConsulConfigManager\Tasks\Interfaces
@@ -28,6 +30,19 @@ interface TaskInterface
      * @return $this
      */
     public function setID(int $id): self;
+
+    /**
+     * Get task uuid
+     * @return string
+     */
+    public function getUuid(): string;
+
+    /**
+     * Set task uuid
+     * @param string $uuid
+     * @return $this
+     */
+    public function setUuid(string $uuid): self;
 
     /**
      * Get task name
@@ -67,4 +82,10 @@ interface TaskInterface
      * @return $this
      */
     public function setType(int $type): self;
+
+    /**
+     * Get list of actions for given task
+     * @return HasManyThrough
+     */
+    public function actions(): HasManyThrough;
 }

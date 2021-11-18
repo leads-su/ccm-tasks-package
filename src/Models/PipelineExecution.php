@@ -3,6 +3,10 @@
 namespace ConsulConfigManager\Tasks\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ConsulConfigManager\Tasks\Factories\PipelineExecutionFactory;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 
 /**
@@ -11,6 +15,8 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
  */
 class PipelineExecution extends Model implements PipelineExecutionInterface
 {
+    use HasFactory;
+
     /**
      * @inheritDoc
      */
@@ -19,12 +25,23 @@ class PipelineExecution extends Model implements PipelineExecutionInterface
     /**
      * @inheritDoc
      */
-    protected $fillable = [];
+    protected $fillable = [
+        'uuid',
+        'pipeline_uuid',
+        'task_uuid',
+        'state',
+    ];
 
     /**
      * @inheritDoc
      */
-    protected $casts = [];
+    protected $casts = [
+        'id'                =>  'integer',
+        'uuid'              =>  'string',
+        'pipeline_uuid'     =>  'string',
+        'task_uuid'         =>  'string',
+        'state'             =>  'integer',
+    ];
 
     /**
      * @inheritDoc
@@ -39,5 +56,32 @@ class PipelineExecution extends Model implements PipelineExecutionInterface
     /**
      * @inheritDoc
      */
-    protected $dates = [];
+    protected $dates = [
+        'created_at',
+        'updated_at',
+    ];
+
+    /**
+     * @inheritDoc
+     */
+    protected static function newFactory(): Factory
+    {
+        return PipelineExecutionFactory::new();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function pipeline(): HasOne
+    {
+        return $this->hasOne(Pipeline::class, 'uuid', 'pipeline_uuid');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function task(): HasOne
+    {
+        return $this->hasOne(Task::class, 'uuid', 'task_uuid');
+    }
 }
