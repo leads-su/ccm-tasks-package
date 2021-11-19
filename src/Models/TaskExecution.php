@@ -6,27 +6,26 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use ConsulConfigManager\Tasks\Factories\ActionExecutionFactory;
-use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
+use ConsulConfigManager\Tasks\Factories\TaskExecutionFactory;
+use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
 
 /**
- * Class ActionExecution
+ * Class TaskExecution
  * @package ConsulConfigManager\Tasks\Models
  */
-class ActionExecution extends Model implements ActionExecutionInterface
+class TaskExecution extends Model implements TaskExecutionInterface
 {
     use HasFactory;
 
     /**
      * @inheritDoc
      */
-    public $table = 'action_executions';
+    public $table = 'task_executions';
 
     /**
      * @inheritDoc
      */
     public $fillable = [
-        'action_uuid',
         'task_uuid',
         'pipeline_uuid',
         'pipeline_execution_uuid',
@@ -38,7 +37,6 @@ class ActionExecution extends Model implements ActionExecutionInterface
      */
     public $casts = [
         'id'                        =>  'integer',
-        'action_uuid'               =>  'string',
         'task_uuid'                 =>  'string',
         'pipeline_uuid'             =>  'string',
         'pipeline_execution_uuid'   =>  'string',
@@ -73,7 +71,7 @@ class ActionExecution extends Model implements ActionExecutionInterface
      */
     protected static function newFactory(): Factory
     {
-        return ActionExecutionFactory::new();
+        return TaskExecutionFactory::new();
     }
 
     /**
@@ -87,26 +85,9 @@ class ActionExecution extends Model implements ActionExecutionInterface
     /**
      * @inheritDoc
      */
-    public function setID(int $id): ActionExecutionInterface
+    public function setID(int $id): TaskExecutionInterface
     {
         $this->attributes['id'] = (int) $id;
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getActionUuid(): string
-    {
-        return (string) $this->attributes['action_uuid'];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setActionUuid(string $uuid): ActionExecutionInterface
-    {
-        $this->attributes['action_uuid'] = (string) $uuid;
         return $this;
     }
 
@@ -121,7 +102,7 @@ class ActionExecution extends Model implements ActionExecutionInterface
     /**
      * @inheritDoc
      */
-    public function setTaskUuid(string $uuid): ActionExecutionInterface
+    public function setTaskUuid(string $uuid): TaskExecutionInterface
     {
         $this->attributes['task_uuid'] = (string) $uuid;
         return $this;
@@ -138,7 +119,7 @@ class ActionExecution extends Model implements ActionExecutionInterface
     /**
      * @inheritDoc
      */
-    public function setPipelineUuid(string $uuid): ActionExecutionInterface
+    public function setPipelineUuid(string $uuid): TaskExecutionInterface
     {
         $this->attributes['pipeline_uuid'] = (string) $uuid;
         return $this;
@@ -155,7 +136,7 @@ class ActionExecution extends Model implements ActionExecutionInterface
     /**
      * @inheritDoc
      */
-    public function setPipelineExecutionUuid(string $uuid): ActionExecutionInterface
+    public function setPipelineExecutionUuid(string $uuid): TaskExecutionInterface
     {
         $this->attributes['pipeline_execution_uuid'] = (string) $uuid;
         return $this;
@@ -172,22 +153,10 @@ class ActionExecution extends Model implements ActionExecutionInterface
     /**
      * @inheritDoc
      */
-    public function setState(int $state): ActionExecutionInterface
+    public function setState(int $state): TaskExecutionInterface
     {
         $this->attributes['state'] = (int) $state;
         return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function action(): BelongsTo
-    {
-        return $this->belongsTo(
-            Action::class,
-            'action_uuid',
-            'uuid',
-        );
     }
 
     /**
@@ -198,7 +167,7 @@ class ActionExecution extends Model implements ActionExecutionInterface
         return $this->belongsTo(
             Task::class,
             'task_uuid',
-            'uuid',
+            'uuid'
         );
     }
 
@@ -210,7 +179,7 @@ class ActionExecution extends Model implements ActionExecutionInterface
         return $this->belongsTo(
             Pipeline::class,
             'pipeline_uuid',
-            'uuid',
+            'uuid'
         );
     }
 

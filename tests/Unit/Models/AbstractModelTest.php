@@ -10,6 +10,7 @@ use ConsulConfigManager\Tasks\Models\Pipeline;
 use ConsulConfigManager\Tasks\Models\ActionHost;
 use ConsulConfigManager\Tasks\Models\TaskAction;
 use ConsulConfigManager\Tasks\Models\PipelineTask;
+use ConsulConfigManager\Tasks\Models\TaskExecution;
 use ConsulConfigManager\Consul\Agent\Models\Service;
 use ConsulConfigManager\Tasks\Models\ActionExecution;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
@@ -19,11 +20,13 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
+use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
 
 /**
  * Class AbstractModelTest
@@ -60,6 +63,13 @@ abstract class AbstractModelTest extends TestCase
     protected static string $pipelineUUID = '277d227e-ac47-4b89-ad40-8c966e42ac7b';
 
     /**
+     * Abstract Model Test Static: Pipeline Execution UUID
+     * UUID used to create models suitable for relations querying
+     * @var string
+     */
+    protected static string $pipelineExecutionUUID = '0062eb34-62dc-41b7-a0f3-097d5e7da889';
+
+    /**
      * Action execution model data provider
      * @return \array[][]
      */
@@ -72,6 +82,7 @@ abstract class AbstractModelTest extends TestCase
                     'action_uuid'               =>  self::$actionUUID,
                     'task_uuid'                 =>  self::$taskUUID,
                     'pipeline_uuid'             =>  self::$pipelineUUID,
+                    'pipeline_execution_uuid'   =>  self::$pipelineExecutionUUID,
                     'state'                     =>  1,
                 ],
             ],
@@ -89,7 +100,7 @@ abstract class AbstractModelTest extends TestCase
             'example_action_host_entity'        =>  [
                 'data'                          =>  [
                     'action_uuid'               =>  self::$actionUUID,
-                    'service_uuid'              =>  'cd847b07-5387-456d-9690-db4d182ea14a',
+                    'service_uuid'              =>  self::$serviceUUID,
                 ],
             ],
         ];
@@ -131,7 +142,10 @@ abstract class AbstractModelTest extends TestCase
         return [
             'example_pipeline_execution_entity'     =>  [
                 'data'                              =>  [
-
+                    'id'                            =>  1,
+                    'uuid'                          =>  self::$pipelineExecutionUUID,
+                    'pipeline_uuid'                 =>  self::$pipelineUUID,
+                    'state'                         =>  1,
                 ],
             ],
         ];
@@ -213,82 +227,147 @@ abstract class AbstractModelTest extends TestCase
     }
 
     /**
+     * Task execution model data provider
+     * @return \array[][]
+     */
+    protected function taskExecutionModelDataProvider(): array
+    {
+        return [
+            'example_task_execution_entity'     =>  [
+                'data'                          =>  [
+                    'id'                        =>  1,
+                    'task_uuid'                 =>  self::$taskUUID,
+                    'pipeline_uuid'             =>  self::$pipelineUUID,
+                    'pipeline_execution_uuid'   =>  self::$pipelineExecutionUUID,
+                    'state'                     =>  1,
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Create action execution model instance
      * @param array $data
+     * @param bool $create
      * @return ActionExecutionInterface
      */
-    protected function actionExecutionModel(array $data): ActionExecutionInterface
+    protected function actionExecutionModel(array $data, bool $create = false): ActionExecutionInterface
     {
+        if ($create) {
+            return ActionExecution::factory()->create($data);
+        }
         return ActionExecution::factory()->make($data);
     }
 
     /**
      * Create action host model instance
      * @param array $data
+     * @param bool $create
      * @return ActionHostInterface
      */
-    protected function actionHostModel(array $data): ActionHostInterface
+    protected function actionHostModel(array $data, bool $create = false): ActionHostInterface
     {
+        if ($create) {
+            return ActionHost::factory()->create($data);
+        }
         return ActionHost::factory()->make($data);
     }
 
     /**
      * Create action model instance
      * @param array $data
+     * @param bool $create
      * @return ActionInterface
      */
-    protected function actionModel(array $data): ActionInterface
+    protected function actionModel(array $data, bool $create = false): ActionInterface
     {
+        if ($create) {
+            return Action::factory()->create($data);
+        }
         return Action::factory()->make($data);
     }
 
     /**
      * Create pipeline execution model instance
      * @param array $data
+     * @param bool $create
      * @return PipelineExecutionInterface
      */
-    protected function pipelineExecutionModel(array $data): PipelineExecutionInterface
+    protected function pipelineExecutionModel(array $data, bool $create = false): PipelineExecutionInterface
     {
+        if ($create) {
+            return PipelineExecution::factory()->create($data);
+        }
         return PipelineExecution::factory()->make($data);
     }
 
     /**
      * Create pipeline task model instance
      * @param array $data
+     * @param bool $create
      * @return PipelineTaskInterface
      */
-    protected function pipelineTaskModel(array $data): PipelineTaskInterface
+    protected function pipelineTaskModel(array $data, bool $create = false): PipelineTaskInterface
     {
+        if ($create) {
+            return PipelineTask::factory()->create($data);
+        }
         return PipelineTask::factory()->make($data);
     }
 
     /**
      * Create pipeline model instance
      * @param array $data
+     * @param bool $create
      * @return PipelineInterface
      */
-    protected function pipelineModel(array $data): PipelineInterface
+    protected function pipelineModel(array $data, bool $create = false): PipelineInterface
     {
+        if ($create) {
+            return Pipeline::factory()->create($data);
+        }
         return Pipeline::factory()->make($data);
     }
 
     /**
      * Create task action model instance
      * @param array $data
+     * @param bool $create
      * @return TaskActionInterface
      */
-    protected function taskActionModel(array $data): TaskActionInterface
+    protected function taskActionModel(array $data, bool $create = false): TaskActionInterface
     {
+        if ($create) {
+            return TaskAction::factory()->create($data);
+        }
         return TaskAction::factory()->make($data);
+    }
+
+    /**
+     * Create task execution model instance
+     * @param array $data
+     * @param bool $create
+     * @return TaskExecutionInterface
+     */
+    protected function taskExecutionModel(array $data, bool $create = false): TaskExecutionInterface
+    {
+        if ($create) {
+            return TaskExecution::factory()->create($data);
+        }
+        return TaskExecution::factory()->make($data);
     }
 
     /**
      * Create task model instance
      * @param array $data
+     * @param bool $create
      * @return TaskInterface
      */
-    protected function taskModel(array $data): TaskInterface
+    protected function taskModel(array $data, bool $create = false): TaskInterface
     {
+        if ($create) {
+            return Task::factory()->create($data);
+        }
         return Task::factory()->make($data);
     }
 
@@ -320,15 +399,30 @@ abstract class AbstractModelTest extends TestCase
     }
 
     /**
+     * Create instance of pipeline execution repository
+     * @return PipelineExecutionRepositoryInterface
+     */
+    protected function pipelineExecutionRepository(): PipelineExecutionRepositoryInterface
+    {
+        return $this->app->make(PipelineExecutionRepositoryInterface::class);
+    }
+
+    /**
      * Create complete pipeline to test against given relations
      * @param string|null $serviceUUID
      * @param string|null $actionUUID
      * @param string|null $taskUUID
      * @param string|null $pipelineUUID
+     * @param string|null $pipelineExecutionUUID
      * @return void
      */
-    protected function createCompletePipeline(?string $serviceUUID = null, ?string $actionUUID = null, ?string $taskUUID = null, ?string $pipelineUUID = null)
-    {
+    protected function createCompletePipeline(
+        ?string $serviceUUID = null,
+        ?string $actionUUID = null,
+        ?string $taskUUID = null,
+        ?string $pipelineUUID = null,
+        ?string $pipelineExecutionUUID = null
+    ) {
         if (!$serviceUUID) {
             $serviceUUID = self::$serviceUUID;
         }
@@ -341,8 +435,11 @@ abstract class AbstractModelTest extends TestCase
         if (!$pipelineUUID) {
             $pipelineUUID = self::$pipelineUUID;
         }
+        if (!$pipelineExecutionUUID) {
+            $pipelineExecutionUUID = self::$pipelineExecutionUUID;
+        }
 
-        $service = Service::create([
+        Service::create([
             'uuid'          =>  $serviceUUID,
             'identifier'    =>  'ccm-example.development-127.0.0.1',
             'service'       =>  'ccm',
@@ -356,56 +453,60 @@ abstract class AbstractModelTest extends TestCase
         ]);
 
         $actionData = Arr::get($this->actionModelDataProvider(), 'example_action_entity.data');
-        $action = Action::create([
-            'uuid'              =>  $actionUUID,
-            'name'              =>  Arr::get($actionData, 'name'),
-            'description'       =>  Arr::get($actionData, 'description'),
-            'type'              =>  Arr::get($actionData, 'type'),
-            'command'           =>  Arr::get($actionData, 'command'),
-            'arguments'         =>  Arr::get($actionData, 'arguments'),
-            'working_dir'       =>  Arr::get($actionData, 'working_dir'),
-            'run_as'            =>  Arr::get($actionData, 'run_as'),
-            'use_sudo'          =>  Arr::get($actionData, 'use_sudo'),
-            'fail_on_error'     =>  Arr::get($actionData, 'fail_on_error'),
-        ]);
+        $this->actionModel($actionData, true);
 
-        ActionHost::create([
-            'action_uuid'       =>  $action->getUuid(),
-            'service_uuid'      =>  $service->getUuid(),
-        ]);
-
-        ActionExecution::create([
+        $this->actionHostModel([
             'action_uuid'       =>  $actionUUID,
-            'task_uuid'         =>  $taskUUID,
-            'pipeline_uuid'     =>  $pipelineUUID,
-            'state'             =>  0,
-        ]);
+            'service_uuid'      =>  $serviceUUID,
+        ], true);
+
+        $this->actionExecutionModel([
+            'action_uuid'               =>  $actionUUID,
+            'task_uuid'                 =>  $taskUUID,
+            'pipeline_uuid'             =>  $pipelineUUID,
+            'pipeline_execution_uuid'   =>  $pipelineExecutionUUID,
+            'state'                     =>  0,
+        ], true);
 
         $taskData = Arr::get($this->taskModelDataProvider(), 'example_task_entity.data');
-        $task = Task::create([
+        $this->taskModel([
             'uuid'          =>  $taskUUID,
             'name'          =>  Arr::get($taskData, 'name'),
             'description'   =>  Arr::get($taskData, 'description'),
             'type'          =>  Arr::get($taskData, 'type'),
-        ]);
+        ], true);
 
-        TaskAction::create([
-            'task_uuid'     =>  $task->getUuid(),
-            'action_uuid'   =>  $action->getUuid(),
+        $this->taskActionModel([
+            'task_uuid'     =>  $taskUUID,
+            'action_uuid'   =>  $actionUUID,
             'order'         =>  1,
-        ]);
+        ], true);
+
+        $this->taskExecutionModel([
+            'task_uuid'                 =>  $taskUUID,
+            'pipeline_uuid'             =>  $pipelineUUID,
+            'pipeline_execution_uuid'   =>  $pipelineExecutionUUID,
+            'state'                     =>  0,
+        ], true);
 
         $pipelineData = Arr::get($this->pipelineModelDataProvider(), 'example_pipeline_entity.data');
-        $pipeline = Pipeline::create([
+        $this->pipelineModel([
             'uuid'          =>  $pipelineUUID,
             'name'          =>  Arr::get($pipelineData, 'name'),
             'description'   =>  Arr::get($pipelineData, 'description'),
-        ]);
+        ], true);
 
-        PipelineTask::create([
-            'pipeline_uuid'     =>  $pipeline->getUuid(),
-            'task_uuid'         =>  $task->getUuid(),
-            'order'             =>  1,
-        ]);
+        $this->pipelineTaskModel([
+            'pipeline_uuid'         =>  $pipelineUUID,
+            'task_uuid'             =>  $taskUUID,
+            'order'                 =>  1,
+        ], true);
+
+        $pipelineExecutionData = Arr::get($this->pipelineExecutionModelDataProvider(), 'example_pipeline_execution_entity.data');
+        $this->pipelineExecutionModel([
+            'uuid'                  =>  $pipelineExecutionUUID,
+            'pipeline_uuid'         =>  Arr::get($pipelineExecutionData, 'pipeline_uuid'),
+            'state'                 =>  Arr::get($pipelineExecutionData, 'state'),
+        ], true);
     }
 }

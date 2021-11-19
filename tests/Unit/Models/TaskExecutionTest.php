@@ -3,17 +3,17 @@
 namespace ConsulConfigManager\Tasks\Test\Unit\Models;
 
 use Illuminate\Support\Arr;
-use ConsulConfigManager\Tasks\Models\PipelineExecution;
+use ConsulConfigManager\Tasks\Models\TaskExecution;
+use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
+use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
-use ConsulConfigManager\Tasks\AggregateRoots\PipelineExecutionAggregateRoot;
-use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
 
 /**
- * Class PipelineExecutionTest
+ * Class TaskExecutionTest
  * @package ConsulConfigManager\Tasks\Test\Unit\Models
  */
-class PipelineExecutionTest extends AbstractModelTest
+class TaskExecutionTest extends AbstractModelTest
 {
     /**
      * @param array $data
@@ -46,10 +46,10 @@ class PipelineExecutionTest extends AbstractModelTest
      * @dataProvider modelDataProvider
      * @return void
      */
-    public function testShouldPassIfValidDataReturnedFromGetUuidMethod(array $data): void
+    public function testShouldPassIfValidDataReturnedFromGetTaskUuidMethod(array $data): void
     {
-        $response = $this->model($data)->getUuid();
-        $this->assertEquals(Arr::get($data, 'uuid'), $response);
+        $response = $this->model($data)->getTaskUuid();
+        $this->assertEquals(Arr::get($data, 'task_uuid'), $response);
     }
 
     /**
@@ -58,11 +58,11 @@ class PipelineExecutionTest extends AbstractModelTest
      * @dataProvider modelDataProvider
      * @return void
      */
-    public function testShouldPassIfValidDataReturnedFromSetUuidMethod(array $data): void
+    public function testShouldPassIfValidDataReturnedFromSetTaskUuidMethod(array $data): void
     {
         $model = $this->model($data);
-        $model->setUuid('0e013a2b-03f6-404d-b8f6-fd186191c145');
-        $this->assertEquals('0e013a2b-03f6-404d-b8f6-fd186191c145', $model->getUuid());
+        $model->setTaskUuid('1c64f76a-84d3-4196-a0bf-3f3bef6d05da');
+        $this->assertEquals('1c64f76a-84d3-4196-a0bf-3f3bef6d05da', $model->getTaskUuid());
     }
 
     /**
@@ -86,8 +86,33 @@ class PipelineExecutionTest extends AbstractModelTest
     public function testShouldPassIfValidDataReturnedFromSetPipelineUuidMethod(array $data): void
     {
         $model = $this->model($data);
-        $model->setPipelineUuid('0e013a2b-03f6-404d-b8f6-fd186191c145');
-        $this->assertEquals('0e013a2b-03f6-404d-b8f6-fd186191c145', $model->getPipelineUuid());
+        $model->setPipelineUuid('1c64f76a-84d3-4196-a0bf-3f3bef6d05da');
+        $this->assertEquals('1c64f76a-84d3-4196-a0bf-3f3bef6d05da', $model->getPipelineUuid());
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromGetPipelineExecutionUuidMethod(array $data): void
+    {
+        $response = $this->model($data)->getPipelineExecutionUuid();
+        $this->assertEquals(Arr::get($data, 'pipeline_execution_uuid'), $response);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromSetPipelineExecutionUuidMethod(array $data): void
+    {
+        $model = $this->model($data);
+        $model->setPipelineExecutionUuid('1c64f76a-84d3-4196-a0bf-3f3bef6d05da');
+        $this->assertEquals('1c64f76a-84d3-4196-a0bf-3f3bef6d05da', $model->getPipelineExecutionUuid());
     }
 
     /**
@@ -118,35 +143,31 @@ class PipelineExecutionTest extends AbstractModelTest
     /**
      * @return void
      */
+    public function testShouldPassIfValidDataReturnedFromTaskRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = TaskExecution::where('task_uuid', '=', self::$taskUUID)->first();
+        $this->assertInstanceOf(TaskInterface::class, $entity->task);
+    }
+
+    /**
+     * @return void
+     */
     public function testShouldPassIfValidDataReturnedFromPipelineRelation(): void
     {
         $this->createCompletePipeline();
-        $entity = $this->repository()->findBy('uuid', self::$pipelineExecutionUUID);
+        $entity = TaskExecution::where('task_uuid', '=', self::$taskUUID)->first();
         $this->assertInstanceOf(PipelineInterface::class, $entity->pipeline);
     }
 
     /**
-     * @param array $data
-     *
-     * @dataProvider modelDataProvider
      * @return void
      */
-    public function testShouldPassIfValidDataReturnedFromUuidMethod(array $data): void
+    public function testShouldPassIfValidDataReturnedFromPipelineExecutionRelation(): void
     {
-        PipelineExecutionAggregateRoot::retrieve(Arr::get($data, 'uuid'))
-            ->createEntity(
-                Arr::get($data, 'pipeline_uuid'),
-                Arr::get($data, 'state'),
-            )
-            ->persist();
-
-        $modelNoTrashed = PipelineExecution::uuid(Arr::get($data, 'uuid'));
-        $modelTrashed = PipelineExecution::uuid(Arr::get($data, 'uuid'), true);
-        $this->assertEquals($modelNoTrashed, $modelTrashed);
-        $this->assertSame(Arr::get($data, 'id'), $modelNoTrashed->getID());
-        $this->assertSame(Arr::get($data, 'uuid'), $modelNoTrashed->getUuid());
-        $this->assertSame(Arr::get($data, 'pipeline_uuid'), $modelNoTrashed->getPipelineUuid());
-        $this->assertSame(Arr::get($data, 'state'), $modelNoTrashed->getState());
+        $this->createCompletePipeline();
+        $entity = TaskExecution::where('task_uuid', '=', self::$taskUUID)->first();
+        $this->assertInstanceOf(PipelineExecutionInterface::class, $entity->pipelineExecution);
     }
 
     /**
@@ -155,25 +176,16 @@ class PipelineExecutionTest extends AbstractModelTest
      */
     public function modelDataProvider(): array
     {
-        return $this->pipelineExecutionModelDataProvider();
+        return $this->taskExecutionModelDataProvider();
     }
 
     /**
      * Create model instance
      * @param array $data
-     * @return PipelineExecutionInterface
+     * @return TaskExecutionInterface
      */
-    private function model(array $data): PipelineExecutionInterface
+    private function model(array $data): TaskExecutionInterface
     {
-        return $this->pipelineExecutionModel($data);
-    }
-
-    /**
-     * Create repository instance
-     * @return PipelineExecutionRepositoryInterface
-     */
-    private function repository(): PipelineExecutionRepositoryInterface
-    {
-        return $this->pipelineExecutionRepository();
+        return $this->taskExecutionModel($data);
     }
 }

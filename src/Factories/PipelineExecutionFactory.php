@@ -22,7 +22,9 @@ class PipelineExecutionFactory extends Factory
     public function definition(): array
     {
         return [
-
+            'uuid'              =>  $this->faker->uuid(),
+            'pipeline_uuid'     =>  $this->faker->uuid(),
+            'state'             =>  $this->faker->numberBetween(1, 5),
         ];
     }
 }

@@ -25,12 +25,12 @@ class CreatePipelineExecutionsTable extends Migration
             $table->id();
             $table->uuid('uuid');
             $table->foreignUuid('pipeline_uuid');
-            $table->foreignUuid('task_uuid');
             /**
              * @see \ConsulConfigManager\Tasks\Enums\ExecutionState
              */
             $table->integer('state')->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

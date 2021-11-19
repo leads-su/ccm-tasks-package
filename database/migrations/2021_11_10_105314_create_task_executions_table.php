@@ -5,15 +5,15 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 /**
- * Class CreateActionExecutionsTable
+ * Class CreateTaskExecutionsTable
  */
-class CreateActionExecutionsTable extends Migration
+class CreateTaskExecutionsTable extends Migration
 {
     /**
      * Table name
      * @var string
      */
-    private string $tableName = 'action_executions';
+    private string $tableName = 'task_executions';
 
     /**
      * Run the migrations.
@@ -23,7 +23,6 @@ class CreateActionExecutionsTable extends Migration
     {
         Schema::create($this->tableName, function (Blueprint $table): void {
             $table->id();
-            $table->foreignUuid('action_uuid');
             $table->foreignUuid('task_uuid');
             $table->foreignUuid('pipeline_uuid');
             $table->foreignUuid('pipeline_execution_uuid');

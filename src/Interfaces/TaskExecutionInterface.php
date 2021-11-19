@@ -5,10 +5,10 @@ namespace ConsulConfigManager\Tasks\Interfaces;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Interface ActionExecutionInterface
+ * Interface TaskExecutionInterface
  * @package ConsulConfigManager\Tasks\Interfaces
  */
-interface ActionExecutionInterface
+interface TaskExecutionInterface
 {
     /**
      * Get action execution id
@@ -19,22 +19,9 @@ interface ActionExecutionInterface
     /**
      * Set action execution id
      * @param int $id
-     * @return ActionExecutionInterface
+     * @return TaskExecutionInterface
      */
-    public function setID(int $id): ActionExecutionInterface;
-
-    /**
-     * Get action uuid
-     * @return string
-     */
-    public function getActionUuid(): string;
-
-    /**
-     * Set action uuid
-     * @param string $uuid
-     * @return ActionExecutionInterface
-     */
-    public function setActionUuid(string $uuid): ActionExecutionInterface;
+    public function setID(int $id): TaskExecutionInterface;
 
     /**
      * Get task uuid
@@ -45,9 +32,9 @@ interface ActionExecutionInterface
     /**
      * Set task uuid
      * @param string $uuid
-     * @return ActionExecutionInterface
+     * @return TaskExecutionInterface
      */
-    public function setTaskUuid(string $uuid): ActionExecutionInterface;
+    public function setTaskUuid(string $uuid): TaskExecutionInterface;
 
     /**
      * Get pipeline uuid
@@ -58,9 +45,9 @@ interface ActionExecutionInterface
     /**
      * Set pipeline uuid
      * @param string $uuid
-     * @return ActionExecutionInterface
+     * @return TaskExecutionInterface
      */
-    public function setPipelineUuid(string $uuid): ActionExecutionInterface;
+    public function setPipelineUuid(string $uuid): TaskExecutionInterface;
 
     /**
      * Get pipeline execution uuid
@@ -71,9 +58,9 @@ interface ActionExecutionInterface
     /**
      * Set pipeline execution uuid
      * @param string $uuid
-     * @return ActionExecutionInterface
+     * @return TaskExecutionInterface
      */
-    public function setPipelineExecutionUuid(string $uuid): ActionExecutionInterface;
+    public function setPipelineExecutionUuid(string $uuid): TaskExecutionInterface;
 
     /**
      * Get execution state
@@ -84,15 +71,9 @@ interface ActionExecutionInterface
     /**
      * Set execution state
      * @param int $state
-     * @return ActionExecutionInterface
+     * @return TaskExecutionInterface
      */
-    public function setState(int $state): ActionExecutionInterface;
-
-    /**
-     * Get instance of action model
-     * @return BelongsTo
-     */
-    public function action(): BelongsTo;
+    public function setState(int $state): TaskExecutionInterface;
 
     /**
      * Get instance of task model

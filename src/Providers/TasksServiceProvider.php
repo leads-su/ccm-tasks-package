@@ -27,9 +27,10 @@ class TasksServiceProvider extends DomainServiceProvider
      * @var array
      */
     protected array $packageRepositories = [
-        Interfaces\ActionRepositoryInterface::class     =>  Repositories\ActionRepository::class,
-        Interfaces\TaskRepositoryInterface::class       =>  Repositories\TaskRepository::class,
-        Interfaces\PipelineRepositoryInterface::class   =>  Repositories\PipelineRepository::class,
+        Interfaces\ActionRepositoryInterface::class             =>  Repositories\ActionRepository::class,
+        Interfaces\TaskRepositoryInterface::class               =>  Repositories\TaskRepository::class,
+        Interfaces\PipelineRepositoryInterface::class           =>  Repositories\PipelineRepository::class,
+        Interfaces\PipelineExecutionRepositoryInterface::class  =>  Repositories\PipelineExecutionRepository::class,
     ];
 
 
@@ -140,6 +141,7 @@ class TasksServiceProvider extends DomainServiceProvider
             Projectors\ActionProjector::class,
             Projectors\TaskProjector::class,
             Projectors\PipelineProjector::class,
+            Projectors\PipelineExecutionProjector::class,
         ]);
     }
 }

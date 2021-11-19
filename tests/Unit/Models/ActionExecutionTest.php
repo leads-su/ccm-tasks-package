@@ -8,6 +8,7 @@ use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 
 /**
  * Class ActionExecutionTest
@@ -121,6 +122,31 @@ class ActionExecutionTest extends AbstractModelTest
      * @dataProvider modelDataProvider
      * @return void
      */
+    public function testShouldPassIfValidDataReturnedFromGetPipelineExecutionUuidMethod(array $data): void
+    {
+        $response = $this->model($data)->getPipelineExecutionUuid();
+        $this->assertEquals(Arr::get($data, 'pipeline_execution_uuid'), $response);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromSetPipelineExecutionUuidMethod(array $data): void
+    {
+        $model = $this->model($data);
+        $model->setPipelineExecutionUuid('1c64f76a-84d3-4196-a0bf-3f3bef6d05da');
+        $this->assertEquals('1c64f76a-84d3-4196-a0bf-3f3bef6d05da', $model->getPipelineExecutionUuid());
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
     public function testShouldPassIfValidDataReturnedFromGetStateMethod(array $data): void
     {
         $response = $this->model($data)->getState();
@@ -168,6 +194,16 @@ class ActionExecutionTest extends AbstractModelTest
         $this->createCompletePipeline();
         $entity = ActionExecution::where('action_uuid', '=', self::$actionUUID)->first();
         $this->assertInstanceOf(PipelineInterface::class, $entity->pipeline);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromPipelineExecutionRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = ActionExecution::where('action_uuid', '=', self::$actionUUID)->first();
+        $this->assertInstanceOf(PipelineExecutionInterface::class, $entity->pipelineExecution);
     }
 
     /**

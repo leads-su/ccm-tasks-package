@@ -2,19 +2,19 @@
 
 namespace ConsulConfigManager\Tasks\Factories;
 
+use ConsulConfigManager\Tasks\Models\TaskExecution;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use ConsulConfigManager\Tasks\Models\ActionExecution;
 
 /**
- * Class ActionExecutionFactory
+ * Class TaskExecutionFactory
  * @package ConsulConfigManager\Tasks\Factories
  */
-class ActionExecutionFactory extends Factory
+class TaskExecutionFactory extends Factory
 {
     /**
      * @inheritDoc
      */
-    protected $model = ActionExecution::class;
+    protected $model = TaskExecution::class;
 
     /**
      * @inheritDoc
@@ -22,7 +22,6 @@ class ActionExecutionFactory extends Factory
     public function definition(): array
     {
         return [
-            'action_uuid'               =>  $this->faker->uuid(),
             'task_uuid'                 =>  $this->faker->uuid(),
             'pipeline_uuid'             =>  $this->faker->uuid(),
             'pipeline_execution_uuid'   =>  $this->faker->uuid(),
