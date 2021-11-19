@@ -3,6 +3,9 @@
 namespace ConsulConfigManager\Tasks\Test\Unit\Models;
 
 use Illuminate\Support\Arr;
+use ConsulConfigManager\Tasks\Models\TaskAction;
+use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
 
 /**
@@ -84,6 +87,26 @@ class TaskActionTest extends AbstractModelTest
         $model = $this->model($data);
         $model->setOrder(10);
         $this->assertEquals(10, $model->getOrder());
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromActionRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = TaskAction::where('task_uuid', '=', self::$taskUUID)->first();
+        $this->assertInstanceOf(ActionInterface::class, $entity->action);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromTaskRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = TaskAction::where('task_uuid', '=', self::$taskUUID)->first();
+        $this->assertInstanceOf(TaskInterface::class, $entity->task);
     }
 
     /**

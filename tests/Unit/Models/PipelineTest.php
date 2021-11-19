@@ -139,6 +139,16 @@ class PipelineTest extends AbstractModelTest
     }
 
     /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromTasksRelation(): void
+    {
+        $this->createCompletePipeline();
+        $action = $this->repository()->findBy('uuid', self::$pipelineUUID);
+        $this->assertCount(1, $action->tasks->toArray());
+    }
+
+    /**
      * Model data provider
      * @return \string[][][]
      */

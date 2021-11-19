@@ -3,7 +3,11 @@
 namespace ConsulConfigManager\Tasks\Test\Unit\Models;
 
 use Illuminate\Support\Arr;
+use ConsulConfigManager\Tasks\Models\ActionHost;
+use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
+use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 
 /**
  * Class ActionHostTest
@@ -62,6 +66,26 @@ class ActionHostTest extends AbstractModelTest
     }
 
     /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromActionRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = ActionHost::where('action_uuid', '=', self::$actionUUID)->first();
+        $this->assertInstanceOf(ActionInterface::class, $entity->action);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromServiceRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = ActionHost::where('action_uuid', '=', self::$actionUUID)->first();
+        $this->assertInstanceOf(ServiceInterface::class, $entity->service);
+    }
+
+    /**
      * Model data provider
      * @return \string[][][]
      */
@@ -78,5 +102,14 @@ class ActionHostTest extends AbstractModelTest
     private function model(array $data): ActionHostInterface
     {
         return $this->actionHostModel($data);
+    }
+
+    /**
+     * Create repository instance
+     * @return ActionRepositoryInterface
+     */
+    private function repository(): ActionRepositoryInterface
+    {
+        return $this->actionRepository();
     }
 }

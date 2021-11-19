@@ -327,6 +327,15 @@ class ActionTest extends AbstractModelTest
         $this->assertSame(Arr::get($data, 'fail_on_error'), $modelNoTrashed->isFailingOnError());
     }
 
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromHostsRelation(): void
+    {
+        $this->createCompletePipeline();
+        $action = $this->repository()->findBy('uuid', self::$actionUUID);
+        $this->assertCount(1, $action->hosts->toArray());
+    }
 
     /**
      * Model data provider

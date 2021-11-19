@@ -2,6 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Test\Unit\Models;
 
+use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Models\Task;
 use ConsulConfigManager\Tasks\Models\Action;
 use ConsulConfigManager\Tasks\Test\TestCase;
@@ -9,6 +10,8 @@ use ConsulConfigManager\Tasks\Models\Pipeline;
 use ConsulConfigManager\Tasks\Models\ActionHost;
 use ConsulConfigManager\Tasks\Models\TaskAction;
 use ConsulConfigManager\Tasks\Models\PipelineTask;
+use ConsulConfigManager\Consul\Agent\Models\Service;
+use ConsulConfigManager\Tasks\Models\ActionExecution;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Models\PipelineExecution;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
@@ -17,6 +20,7 @@ use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
@@ -28,6 +32,53 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
 abstract class AbstractModelTest extends TestCase
 {
     /**
+     * Abstract Model Test Static: Service UUID
+     * UUID used to create models suitable for relations querying
+     * @var string
+     */
+    protected static string $serviceUUID = '40750e90-4be1-4cae-8b51-2c00fb0f0569';
+
+    /**
+     * Abstract Model Test Static: Action UUID
+     * UUID used to create models suitable for relations querying
+     * @var string
+     */
+    protected static string $actionUUID = '3a1f6b85-8c32-45eb-835c-01c28fc035fe';
+
+    /**
+     * Abstract Model Test Static: Task UUID
+     * UUID used to create models suitable for relations querying
+     * @var string
+     */
+    protected static string $taskUUID = '100c2e3b-56b9-48c3-bd73-97c789bfec63';
+
+    /**
+     * Abstract Model Test Static: Pipeline UUID
+     * UUID used to create models suitable for relations querying
+     * @var string
+     */
+    protected static string $pipelineUUID = '277d227e-ac47-4b89-ad40-8c966e42ac7b';
+
+    /**
+     * Action execution model data provider
+     * @return \array[][]
+     */
+    protected function actionExecutionModelDataProvider(): array
+    {
+        return [
+            'example_action_execution_entry'    =>  [
+                'data'                          =>  [
+                    'id'                        =>  1,
+                    'action_uuid'               =>  self::$actionUUID,
+                    'task_uuid'                 =>  self::$taskUUID,
+                    'pipeline_uuid'             =>  self::$pipelineUUID,
+                    'state'                     =>  1,
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Action host model data provider
      * @see ActionHost
      * @return \string[][][]
@@ -37,7 +88,7 @@ abstract class AbstractModelTest extends TestCase
         return [
             'example_action_host_entity'        =>  [
                 'data'                          =>  [
-                    'action_uuid'               =>  '455af69e-1d2f-49dd-b626-c86d2427fcbf',
+                    'action_uuid'               =>  self::$actionUUID,
                     'service_uuid'              =>  'cd847b07-5387-456d-9690-db4d182ea14a',
                 ],
             ],
@@ -55,7 +106,7 @@ abstract class AbstractModelTest extends TestCase
             'example_action_entity'     =>  [
                 'data'                  =>  [
                     'id'                =>  1,
-                    'uuid'              =>  '73f66d30-ad58-4641-8b25-05b245031b50',
+                    'uuid'              =>  self::$actionUUID,
                     'name'              =>  'Example Action',
                     'description'       =>  'Example Action Description',
                     'type'              =>  1,
@@ -96,8 +147,8 @@ abstract class AbstractModelTest extends TestCase
         return [
             'example_pipeline_task_entity'  =>  [
                 'data'                      =>  [
-                    'pipeline_uuid'         =>  '58245b27-8b9c-4ecf-a621-8941f3aaea80',
-                    'task_uuid'             =>  '97580722-8f40-4b4f-b0f4-7da9c9f77af0',
+                    'pipeline_uuid'         =>  self::$pipelineUUID,
+                    'task_uuid'             =>  self::$taskUUID,
                     'order'                 =>  1,
                 ],
             ],
@@ -115,7 +166,7 @@ abstract class AbstractModelTest extends TestCase
             'example_pipeline_entity'   =>  [
                 'data'                  =>  [
                     'id'                =>  1,
-                    'uuid'              =>  '73f66d30-ad58-4641-8b25-05b245031b50',
+                    'uuid'              =>  self::$pipelineUUID,
                     'name'              =>  'Example Pipeline',
                     'description'       =>  'Example Pipeline Description',
                 ],
@@ -133,8 +184,8 @@ abstract class AbstractModelTest extends TestCase
         return [
             'example_task_action_entity'    =>  [
                 'data'                      =>  [
-                    'task_uuid'             =>  'e06f2bf4-2fed-439c-96d3-c0b98df50646',
-                    'action_uuid'           =>  'ebce8aa2-c645-4811-967f-b5554a6c1df4',
+                    'task_uuid'             =>  self::$taskUUID,
+                    'action_uuid'           =>  self::$actionUUID,
                     'order'                 =>  1,
                 ],
             ],
@@ -152,13 +203,23 @@ abstract class AbstractModelTest extends TestCase
             'example_task_entity'   =>  [
                 'data'              =>  [
                     'id'            =>  1,
-                    'uuid'          =>  '73f66d30-ad58-4641-8b25-05b245031b50',
+                    'uuid'          =>  self::$taskUUID,
                     'name'          =>  'Example Task',
                     'description'   =>  'Example Task Description',
                     'type'          =>  1,
                 ],
             ],
         ];
+    }
+
+    /**
+     * Create action execution model instance
+     * @param array $data
+     * @return ActionExecutionInterface
+     */
+    protected function actionExecutionModel(array $data): ActionExecutionInterface
+    {
+        return ActionExecution::factory()->make($data);
     }
 
     /**
@@ -256,5 +317,95 @@ abstract class AbstractModelTest extends TestCase
     protected function taskRepository(): TaskRepositoryInterface
     {
         return $this->app->make(TaskRepositoryInterface::class);
+    }
+
+    /**
+     * Create complete pipeline to test against given relations
+     * @param string|null $serviceUUID
+     * @param string|null $actionUUID
+     * @param string|null $taskUUID
+     * @param string|null $pipelineUUID
+     * @return void
+     */
+    protected function createCompletePipeline(?string $serviceUUID = null, ?string $actionUUID = null, ?string $taskUUID = null, ?string $pipelineUUID = null)
+    {
+        if (!$serviceUUID) {
+            $serviceUUID = self::$serviceUUID;
+        }
+        if (!$actionUUID) {
+            $actionUUID = self::$actionUUID;
+        }
+        if (!$taskUUID) {
+            $taskUUID = self::$taskUUID;
+        }
+        if (!$pipelineUUID) {
+            $pipelineUUID = self::$pipelineUUID;
+        }
+
+        $service = Service::create([
+            'uuid'          =>  $serviceUUID,
+            'identifier'    =>  'ccm-example.development-127.0.0.1',
+            'service'       =>  'ccm',
+            'address'       =>  '127.0.0.1',
+            'port'          =>  32175,
+            'datacenter'    =>  'leads',
+            'tags'          =>  [],
+            'meta'          =>  [],
+            'online'        =>  1,
+            'environment'   =>  'development',
+        ]);
+
+        $actionData = Arr::get($this->actionModelDataProvider(), 'example_action_entity.data');
+        $action = Action::create([
+            'uuid'              =>  $actionUUID,
+            'name'              =>  Arr::get($actionData, 'name'),
+            'description'       =>  Arr::get($actionData, 'description'),
+            'type'              =>  Arr::get($actionData, 'type'),
+            'command'           =>  Arr::get($actionData, 'command'),
+            'arguments'         =>  Arr::get($actionData, 'arguments'),
+            'working_dir'       =>  Arr::get($actionData, 'working_dir'),
+            'run_as'            =>  Arr::get($actionData, 'run_as'),
+            'use_sudo'          =>  Arr::get($actionData, 'use_sudo'),
+            'fail_on_error'     =>  Arr::get($actionData, 'fail_on_error'),
+        ]);
+
+        ActionHost::create([
+            'action_uuid'       =>  $action->getUuid(),
+            'service_uuid'      =>  $service->getUuid(),
+        ]);
+
+        ActionExecution::create([
+            'action_uuid'       =>  $actionUUID,
+            'task_uuid'         =>  $taskUUID,
+            'pipeline_uuid'     =>  $pipelineUUID,
+            'state'             =>  0,
+        ]);
+
+        $taskData = Arr::get($this->taskModelDataProvider(), 'example_task_entity.data');
+        $task = Task::create([
+            'uuid'          =>  $taskUUID,
+            'name'          =>  Arr::get($taskData, 'name'),
+            'description'   =>  Arr::get($taskData, 'description'),
+            'type'          =>  Arr::get($taskData, 'type'),
+        ]);
+
+        TaskAction::create([
+            'task_uuid'     =>  $task->getUuid(),
+            'action_uuid'   =>  $action->getUuid(),
+            'order'         =>  1,
+        ]);
+
+        $pipelineData = Arr::get($this->pipelineModelDataProvider(), 'example_pipeline_entity.data');
+        $pipeline = Pipeline::create([
+            'uuid'          =>  $pipelineUUID,
+            'name'          =>  Arr::get($pipelineData, 'name'),
+            'description'   =>  Arr::get($pipelineData, 'description'),
+        ]);
+
+        PipelineTask::create([
+            'pipeline_uuid'     =>  $pipeline->getUuid(),
+            'task_uuid'         =>  $task->getUuid(),
+            'order'             =>  1,
+        ]);
     }
 }

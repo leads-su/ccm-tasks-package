@@ -3,6 +3,9 @@
 namespace ConsulConfigManager\Tasks\Test\Unit\Models;
 
 use Illuminate\Support\Arr;
+use ConsulConfigManager\Tasks\Models\PipelineTask;
+use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 
 /**
@@ -84,6 +87,26 @@ class PipelineTaskTest extends AbstractModelTest
         $model = $this->model($data);
         $model->setOrder(10);
         $this->assertEquals(10, $model->getOrder());
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromPipelineRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = PipelineTask::where('pipeline_uuid', '=', self::$pipelineUUID)->first();
+        $this->assertInstanceOf(PipelineInterface::class, $entity->pipeline);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromTaskRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = PipelineTask::where('pipeline_uuid', '=', self::$pipelineUUID)->first();
+        $this->assertInstanceOf(TaskInterface::class, $entity->task);
     }
 
     /**
