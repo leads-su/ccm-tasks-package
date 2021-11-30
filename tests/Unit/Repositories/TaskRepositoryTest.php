@@ -129,6 +129,30 @@ class TaskRepositoryTest extends AbstractRepositoryTest
     }
 
     /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromFindByManyRequest(array $data): void
+    {
+        $this->createEntity($data);
+
+        $response = $this->repository()->findByMany(['id', 'uuid'], Arr::get($data, 'id'));
+        $this->assertSameReturned($response, $data);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromFindByManyOrFailRequest(array $data): void
+    {
+        $this->expectException(ModelNotFoundException::class);
+        $this->repository()->findByManyOrFail(['id', 'uuid'], Arr::get($data, 'id'));
+    }
+
+    /**
      * Create new repository instance
      * @return TaskRepositoryInterface
      */

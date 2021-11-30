@@ -56,6 +56,25 @@ interface PipelineRepositoryInterface
     public function findByOrFail(string $field, string $value, array $columns = ['*']): PipelineInterface;
 
     /**
+     * Find entity while using multiple fields to perform search
+     * @param array $fields
+     * @param string $value
+     * @param array|string[] $columns
+     * @return PipelineInterface|null
+     */
+    public function findByMany(array $fields, string $value, array $columns = ['*']): PipelineInterface|null;
+
+    /**
+     * Find entity while using multiple fields to perform search or throw exception
+     * @param array $fields
+     * @param string $value
+     * @param array|string[] $columns
+     * @throws ModelNotFoundException
+     * @return PipelineInterface
+     */
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): PipelineInterface;
+
+    /**
      * Create new pipeline
      * @param string $name
      * @param string $description

@@ -56,6 +56,25 @@ interface TaskRepositoryInterface
     public function findByOrFail(string $field, string $value, array $columns = ['*']): TaskInterface;
 
     /**
+     * Find entity while using multiple fields to perform search
+     * @param array $fields
+     * @param string $value
+     * @param array|string[] $columns
+     * @return TaskInterface|null
+     */
+    public function findByMany(array $fields, string $value, array $columns = ['*']): TaskInterface|null;
+
+    /**
+     * Find entity while using multiple fields to perform search or throw exception
+     * @param array $fields
+     * @param string $value
+     * @param array|string[] $columns
+     * @throws ModelNotFoundException
+     * @return TaskInterface
+     */
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): TaskInterface;
+
+    /**
      * Create new task
      * @param string $name
      * @param string $description

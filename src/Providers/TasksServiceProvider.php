@@ -141,6 +141,8 @@ class TasksServiceProvider extends DomainServiceProvider
     protected function registerInterceptors(): void
     {
         $this->registerActionInterceptors();
+        $this->registerPipelineInterceptors();
+        $this->registerTaskInterceptors();
     }
 
     /**
@@ -182,6 +184,90 @@ class TasksServiceProvider extends DomainServiceProvider
             UseCases\Action\Delete\ActionDeleteInteractor::class,
             Http\Controllers\Action\ActionDeleteController::class,
             Presenters\Action\ActionDeleteHttpPresenter::class,
+        );
+    }
+
+    /**
+     * Register pipeline specific interceptors
+     * @return void
+     */
+    private function registerPipelineInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\Pipeline\List\PipelineListInputPort::class,
+            UseCases\Pipeline\List\PipelineListInteractor::class,
+            Http\Controllers\Pipeline\PipelineListController::class,
+            Presenters\Pipeline\PipelineListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Pipeline\Get\PipelineGetInputPort::class,
+            UseCases\Pipeline\Get\PipelineGetInteractor::class,
+            Http\Controllers\Pipeline\PipelineGetController::class,
+            Presenters\Pipeline\PipelineGetHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Pipeline\Create\PipelineCreateInputPort::class,
+            UseCases\Pipeline\Create\PipelineCreateInteractor::class,
+            Http\Controllers\Pipeline\PipelineCreateController::class,
+            Presenters\Pipeline\PipelineCreateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Pipeline\Update\PipelineUpdateInputPort::class,
+            UseCases\Pipeline\Update\PipelineUpdateInteractor::class,
+            Http\Controllers\Pipeline\PipelineUpdateController::class,
+            Presenters\Pipeline\PipelineUpdateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Pipeline\Delete\PipelineDeleteInputPort::class,
+            UseCases\Pipeline\Delete\PipelineDeleteInteractor::class,
+            Http\Controllers\Pipeline\PipelineDeleteController::class,
+            Presenters\Pipeline\PipelineDeleteHttpPresenter::class,
+        );
+    }
+
+    /**
+     * Register task specific interceptors
+     * @return void
+     */
+    private function registerTaskInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\Task\List\TaskListInputPort::class,
+            UseCases\Task\List\TaskListInteractor::class,
+            Http\Controllers\Task\TaskListController::class,
+            Presenters\Task\TaskListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Task\Get\TaskGetInputPort::class,
+            UseCases\Task\Get\TaskGetInteractor::class,
+            Http\Controllers\Task\TaskGetController::class,
+            Presenters\Task\TaskGetHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Task\Create\TaskCreateInputPort::class,
+            UseCases\Task\Create\TaskCreateInteractor::class,
+            Http\Controllers\Task\TaskCreateController::class,
+            Presenters\Task\TaskCreateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Task\Update\TaskUpdateInputPort::class,
+            UseCases\Task\Update\TaskUpdateInteractor::class,
+            Http\Controllers\Task\TaskUpdateController::class,
+            Presenters\Task\TaskUpdateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Task\Delete\TaskDeleteInputPort::class,
+            UseCases\Task\Delete\TaskDeleteInteractor::class,
+            Http\Controllers\Task\TaskDeleteController::class,
+            Presenters\Task\TaskDeleteHttpPresenter::class,
         );
     }
 

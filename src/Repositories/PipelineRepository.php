@@ -59,6 +59,38 @@ class PipelineRepository implements PipelineRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findByMany(array $fields, string $value, array $columns = ['*']): PipelineInterface|null
+    {
+        $query = Pipeline::query();
+        foreach ($fields as $index => $field) {
+            if ($index === 0) {
+                $query = $query->where($field, '=', $value);
+            } else {
+                $query = $query->orWhere($field, '=', $value);
+            }
+        }
+        return $query->first($columns);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): PipelineInterface
+    {
+        $query = Pipeline::query();
+        foreach ($fields as $index => $field) {
+            if ($index === 0) {
+                $query = $query->where($field, '=', $value);
+            } else {
+                $query = $query->orWhere($field, '=', $value);
+            }
+        }
+        return $query->firstOrFail($columns);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function create(string $name, string $description): PipelineInterface
     {
         $uuid = Str::uuid()->toString();

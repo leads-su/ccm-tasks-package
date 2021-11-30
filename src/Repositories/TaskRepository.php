@@ -59,6 +59,38 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findByMany(array $fields, string $value, array $columns = ['*']): TaskInterface|null
+    {
+        $query = Task::query();
+        foreach ($fields as $index => $field) {
+            if ($index === 0) {
+                $query = $query->where($field, '=', $value);
+            } else {
+                $query = $query->orWhere($field, '=', $value);
+            }
+        }
+        return $query->first($columns);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): TaskInterface
+    {
+        $query = Task::query();
+        foreach ($fields as $index => $field) {
+            if ($index === 0) {
+                $query = $query->where($field, '=', $value);
+            } else {
+                $query = $query->orWhere($field, '=', $value);
+            }
+        }
+        return $query->firstOrFail($columns);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function create(string $name, string $description, int $type): TaskInterface
     {
         $uuid = Str::uuid()->toString();
