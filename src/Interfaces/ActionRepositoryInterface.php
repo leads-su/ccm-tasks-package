@@ -56,6 +56,26 @@ interface ActionRepositoryInterface
     public function findByOrFail(string $field, string $value, array $columns = ['*']): ActionInterface;
 
     /**
+     * Find entity while using multiple fields to perform search
+     * @param array $fields
+     * @param string $value
+     * @param array|string[] $columns
+     * @return ActionInterface|null
+     */
+    public function findByMany(array $fields, string $value, array $columns = ['*']): ActionInterface|null;
+
+    /**
+     * Find entity while using multiple fields to perform search or throw exception
+     * @param array $fields
+     * @param string $value
+     * @param array|string[] $columns
+     * @throws ModelNotFoundException
+     * @return ActionInterface
+     */
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): ActionInterface;
+
+
+    /**
      * Create new action
      * @param string $name
      * @param string $description

@@ -117,10 +117,10 @@ interface ActionInterface
 
     /**
      * Set working (root) directory for action execution
-     * @param string $workingDirectory
+     * @param string|null $workingDirectory
      * @return $this
      */
-    public function setWorkingDirectory(string $workingDirectory): self;
+    public function setWorkingDirectory(?string $workingDirectory = null): self;
 
     /**
      * Get user from whom this action should be executed
@@ -130,10 +130,10 @@ interface ActionInterface
 
     /**
      * Set user from whom this action should be executed
-     * @param string $runAs
+     * @param string|null $runAs
      * @return $this
      */
-    public function setRunAs(string $runAs): self;
+    public function setRunAs(?string $runAs = null): self;
 
     /**
      * Check whether action should be executed with sudo privileges

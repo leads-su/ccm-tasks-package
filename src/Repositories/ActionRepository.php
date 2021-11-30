@@ -59,7 +59,40 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function create(string $name, string $description, int $type, string $command, array $arguments, ?string $workingDirectory = null, ?string $runAs = null, bool $useSudo = false, bool $failOnError = true, ): ActionInterface
+    public function findByMany(array $fields, string $value, array $columns = ['*']): ActionInterface|null
+    {
+        $query = Action::query();
+        foreach ($fields as $index => $field) {
+            if ($index === 0) {
+                $query = $query->where($field, '=', $value);
+            } else {
+                $query = $query->orWhere($field, '=', $value);
+            }
+        }
+        return $query->first($columns);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): ActionInterface
+    {
+        $query = Action::query();
+        foreach ($fields as $index => $field) {
+            if ($index === 0) {
+                $query = $query->where($field, '=', $value);
+            } else {
+                $query = $query->orWhere($field, '=', $value);
+            }
+        }
+        return $query->firstOrFail($columns);
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function create(string $name, string $description, int $type, string $command, array $arguments, ?string $workingDirectory = null, ?string $runAs = null, bool $useSudo = false, bool $failOnError = true): ActionInterface
     {
         $uuid = Str::uuid()->toString();
         ActionAggregateRoot::retrieve($uuid)
@@ -81,7 +114,7 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function update(int $id, string $name, string $description, int $type, string $command, array $arguments, ?string $workingDirectory = null, ?string $runAs = null, bool $useSudo = false, bool $failOnError = true, ): ActionInterface
+    public function update(int $id, string $name, string $description, int $type, string $command, array $arguments, ?string $workingDirectory = null, ?string $runAs = null, bool $useSudo = false, bool $failOnError = true): ActionInterface
     {
         $model = $this->findOrFail($id, ['uuid']);
         ActionAggregateRoot::retrieve($model->getUuid())

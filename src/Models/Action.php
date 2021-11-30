@@ -227,9 +227,9 @@ class Action extends Model implements ActionInterface
     /**
      * @inheritDoc
      */
-    public function setWorkingDirectory(string $workingDirectory): ActionInterface
+    public function setWorkingDirectory(?string $workingDirectory = null): ActionInterface
     {
-        $this->attributes['working_dir'] = (string) $workingDirectory;
+        $this->attributes['working_dir'] = $workingDirectory;
         return $this;
     }
 
@@ -244,9 +244,9 @@ class Action extends Model implements ActionInterface
     /**
      * @inheritDoc
      */
-    public function setRunAs(string $runAs): ActionInterface
+    public function setRunAs(?string $runAs = null): ActionInterface
     {
-        $this->attributes['run_as'] = (string) $runAs;
+        $this->attributes['run_as'] = $runAs;
         return $this;
     }
 

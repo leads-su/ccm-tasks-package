@@ -2,8 +2,11 @@
 
 namespace ConsulConfigManager\Tasks\Providers;
 
+use ConsulConfigManager\Tasks\Http;
 use Illuminate\Support\Facades\Route;
+use ConsulConfigManager\Tasks\UseCases;
 use ConsulConfigManager\Tasks\Interfaces;
+use ConsulConfigManager\Tasks\Presenters;
 use ConsulConfigManager\Tasks\Projectors;
 use ConsulConfigManager\Tasks\TaskDomain;
 use ConsulConfigManager\Tasks\Repositories;
@@ -136,6 +139,56 @@ class TasksServiceProvider extends DomainServiceProvider
      * @inheritDoc
      */
     protected function registerInterceptors(): void
+    {
+        $this->registerActionInterceptors();
+    }
+
+    /**
+     * Register action specific interceptors
+     * @return void
+     */
+    private function registerActionInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\Action\List\ActionListInputPort::class,
+            UseCases\Action\List\ActionListInteractor::class,
+            Http\Controllers\Action\ActionListController::class,
+            Presenters\Action\ActionListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Action\Get\ActionGetInputPort::class,
+            UseCases\Action\Get\ActionGetInteractor::class,
+            Http\Controllers\Action\ActionGetController::class,
+            Presenters\Action\ActionGetHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Action\Create\ActionCreateInputPort::class,
+            UseCases\Action\Create\ActionCreateInteractor::class,
+            Http\Controllers\Action\ActionCreateController::class,
+            Presenters\Action\ActionCreateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Action\Update\ActionUpdateInputPort::class,
+            UseCases\Action\Update\ActionUpdateInteractor::class,
+            Http\Controllers\Action\ActionUpdateController::class,
+            Presenters\Action\ActionUpdateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Action\Delete\ActionDeleteInputPort::class,
+            UseCases\Action\Delete\ActionDeleteInteractor::class,
+            Http\Controllers\Action\ActionDeleteController::class,
+            Presenters\Action\ActionDeleteHttpPresenter::class,
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function registerProjectors(): void
     {
         Projectionist::addProjectors([
             Projectors\ActionProjector::class,
