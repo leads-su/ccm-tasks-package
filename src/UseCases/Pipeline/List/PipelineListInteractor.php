@@ -46,7 +46,7 @@ class PipelineListInteractor implements PipelineListInputPort
                 'id', 'uuid',
                 'name', 'description',
                 'created_at', 'updated_at',
-            ])->toArray();
+            ], $requestModel->getRequest()->get('with_deleted', false))->toArray();
             return $this->output->list(new PipelineListResponseModel($pipelines));
             // @codeCoverageIgnoreStart
         } catch (Throwable $exception) {

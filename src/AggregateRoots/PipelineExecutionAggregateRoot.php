@@ -58,4 +58,17 @@ class PipelineExecutionAggregateRoot extends AggregateRoot
         ));
         return $this;
     }
+
+    /**
+     * Handle `restored` event
+     * @param UserEntity|int|null $user
+     * @return $this
+     */
+    public function restoreEntity(UserEntity|int|null $user = null): PipelineExecutionAggregateRoot
+    {
+        $this->recordThat(new Events\PipelineExecution\PipelineExecutionRestored(
+            $user,
+        ));
+        return $this;
+    }
 }

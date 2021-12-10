@@ -62,4 +62,16 @@ class ActionProjector extends Projector
     {
         Action::uuid($event->aggregateRootUuid())->delete();
     }
+
+    /**
+     * Handle `restored` event
+     * @param Events\Action\ActionRestored $event
+     * @return void
+     */
+    public function onRestore(Events\Action\ActionRestored $event): void {
+        $model = Action::uuid($event->aggregateRootUuid(), true);
+        $model->deleted_at = null;
+        $model->save();
+    }
+
 }

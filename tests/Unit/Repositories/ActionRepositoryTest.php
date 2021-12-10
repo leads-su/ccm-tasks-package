@@ -126,6 +126,31 @@ class ActionRepositoryTest extends AbstractRepositoryTest
      * @dataProvider entityDataProvider
      * @return void
      */
+    public function testShouldPassIfTrueReturnedFromRestoreMethod(array $data): void
+    {
+        $this->createEntity($data);
+        $response = $this->repository()->delete(Arr::get($data, 'id'));
+        $this->assertTrue($response, 'Failed to validate that action was deleted');
+        $response = $this->repository()->restore(Arr::get($data, 'id'));
+        $this->assertTrue($response, 'Failed to validate that action was restored');
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfFalseReturnedFromRestoreMethod(array $data): void
+    {
+        $response = $this->repository()->restore(Arr::get($data, 'id'));
+        $this->assertFalse($response);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
     public function testShouldPassIfTrueReturnedFromForceDeleteMethod(array $data): void
     {
         $this->createEntity($data);

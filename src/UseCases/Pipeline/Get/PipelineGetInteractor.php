@@ -43,7 +43,12 @@ class PipelineGetInteractor implements PipelineGetInputPort
     public function get(PipelineGetRequestModel $requestModel): ViewModel
     {
         try {
-            $pipeline = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier());
+            $pipeline = $this->repository->findByManyOrFail(
+                ['id', 'uuid'],
+                $requestModel->getIdentifier(),
+                ['*'],
+                $requestModel->getRequest()->get('with_deleted', false)
+            );
             return $this->output->get(new PipelineGetResponseModel($pipeline));
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

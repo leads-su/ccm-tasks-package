@@ -14,65 +14,71 @@ interface TaskRepositoryInterface
     /**
      * Get list of all entries from database
      * @param array|string[] $columns
-     *
+     * @param bool $withDeleted
      * @return Collection
      */
-    public function all(array $columns = ['*']): Collection;
+    public function all(array $columns = ['*'], bool $withDeleted = false): Collection;
 
     /**
      * Find task
      * @param int $id
      * @param array|string[] $columns
+     * @param bool $withDeleted
      * @return TaskInterface|null
      */
-    public function find(int $id, array $columns = ['*']): TaskInterface|null;
+    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): TaskInterface|null;
 
     /**
      * Find task or fail and throw exception
      * @param int $id
      * @param array|string[] $columns
+     * @param bool $withDeleted
      * @return TaskInterface
      * @throws ModelNotFoundException
      */
-    public function findOrFail(int $id, array $columns = ['*']): TaskInterface;
+    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): TaskInterface;
 
     /**
      * Find task by specified field
      * @param string $field
      * @param string $value
      * @param array|string[] $columns
+     * @param bool $withDeleted
      * @return TaskInterface|null
      */
-    public function findBy(string $field, string $value, array $columns = ['*']): TaskInterface|null;
+    public function findBy(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): TaskInterface|null;
 
     /**
      * Find task by specified field or throw exception
      * @param string $field
      * @param string $value
      * @param array|string[] $columns
-     * @throws ModelNotFoundException
+     * @param bool $withDeleted
      * @return TaskInterface
+     * @throws ModelNotFoundException
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*']): TaskInterface;
+    public function findByOrFail(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): TaskInterface;
 
     /**
      * Find entity while using multiple fields to perform search
      * @param array $fields
      * @param string $value
      * @param array|string[] $columns
+     * @param bool $withDeleted
      * @return TaskInterface|null
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*']): TaskInterface|null;
+    public function findByMany(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): TaskInterface|null;
 
     /**
      * Find entity while using multiple fields to perform search or throw exception
      * @param array $fields
      * @param string $value
      * @param array|string[] $columns
-     * @throws ModelNotFoundException
+     * @param bool $withDeleted
      * @return TaskInterface
+     * @throws ModelNotFoundException
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): TaskInterface;
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): TaskInterface;
 
     /**
      * Create new task
@@ -100,6 +106,13 @@ interface TaskRepositoryInterface
      * @return bool
      */
     public function delete(int $id, bool $forceDelete = false): bool;
+
+    /**
+     * Restore task
+     * @param int $id
+     * @return bool
+     */
+    public function restore(int $id): bool;
 
     /**
      * Force task deletion

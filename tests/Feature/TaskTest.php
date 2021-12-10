@@ -211,6 +211,54 @@ class TaskTest extends TestCase
     }
 
     /**
+     * @return void
+     */
+    public function testShouldPassIfNotFoundResponseReturnedFromRestoreWithID(): void
+    {
+        $response = $this->patch('/task-manager/tasks/100/restore');
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfNotFoundResponseReturnedFromRestoreWithUuid(): void
+    {
+        $response = $this->patch('/task-manager/tasks/ced57182-a253-44f4-9d76-b6e04e5b2890/restore');
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfCorrectResponseReturnedFromRestoreWithID(): void
+    {
+        $createResponse = $this->createAndGetTask();
+        $createResponse->assertStatus(201);
+        $createData = $createResponse->json('data');
+
+        $response = $this->delete('/task-manager/tasks/' . Arr::get($createData, 'id'));
+        $response->assertStatus(200);
+        $response = $this->patch('/task-manager/tasks/' . Arr::get($createData, 'uuid') . '/restore');
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfCorrectResponseReturnedFromRestoreWithUuid(): void
+    {
+        $createResponse = $this->createAndGetTask();
+        $createResponse->assertStatus(201);
+        $createData = $createResponse->json('data');
+
+        $response = $this->delete('/task-manager/tasks/' . Arr::get($createData, 'uuid'));
+        $response->assertStatus(200);
+        $response = $this->patch('/task-manager/tasks/' . Arr::get($createData, 'uuid') . '/restore');
+        $response->assertStatus(200);
+    }
+
+    /**
      * Create new task model
      * @return TestResponse
      */

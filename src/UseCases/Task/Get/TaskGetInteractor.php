@@ -43,7 +43,12 @@ class TaskGetInteractor implements TaskGetInputPort
     public function get(TaskGetRequestModel $requestModel): ViewModel
     {
         try {
-            $task = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier());
+            $task = $this->repository->findByManyOrFail(
+                ['id', 'uuid'],
+                $requestModel->getIdentifier(),
+                ['*'],
+                $requestModel->getRequest()->get('with_deleted', false)
+            );
             return $this->output->get(new TaskGetResponseModel($task));
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

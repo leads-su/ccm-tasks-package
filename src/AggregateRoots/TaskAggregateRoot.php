@@ -62,4 +62,17 @@ class TaskAggregateRoot extends AggregateRoot
         ));
         return $this;
     }
+
+    /**
+     * Handle `restore` event
+     * @param UserEntity|int|null $user
+     * @return $this
+     */
+    public function restoreEntity(UserEntity|int|null $user = null): TaskAggregateRoot
+    {
+        $this->recordThat(new Events\Task\TaskRestored(
+            $user,
+        ));
+        return $this;
+    }
 }

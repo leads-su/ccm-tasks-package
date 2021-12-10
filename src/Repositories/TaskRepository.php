@@ -19,49 +19,49 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function all(array $columns = ['*']): Collection
+    public function all(array $columns = ['*'], bool $withDeleted = false): Collection
     {
-        return Task::all($columns);
+        return Task::withTrashed($withDeleted)->get($columns);
     }
 
     /**
      * @inheritDoc
      */
-    public function find(int $id, array $columns = ['*']): TaskInterface|null
+    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): TaskInterface|null
     {
-        return $this->findBy('id', $id, $columns);
+        return $this->findBy('id', $id, $columns, $withDeleted);
     }
 
     /**
      * @inheritDoc
      */
-    public function findOrFail(int $id, array $columns = ['*']): TaskInterface
+    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): TaskInterface
     {
-        return $this->findByOrFail('id', $id, $columns);
+        return $this->findByOrFail('id', $id, $columns, $withDeleted);
     }
 
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, string $value, array $columns = ['*']): TaskInterface|null
+    public function findBy(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): TaskInterface|null
     {
-        return Task::where($field, '=', $value)->first($columns);
+        return Task::withTrashed($withDeleted)->where($field, '=', $value)->first($columns);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*']): TaskInterface
+    public function findByOrFail(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): TaskInterface
     {
-        return Task::where($field, '=', $value)->firstOrFail($columns);
+        return Task::withTrashed($withDeleted)->where($field, '=', $value)->firstOrFail($columns);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*']): TaskInterface|null
+    public function findByMany(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): TaskInterface|null
     {
-        $query = Task::query();
+        $query = Task::withTrashed($withDeleted);
         foreach ($fields as $index => $field) {
             if ($index === 0) {
                 $query = $query->where($field, '=', $value);
@@ -75,9 +75,9 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): TaskInterface
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): TaskInterface
     {
-        $query = Task::query();
+        $query = Task::withTrashed($withDeleted);
         foreach ($fields as $index => $field) {
             if ($index === 0) {
                 $query = $query->where($field, '=', $value);
@@ -129,6 +129,21 @@ class TaskRepository implements TaskRepositoryInterface
             $model = $this->findOrFail($id, ['uuid']);
             TaskAggregateRoot::retrieve($model->getUuid())
                 ->deleteEntity()
+                ->persist();
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function restore(int $id): bool {
+        try {
+            $model = $this->findOrFail($id, ['uuid'], true);
+            TaskAggregateRoot::retrieve($model->getUuid())
+                ->restoreEntity()
                 ->persist();
             return true;
         } catch (Throwable) {

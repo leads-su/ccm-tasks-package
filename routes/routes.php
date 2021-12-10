@@ -18,6 +18,9 @@ Route::prefix('task-manager')->group(static function (): void {
 
         Route::patch('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionUpdateController::class)
             ->name('domain.tasks.actions.update');
+
+        Route::patch('{identifier}/restore', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionRestoreController::class)
+            ->name('domain.tasks.actions.restore');
     });
 
     Route::prefix('pipelines')->group(static function (): void {
@@ -35,6 +38,9 @@ Route::prefix('task-manager')->group(static function (): void {
 
         Route::patch('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineUpdateController::class)
             ->name('domain.tasks.pipelines.update');
+
+        Route::patch('{identifier}/restore', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineRestoreController::class)
+            ->name('domain.tasks.pipelines.restore');
     });
 
     Route::prefix('tasks')->group(static function (): void {
@@ -52,5 +58,8 @@ Route::prefix('task-manager')->group(static function (): void {
 
         Route::patch('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskUpdateController::class)
             ->name('domain.tasks.tasks.update');
+
+        Route::patch('{identifier}/restore', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskRestoreController::class)
+            ->name('domain.tasks.tasks.restore');
     });
 });

@@ -43,7 +43,12 @@ class ActionGetInteractor implements ActionGetInputPort
     public function get(ActionGetRequestModel $requestModel): ViewModel
     {
         try {
-            $action = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier());
+            $action = $this->repository->findByManyOrFail(
+                ['id', 'uuid'],
+                $requestModel->getIdentifier(),
+                ['*'],
+                $requestModel->getRequest()->get('with_deleted', false)
+            );
             return $this->output->get(new ActionGetResponseModel($action));
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

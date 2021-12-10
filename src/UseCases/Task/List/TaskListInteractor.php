@@ -46,7 +46,7 @@ class TaskListInteractor implements TaskListInputPort
                 'id', 'uuid',
                 'name', 'description', 'type',
                 'created_at', 'updated_at',
-            ])->toArray();
+            ], $requestModel->getRequest()->get('with_deleted', false))->toArray();
             return $this->output->list(new TaskListResponseModel($tasks));
             // @codeCoverageIgnoreStart
         } catch (Throwable $exception) {

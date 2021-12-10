@@ -19,41 +19,41 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
     /**
      * @inheritDoc
      */
-    public function all(array $columns = ['*']): Collection
+    public function all(array $columns = ['*'], bool $withDeleted = false): Collection
     {
-        return PipelineExecution::all($columns);
+        return PipelineExecution::withTrashed($withDeleted)->get($columns);
     }
 
     /**
      * @inheritDoc
      */
-    public function find(int $id, array $columns = ['*']): PipelineExecutionInterface|null
+    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface|null
     {
-        return $this->findBy('id', $id, $columns);
+        return $this->findBy('id', $id, $columns, $withDeleted);
     }
 
     /**
      * @inheritDoc
      */
-    public function findOrFail(int $id, array $columns = ['*']): PipelineExecutionInterface
+    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface
     {
-        return $this->findByOrFail('id', $id, $columns);
+        return $this->findByOrFail('id', $id, $columns, $withDeleted);
     }
 
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, string $value, array $columns = ['*']): PipelineExecutionInterface|null
+    public function findBy(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface|null
     {
-        return PipelineExecution::where($field, '=', $value)->first($columns);
+        return PipelineExecution::withTrashed($withDeleted)->where($field, '=', $value)->first($columns);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*']): PipelineExecutionInterface
+    public function findByOrFail(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface
     {
-        return PipelineExecution::where($field, '=', $value)->firstOrFail($columns);
+        return PipelineExecution::withTrashed($withDeleted)->where($field, '=', $value)->firstOrFail($columns);
     }
 
     /**
@@ -95,6 +95,21 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
             $model = $this->findOrFail($id, ['uuid']);
             PipelineExecutionAggregateRoot::retrieve($model->getUuid())
                 ->deleteEntity()
+                ->persist();
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function restore(int $id): bool {
+        try {
+            $model = $this->findOrFail($id, ['uuid'], true);
+            PipelineExecutionAggregateRoot::retrieve($model->getUuid())
+                ->restoreEntity()
                 ->persist();
             return true;
         } catch (Throwable) {

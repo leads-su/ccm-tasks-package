@@ -13,7 +13,7 @@ use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
 class ActionAggregateRoot extends AggregateRoot
 {
     /**
-     * Handle `created` event
+     * Handle `create` event
      * @param string $name
      * @param string $description
      * @param int $type
@@ -54,7 +54,7 @@ class ActionAggregateRoot extends AggregateRoot
     }
 
     /**
-     * Handle `updated` event
+     * Handle `update` event
      * @param string $name
      * @param string $description
      * @param int $type
@@ -95,13 +95,23 @@ class ActionAggregateRoot extends AggregateRoot
     }
 
     /**
-     * Handle `deleted` event
+     * Handle `delete` event
      * @param UserEntity|int|null $user
      * @return $this
      */
     public function deleteEntity(UserEntity|int|null $user = null): ActionAggregateRoot
     {
         $this->recordThat(new Events\Action\ActionDeleted($user));
+        return $this;
+    }
+
+    /**
+     * Handle `restore` event
+     * @param UserEntity|int|null $user
+     * @return $this
+     */
+    public function restoreEntity(UserEntity|int|null $user = null): ActionAggregateRoot {
+        $this->recordThat(new Events\Action\ActionRestored($user));
         return $this;
     }
 }

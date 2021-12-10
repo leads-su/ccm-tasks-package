@@ -19,49 +19,49 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function all(array $columns = ['*']): Collection
+    public function all(array $columns = ['*'], bool $withDeleted = false): Collection
     {
-        return Action::all($columns);
+        return Action::withTrashed($withDeleted)->get($columns);
     }
 
     /**
      * @inheritDoc
      */
-    public function find(int $id, array $columns = ['*']): ActionInterface|null
+    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): ActionInterface|null
     {
-        return $this->findBy('id', $id, $columns);
+        return $this->findBy('id', $id, $columns, $withDeleted);
     }
 
     /**
      * @inheritDoc
      */
-    public function findOrFail(int $id, array $columns = ['*']): ActionInterface
+    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): ActionInterface
     {
-        return $this->findByOrFail('id', $id, $columns);
+        return $this->findByOrFail('id', $id, $columns, $withDeleted);
     }
 
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, string $value, array $columns = ['*']): ActionInterface|null
+    public function findBy(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): ActionInterface|null
     {
-        return Action::where($field, '=', $value)->first($columns);
+        return Action::withTrashed($withDeleted)->where($field, '=', $value)->first($columns);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*']): ActionInterface
+    public function findByOrFail(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): ActionInterface
     {
-        return Action::where($field, '=', $value)->firstOrFail($columns);
+        return Action::withTrashed($withDeleted)->where($field, '=', $value)->firstOrFail($columns);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*']): ActionInterface|null
+    public function findByMany(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): ActionInterface|null
     {
-        $query = Action::query();
+        $query = Action::withTrashed($withDeleted);
         foreach ($fields as $index => $field) {
             if ($index === 0) {
                 $query = $query->where($field, '=', $value);
@@ -75,9 +75,9 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*']): ActionInterface
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): ActionInterface
     {
-        $query = Action::query();
+        $query = Action::withTrashed($withDeleted);
         foreach ($fields as $index => $field) {
             if ($index === 0) {
                 $query = $query->where($field, '=', $value);
@@ -116,7 +116,7 @@ class ActionRepository implements ActionRepositoryInterface
      */
     public function update(int $id, string $name, string $description, int $type, string $command, array $arguments, ?string $workingDirectory = null, ?string $runAs = null, bool $useSudo = false, bool $failOnError = true): ActionInterface
     {
-        $model = $this->findOrFail($id, ['uuid']);
+        $model = $this->findOrFail($id, ['uuid'], true);
         ActionAggregateRoot::retrieve($model->getUuid())
             ->updateEntity(
                 $name,
@@ -142,6 +142,21 @@ class ActionRepository implements ActionRepositoryInterface
             $model = $this->findOrFail($id, ['uuid']);
             ActionAggregateRoot::retrieve($model->getUuid())
                 ->deleteEntity()
+                ->persist();
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function restore(int $id): bool {
+        try {
+            $model = $this->findOrFail($id, ['uuid'], true);
+            ActionAggregateRoot::retrieve($model->getUuid())
+                ->restoreEntity()
                 ->persist();
             return true;
         } catch (Throwable) {

@@ -185,6 +185,13 @@ class TasksServiceProvider extends DomainServiceProvider
             Http\Controllers\Action\ActionDeleteController::class,
             Presenters\Action\ActionDeleteHttpPresenter::class,
         );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Action\Restore\ActionRestoreInputPort::class,
+            UseCases\Action\Restore\ActionRestoreInteractor::class,
+            Http\Controllers\Action\ActionRestoreController::class,
+            Presenters\Action\ActionRestoreHttpPresenter::class,
+        );
     }
 
     /**
@@ -227,6 +234,13 @@ class TasksServiceProvider extends DomainServiceProvider
             Http\Controllers\Pipeline\PipelineDeleteController::class,
             Presenters\Pipeline\PipelineDeleteHttpPresenter::class,
         );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Pipeline\Restore\PipelineRestoreInputPort::class,
+            UseCases\Pipeline\Restore\PipelineRestoreInteractor::class,
+            Http\Controllers\Pipeline\PipelineRestoreController::class,
+            Presenters\Pipeline\PipelineRestoreHttpPresenter::class,
+        );
     }
 
     /**
@@ -268,6 +282,13 @@ class TasksServiceProvider extends DomainServiceProvider
             UseCases\Task\Delete\TaskDeleteInteractor::class,
             Http\Controllers\Task\TaskDeleteController::class,
             Presenters\Task\TaskDeleteHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Task\Restore\TaskRestoreInputPort::class,
+            UseCases\Task\Restore\TaskRestoreInteractor::class,
+            Http\Controllers\Task\TaskRestoreController::class,
+            Presenters\Task\TaskRestoreHttpPresenter::class,
         );
     }
 
