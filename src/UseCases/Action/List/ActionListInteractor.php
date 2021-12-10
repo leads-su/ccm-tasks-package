@@ -45,7 +45,7 @@ class ActionListInteractor implements ActionListInputPort
             $actions = $this->repository->all([
                 'id', 'uuid',
                 'name', 'description', 'type',
-                'created_at', 'updated_at',
+                'created_at', 'updated_at', 'deleted_at',
             ], $requestModel->getRequest()->get('with_deleted', false))->toArray();
             return $this->output->list(new ActionListResponseModel($actions));
             // @codeCoverageIgnoreStart
