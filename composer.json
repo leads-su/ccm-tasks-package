@@ -1,7 +1,7 @@
 {
     "name": "ccm/tasks",
     "description": "Tasks package for CCM backend",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "proprietary",
     "keywords": [
         "ccm",
