@@ -43,6 +43,7 @@ class ActionTest extends TestCase
         Arr::forget($decoded, 'data.0.uuid');
         Arr::forget($decoded, 'data.0.created_at');
         Arr::forget($decoded, 'data.0.updated_at');
+        Arr::forget($decoded, 'data.0.deleted_at');
         ksort($decoded['data'][0]);
 
         $this->assertSame([
