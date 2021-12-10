@@ -54,10 +54,10 @@ class PipelineProjector extends Projector
      * @param Events\Pipeline\PipelineRestored $event
      * @return void
      */
-    public function onRestored(Events\Pipeline\PipelineRestored $event): void {
+    public function onRestored(Events\Pipeline\PipelineRestored $event): void
+    {
         $model = Pipeline::uuid($event->aggregateRootUuid(), true);
         $model->deleted_at = null;
         $model->save();
     }
-
 }

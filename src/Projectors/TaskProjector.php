@@ -56,7 +56,8 @@ class TaskProjector extends Projector
      * @param Events\Task\TaskRestored $event
      * @return void
      */
-    public function onRestored(Events\Task\TaskRestored $event): void {
+    public function onRestored(Events\Task\TaskRestored $event): void
+    {
         $model = Task::uuid($event->aggregateRootUuid(), true);
         $model->deleted_at = null;
         $model->save();

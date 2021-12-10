@@ -105,7 +105,8 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
     /**
      * @inheritDoc
      */
-    public function restore(int $id): bool {
+    public function restore(int $id): bool
+    {
         try {
             $model = $this->findOrFail($id, ['uuid'], true);
             PipelineExecutionAggregateRoot::retrieve($model->getUuid())

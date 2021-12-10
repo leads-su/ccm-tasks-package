@@ -4,7 +4,6 @@ namespace ConsulConfigManager\Tasks\Test\Feature;
 
 use Illuminate\Support\Arr;
 use Illuminate\Testing\TestResponse;
-use ConsulConfigManager\Tasks\Models\Task;
 use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\Enums\TaskType;
 

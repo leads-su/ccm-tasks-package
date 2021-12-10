@@ -110,7 +110,8 @@ class ActionAggregateRoot extends AggregateRoot
      * @param UserEntity|int|null $user
      * @return $this
      */
-    public function restoreEntity(UserEntity|int|null $user = null): ActionAggregateRoot {
+    public function restoreEntity(UserEntity|int|null $user = null): ActionAggregateRoot
+    {
         $this->recordThat(new Events\Action\ActionRestored($user));
         return $this;
     }

@@ -152,7 +152,8 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function restore(int $id): bool {
+    public function restore(int $id): bool
+    {
         try {
             $model = $this->findOrFail($id, ['uuid'], true);
             ActionAggregateRoot::retrieve($model->getUuid())

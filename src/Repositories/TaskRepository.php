@@ -139,7 +139,8 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function restore(int $id): bool {
+    public function restore(int $id): bool
+    {
         try {
             $model = $this->findOrFail($id, ['uuid'], true);
             TaskAggregateRoot::retrieve($model->getUuid())

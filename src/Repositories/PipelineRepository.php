@@ -137,7 +137,8 @@ class PipelineRepository implements PipelineRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function restore(int $id): bool {
+    public function restore(int $id): bool
+    {
         try {
             $model = $this->findOrFail($id, ['uuid'], true);
             PipelineAggregateRoot::retrieve($model->getUuid())
