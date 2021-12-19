@@ -2,6 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -17,6 +18,7 @@ use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
 class TaskAction extends Pivot implements TaskActionInterface
 {
     use HasFactory;
+    use SoftDeletes;
 
     /**
      * @inheritDoc
@@ -25,16 +27,16 @@ class TaskAction extends Pivot implements TaskActionInterface
 
     /**
      * @inheritDoc
-     * @var bool
      */
-    public $timestamps = false;
+    protected $primaryKey = 'uuid';
 
     /**
      * @inheritDoc
      */
     protected $fillable = [
-        'action_uuid',
+        'uuid',
         'task_uuid',
+        'action_uuid',
         'order',
     ];
 
@@ -42,8 +44,9 @@ class TaskAction extends Pivot implements TaskActionInterface
      * @inheritDoc
      */
     protected $casts = [
-        'action_uuid'       =>  'string',
+        'uuid'              =>  'string',
         'task_uuid'         =>  'string',
+        'action_uuid'       =>  'string',
         'order'             =>  'integer',
     ];
 
@@ -60,7 +63,23 @@ class TaskAction extends Pivot implements TaskActionInterface
     /**
      * @inheritDoc
      */
-    protected $dates = [];
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    /**
+     * @inheritDoc
+     */
+    public static function uuid(string $uuid, bool $withTrashed = false): ?TaskActionInterface
+    {
+        $query = static::where('uuid', '=', $uuid);
+        if ($withTrashed) {
+            return $query->withTrashed()->first();
+        }
+        return $query->first();
+    }
 
     /**
      * @inheritDoc
@@ -68,6 +87,23 @@ class TaskAction extends Pivot implements TaskActionInterface
     protected static function newFactory(): Factory
     {
         return TaskActionFactory::new();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUuid(): string
+    {
+        return (string) $this->attributes['uuid'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setUuid(string $uuid): TaskActionInterface
+    {
+        $this->attributes['uuid'] = (string) $uuid;
+        return $this;
     }
 
     /**

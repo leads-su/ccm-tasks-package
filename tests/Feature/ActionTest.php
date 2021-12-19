@@ -3,15 +3,13 @@
 namespace ConsulConfigManager\Tasks\Test\Feature;
 
 use Illuminate\Support\Arr;
-use Illuminate\Testing\TestResponse;
-use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\Enums\ActionType;
 
 /**
  * Class ActionTest
  * @package ConsulConfigManager\Tasks\Test\Feature
  */
-class ActionTest extends TestCase
+class ActionTest extends AbstractFeatureTest
 {
     /**
      * @return void
@@ -302,25 +300,6 @@ class ActionTest extends TestCase
     {
         $response = $this->patch('/task-manager/actions/ced57182-a253-44f4-9d76-b6e04e5b2890/restore');
         $response->assertStatus(404);
-    }
-
-    /**
-     * Create new action model
-     * @return TestResponse
-     */
-    private function createAndGetAction(): TestResponse
-    {
-        return $this->post('/task-manager/actions', [
-            'name'              =>  'Example Action',
-            'description'       =>  'This is description for example action',
-            'type'              =>  ActionType::LOCAL,
-            'command'           =>  'lsb_release',
-            'arguments'         =>  ['-a'],
-            'working_dir'       =>  null,
-            'run_as'            =>  null,
-            'use_sudo'          =>  false,
-            'fail_on_error'     =>  true,
-        ]);
     }
 
     /**

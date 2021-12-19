@@ -7,6 +7,7 @@ use ConsulConfigManager\Tasks\Models\PipelineTask;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
+use ConsulConfigManager\Tasks\AggregateRoots\PipelineTaskAggregateRoot;
 
 /**
  * Class PipelineTaskTest
@@ -14,6 +15,31 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
  */
 class PipelineTaskTest extends AbstractModelTest
 {
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromGetUuidMethod(array $data): void
+    {
+        $response = $this->model($data)->getUuid();
+        $this->assertEquals(Arr::get($data, 'uuid'), $response);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromSetUuidMethod(array $data): void
+    {
+        $model = $this->model($data);
+        $model->setUuid('0e013a2b-03f6-404d-b8f6-fd186191c145');
+        $this->assertEquals('0e013a2b-03f6-404d-b8f6-fd186191c145', $model->getUuid());
+    }
+
     /**
      * @param array $data
      *
@@ -107,6 +133,31 @@ class PipelineTaskTest extends AbstractModelTest
         $this->createCompletePipeline();
         $entity = PipelineTask::where('pipeline_uuid', '=', self::$pipelineUUID)->first();
         $this->assertInstanceOf(TaskInterface::class, $entity->task);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromUuidMethod(array $data): void
+    {
+        PipelineTaskAggregateRoot::retrieve(Arr::get($data, 'uuid'))
+            ->createEntity(
+                Arr::get($data, 'pipeline_uuid'),
+                Arr::get($data, 'task_uuid'),
+                Arr::get($data, 'order'),
+            )
+            ->persist();
+
+        $modelNoTrashed = PipelineTask::uuid(Arr::get($data, 'uuid'));
+        $modelTrashed = PipelineTask::uuid(Arr::get($data, 'uuid'), true);
+        $this->assertEquals($modelNoTrashed, $modelTrashed);
+        $this->assertSame(Arr::get($data, 'uuid'), $modelNoTrashed->getUuid());
+        $this->assertSame(Arr::get($data, 'pipeline_uuid'), $modelNoTrashed->getPipelineUuid());
+        $this->assertSame(Arr::get($data, 'task_uuid'), $modelNoTrashed->getTaskUuid());
+        $this->assertSame(Arr::get($data, 'order'), $modelNoTrashed->getOrder());
     }
 
     /**

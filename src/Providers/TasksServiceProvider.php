@@ -34,6 +34,8 @@ class TasksServiceProvider extends DomainServiceProvider
         Interfaces\TaskRepositoryInterface::class               =>  Repositories\TaskRepository::class,
         Interfaces\PipelineRepositoryInterface::class           =>  Repositories\PipelineRepository::class,
         Interfaces\PipelineExecutionRepositoryInterface::class  =>  Repositories\PipelineExecutionRepository::class,
+        Interfaces\TaskActionRepositoryInterface::class         =>  Repositories\TaskActionRepository::class,
+        Interfaces\PipelineTaskRepositoryInterface::class       =>  Repositories\PipelineTaskRepository::class,
     ];
 
 
@@ -143,6 +145,8 @@ class TasksServiceProvider extends DomainServiceProvider
         $this->registerActionInterceptors();
         $this->registerPipelineInterceptors();
         $this->registerTaskInterceptors();
+        $this->registerTaskActionInterceptors();
+        $this->registerPipelineTaskInterceptors();
     }
 
     /**
@@ -293,6 +297,104 @@ class TasksServiceProvider extends DomainServiceProvider
     }
 
     /**
+     * Register task action specific interceptors
+     * @return void
+     */
+    private function registerTaskActionInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\TaskAction\List\TaskActionListInputPort::class,
+            UseCases\TaskAction\List\TaskActionListInteractor::class,
+            Http\Controllers\TaskAction\TaskActionListController::class,
+            Presenters\TaskAction\TaskActionListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\TaskAction\Get\TaskActionGetInputPort::class,
+            UseCases\TaskAction\Get\TaskActionGetInteractor::class,
+            Http\Controllers\TaskAction\TaskActionGetController::class,
+            Presenters\TaskAction\TaskActionGetHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\TaskAction\Create\TaskActionCreateInputPort::class,
+            UseCases\TaskAction\Create\TaskActionCreateInteractor::class,
+            Http\Controllers\TaskAction\TaskActionCreateController::class,
+            Presenters\TaskAction\TaskActionCreateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\TaskAction\Update\TaskActionUpdateInputPort::class,
+            UseCases\TaskAction\Update\TaskActionUpdateInteractor::class,
+            Http\Controllers\TaskAction\TaskActionUpdateController::class,
+            Presenters\TaskAction\TaskActionUpdateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\TaskAction\Delete\TaskActionDeleteInputPort::class,
+            UseCases\TaskAction\Delete\TaskActionDeleteInteractor::class,
+            Http\Controllers\TaskAction\TaskActionDeleteController::class,
+            Presenters\TaskAction\TaskActionDeleteHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\TaskAction\Restore\TaskActionRestoreInputPort::class,
+            UseCases\TaskAction\Restore\TaskActionRestoreInteractor::class,
+            Http\Controllers\TaskAction\TaskActionRestoreController::class,
+            Presenters\TaskAction\TaskActionRestoreHttpPresenter::class,
+        );
+    }
+
+    /**
+     * Register pipeline task specific interceptors
+     * @return void
+     */
+    private function registerPipelineTaskInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineTask\List\PipelineTaskListInputPort::class,
+            UseCases\PipelineTask\List\PipelineTaskListInteractor::class,
+            Http\Controllers\PipelineTask\PipelineTaskListController::class,
+            Presenters\PipelineTask\PipelineTaskListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineTask\Get\PipelineTaskGetInputPort::class,
+            UseCases\PipelineTask\Get\PipelineTaskGetInteractor::class,
+            Http\Controllers\PipelineTask\PipelineTaskGetController::class,
+            Presenters\PipelineTask\PipelineTaskGetHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineTask\Create\PipelineTaskCreateInputPort::class,
+            UseCases\PipelineTask\Create\PipelineTaskCreateInteractor::class,
+            Http\Controllers\PipelineTask\PipelineTaskCreateController::class,
+            Presenters\PipelineTask\PipelineTaskCreateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineTask\Update\PipelineTaskUpdateInputPort::class,
+            UseCases\PipelineTask\Update\PipelineTaskUpdateInteractor::class,
+            Http\Controllers\PipelineTask\PipelineTaskUpdateController::class,
+            Presenters\PipelineTask\PipelineTaskUpdateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineTask\Delete\PipelineTaskDeleteInputPort::class,
+            UseCases\PipelineTask\Delete\PipelineTaskDeleteInteractor::class,
+            Http\Controllers\PipelineTask\PipelineTaskDeleteController::class,
+            Presenters\PipelineTask\PipelineTaskDeleteHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineTask\Restore\PipelineTaskRestoreInputPort::class,
+            UseCases\PipelineTask\Restore\PipelineTaskRestoreInteractor::class,
+            Http\Controllers\PipelineTask\PipelineTaskRestoreController::class,
+            Presenters\PipelineTask\PipelineTaskRestoreHttpPresenter::class,
+        );
+    }
+
+    /**
      * @inheritDoc
      */
     protected function registerProjectors(): void
@@ -300,7 +402,9 @@ class TasksServiceProvider extends DomainServiceProvider
         Projectionist::addProjectors([
             Projectors\ActionProjector::class,
             Projectors\TaskProjector::class,
+            Projectors\TaskActionProjector::class,
             Projectors\PipelineProjector::class,
+            Projectors\PipelineTaskProjector::class,
             Projectors\PipelineExecutionProjector::class,
         ]);
     }

@@ -22,14 +22,12 @@ class CreatePipelineTasksTable extends Migration
     public function up(): void
     {
         Schema::create($this->tableName, function (Blueprint $table): void {
+            $table->string('uuid')->primary();
             $table->foreignUuid('pipeline_uuid');
             $table->foreignUuid('task_uuid');
             $table->integer('order');
-
-            $table->primary([
-                'pipeline_uuid',
-                'task_uuid',
-            ], 'pipeline_tasks_pipeline_uuid_task_uuid_primary');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

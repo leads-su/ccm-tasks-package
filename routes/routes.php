@@ -27,39 +27,87 @@ Route::prefix('task-manager')->group(static function (): void {
         Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineListController::class)
             ->name('domain.tasks.pipelines.list');
 
-        Route::get('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineGetController::class)
-            ->name('domain.tasks.pipelines.information');
-
-        Route::delete('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineDeleteController::class)
-            ->name('domain.tasks.pipelines.delete');
-
         Route::post('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineCreateController::class)
             ->name('domain.tasks.pipelines.create');
 
-        Route::patch('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineUpdateController::class)
-            ->name('domain.tasks.pipelines.update');
+        Route::prefix('{identifier}')->group(static function (): void {
+            Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineGetController::class)
+                ->name('domain.tasks.pipelines.information');
 
-        Route::patch('{identifier}/restore', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineRestoreController::class)
-            ->name('domain.tasks.pipelines.restore');
+            Route::delete('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineDeleteController::class)
+                ->name('domain.tasks.pipelines.delete');
+
+            Route::patch('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineUpdateController::class)
+                ->name('domain.tasks.pipelines.update');
+
+            Route::patch('restore', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineRestoreController::class)
+                ->name('domain.tasks.pipelines.restore');
+
+            Route::prefix('tasks')->group(static function (): void {
+                Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineTask\PipelineTaskListController::class)
+                    ->name('domain.tasks.pipeline.tasks.list');
+
+                Route::post('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineTask\PipelineTaskCreateController::class)
+                    ->name('domain.tasks.pipeline.tasks.create');
+
+                Route::prefix('{action_identifier}')->group(static function (): void {
+                    Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineTask\PipelineTaskGetController::class)
+                        ->name('domain.tasks.pipeline.tasks.information');
+
+                    Route::patch('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineTask\PipelineTaskUpdateController::class)
+                        ->name('domain.tasks.pipeline.tasks.update');
+
+                    Route::delete('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineTask\PipelineTaskDeleteController::class)
+                        ->name('domain.tasks.pipeline.tasks.delete');
+
+                    Route::patch('restore', \ConsulConfigManager\Tasks\Http\Controllers\PipelineTask\PipelineTaskRestoreController::class)
+                        ->name('domain.tasks.pipeline.tasks.restore');
+                });
+            });
+        });
     });
 
     Route::prefix('tasks')->group(static function (): void {
         Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskListController::class)
             ->name('domain.tasks.tasks.list');
 
-        Route::get('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskGetController::class)
-            ->name('domain.tasks.tasks.information');
-
-        Route::delete('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskDeleteController::class)
-            ->name('domain.tasks.tasks.delete');
-
         Route::post('', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskCreateController::class)
             ->name('domain.tasks.tasks.create');
 
-        Route::patch('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskUpdateController::class)
-            ->name('domain.tasks.tasks.update');
+        Route::prefix('{identifier}')->group(static function (): void {
+            Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskGetController::class)
+                ->name('domain.tasks.tasks.information');
 
-        Route::patch('{identifier}/restore', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskRestoreController::class)
-            ->name('domain.tasks.tasks.restore');
+            Route::delete('', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskDeleteController::class)
+                ->name('domain.tasks.tasks.delete');
+
+            Route::patch('', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskUpdateController::class)
+                ->name('domain.tasks.tasks.update');
+
+            Route::patch('restore', \ConsulConfigManager\Tasks\Http\Controllers\Task\TaskRestoreController::class)
+                ->name('domain.tasks.tasks.restore');
+
+            Route::prefix('actions')->group(static function (): void {
+                Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\TaskAction\TaskActionListController::class)
+                    ->name('domain.tasks.task.actions.list');
+
+                Route::post('', \ConsulConfigManager\Tasks\Http\Controllers\TaskAction\TaskActionCreateController::class)
+                    ->name('domain.tasks.task.actions.create');
+
+                Route::prefix('{action_identifier}')->group(static function (): void {
+                    Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\TaskAction\TaskActionGetController::class)
+                        ->name('domain.tasks.task.actions.information');
+
+                    Route::patch('', \ConsulConfigManager\Tasks\Http\Controllers\TaskAction\TaskActionUpdateController::class)
+                        ->name('domain.tasks.task.actions.update');
+
+                    Route::delete('', \ConsulConfigManager\Tasks\Http\Controllers\TaskAction\TaskActionDeleteController::class)
+                        ->name('domain.tasks.task.actions.delete');
+
+                    Route::patch('restore', \ConsulConfigManager\Tasks\Http\Controllers\TaskAction\TaskActionRestoreController::class)
+                        ->name('domain.tasks.task.actions.restore');
+                });
+            });
+        });
     });
 });

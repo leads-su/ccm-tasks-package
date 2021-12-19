@@ -22,6 +22,7 @@ class PipelineTaskFactory extends Factory
     public function definition(): array
     {
         return [
+            'uuid'          =>  $this->faker->uuid(),
             'pipeline_uuid' =>  $this->faker->uuid(),
             'task_uuid'     =>  $this->faker->uuid(),
             'order'         =>  $this->faker->numberBetween(1, 10),

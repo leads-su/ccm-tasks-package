@@ -3,14 +3,12 @@
 namespace ConsulConfigManager\Tasks\Test\Feature;
 
 use Illuminate\Support\Arr;
-use Illuminate\Testing\TestResponse;
-use ConsulConfigManager\Tasks\Test\TestCase;
 
 /**
  * Class PipelineTest
  * @package ConsulConfigManager\Tasks\Test\Feature
  */
-class PipelineTest extends TestCase
+class PipelineTest extends AbstractFeatureTest
 {
     /**
      * @return void
@@ -248,18 +246,6 @@ class PipelineTest extends TestCase
         $response->assertStatus(200);
         $response = $this->patch('/task-manager/pipelines/' . Arr::get($createData, 'uuid') . '/restore');
         $response->assertStatus(200);
-    }
-
-    /**
-     * Create new pipeline model
-     * @return TestResponse
-     */
-    private function createAndGetPipeline(): TestResponse
-    {
-        return $this->post('/task-manager/pipelines', [
-            'name'              =>  'Example Pipeline',
-            'description'       =>  'This is description for example pipeline',
-        ]);
     }
 
     /**

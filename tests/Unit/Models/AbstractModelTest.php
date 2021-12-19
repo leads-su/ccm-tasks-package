@@ -161,6 +161,7 @@ abstract class AbstractModelTest extends TestCase
         return [
             'example_pipeline_task_entity'  =>  [
                 'data'                      =>  [
+                    'uuid'                  =>  '49bf6ae6-d1e0-485f-bf34-db4df39f13be',
                     'pipeline_uuid'         =>  self::$pipelineUUID,
                     'task_uuid'             =>  self::$taskUUID,
                     'order'                 =>  1,
@@ -198,6 +199,7 @@ abstract class AbstractModelTest extends TestCase
         return [
             'example_task_action_entity'    =>  [
                 'data'                      =>  [
+                    'uuid'                  =>  '8263d209-6d45-43aa-a410-817cfdcf07d9',
                     'task_uuid'             =>  self::$taskUUID,
                     'action_uuid'           =>  self::$actionUUID,
                     'order'                 =>  1,
@@ -477,6 +479,7 @@ abstract class AbstractModelTest extends TestCase
         ], true);
 
         $this->taskActionModel([
+            'uuid'          =>  '8263d209-6d45-43aa-a410-817cfdcf07d9',
             'task_uuid'     =>  $taskUUID,
             'action_uuid'   =>  $actionUUID,
             'order'         =>  1,
@@ -497,6 +500,7 @@ abstract class AbstractModelTest extends TestCase
         ], true);
 
         $this->pipelineTaskModel([
+            'uuid'                  =>  '814089e0-003f-498b-9dea-b027c819622e',
             'pipeline_uuid'         =>  $pipelineUUID,
             'task_uuid'             =>  $taskUUID,
             'order'                 =>  1,

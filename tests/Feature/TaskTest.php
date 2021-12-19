@@ -3,15 +3,13 @@
 namespace ConsulConfigManager\Tasks\Test\Feature;
 
 use Illuminate\Support\Arr;
-use Illuminate\Testing\TestResponse;
-use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\Enums\TaskType;
 
 /**
  * Class TaskTest
  * @package ConsulConfigManager\Tasks\Test\Feature
  */
-class TaskTest extends TestCase
+class TaskTest extends AbstractFeatureTest
 {
     /**
      * @return void
@@ -255,19 +253,6 @@ class TaskTest extends TestCase
         $response->assertStatus(200);
         $response = $this->patch('/task-manager/tasks/' . Arr::get($createData, 'uuid') . '/restore');
         $response->assertStatus(200);
-    }
-
-    /**
-     * Create new task model
-     * @return TestResponse
-     */
-    private function createAndGetTask(): TestResponse
-    {
-        return $this->post('/task-manager/tasks', [
-            'name'              =>  'Example Task',
-            'description'       =>  'This is description for example task',
-            'type'              =>  TaskType::LOCAL,
-        ]);
     }
 
     /**

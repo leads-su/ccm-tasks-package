@@ -2,6 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,7 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 class PipelineTask extends Pivot implements PipelineTaskInterface
 {
     use HasFactory;
+    use SoftDeletes;
 
     /**
      * @inheritDoc
@@ -24,14 +26,14 @@ class PipelineTask extends Pivot implements PipelineTaskInterface
 
     /**
      * @inheritDoc
-     * @var bool
      */
-    public $timestamps = false;
+    protected $primaryKey = 'uuid';
 
     /**
      * @inheritDoc
      */
     protected $fillable = [
+        'uuid',
         'pipeline_uuid',
         'task_uuid',
         'order',
@@ -41,6 +43,7 @@ class PipelineTask extends Pivot implements PipelineTaskInterface
      * @inheritDoc
      */
     protected $casts = [
+        'uuid'              =>  'string',
         'pipeline_uuid'     =>  'string',
         'task_uuid'         =>  'string',
         'order'             =>  'integer',
@@ -59,7 +62,23 @@ class PipelineTask extends Pivot implements PipelineTaskInterface
     /**
      * @inheritDoc
      */
-    protected $dates = [];
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    /**
+     * @inheritDoc
+     */
+    public static function uuid(string $uuid, bool $withTrashed = false): ?PipelineTaskInterface
+    {
+        $query = static::where('uuid', '=', $uuid);
+        if ($withTrashed) {
+            return $query->withTrashed()->first();
+        }
+        return $query->first();
+    }
 
     /**
      * @inheritDoc
@@ -67,6 +86,23 @@ class PipelineTask extends Pivot implements PipelineTaskInterface
     protected static function newFactory(): Factory
     {
         return PipelineTaskFactory::new();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUuid(): string
+    {
+        return (string) $this->attributes['uuid'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setUuid(string $uuid): PipelineTaskInterface
+    {
+        $this->attributes['uuid'] = (string) $uuid;
+        return $this;
     }
 
     /**

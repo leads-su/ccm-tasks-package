@@ -22,14 +22,12 @@ class CreateTaskActionsTable extends Migration
     public function up(): void
     {
         Schema::create($this->tableName, function (Blueprint $table): void {
+            $table->string('uuid')->primary();
             $table->foreignUuid('task_uuid');
             $table->foreignUuid('action_uuid');
             $table->integer('order');
-
-            $table->primary([
-                'task_uuid',
-                'action_uuid',
-            ], 'task_actions_task_uuid_action_uuid_primary');
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
