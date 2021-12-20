@@ -53,6 +53,8 @@ class TaskActionRepository implements TaskActionRepositoryInterface
     public function create(string|int $taskIdentifier, string|int $actionIdentifier, int $order): bool
     {
         $uuid = Str::uuid()->toString();
+        $taskIdentifier = $this->resolveTaskUUID($taskIdentifier);
+        $actionIdentifier = $this->resolveActionUUID($actionIdentifier);
 
         if (TaskAction::withTrashed(true)->where('task_uuid', '=', $taskIdentifier)->where('action_uuid', '=', $actionIdentifier)->exists()) {
             throw (new ModelAlreadyExistsException())->setModel(TaskAction::class);
@@ -60,8 +62,8 @@ class TaskActionRepository implements TaskActionRepositoryInterface
 
         TaskActionAggregateRoot::retrieve($uuid)
             ->createEntity(
-                $this->resolveTaskUUID($taskIdentifier),
-                $this->resolveActionUUID($actionIdentifier),
+                $taskIdentifier,
+                $actionIdentifier,
                 $order,
             )->persist();
         return true;

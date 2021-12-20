@@ -53,6 +53,8 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     public function create(int|string $pipelineIdentifier, int|string $taskIdentifier, int $order): bool
     {
         $uuid = Str::uuid()->toString();
+        $pipelineIdentifier = $this->resolvePipelineUUID($pipelineIdentifier);
+        $taskIdentifier = $this->resolveTaskUUID($taskIdentifier);
 
         if (PipelineTask::withTrashed(true)->where('pipeline_uuid', '=', $pipelineIdentifier)->where('task_uuid', '=', $taskIdentifier)->exists()) {
             throw (new ModelAlreadyExistsException())->setModel(PipelineTask::class);
@@ -60,8 +62,8 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
 
         PipelineTaskAggregateRoot::retrieve($uuid)
             ->createEntity(
-                $this->resolvePipelineUUID($pipelineIdentifier),
-                $this->resolveTaskUUID($taskIdentifier),
+                $pipelineIdentifier,
+                $taskIdentifier,
                 $order,
             )->persist();
         return true;
