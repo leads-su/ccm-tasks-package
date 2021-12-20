@@ -13,6 +13,7 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
+use ConsulConfigManager\Tasks\Exceptions\ModelAlreadyExistsException;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
 use ConsulConfigManager\Tasks\AggregateRoots\PipelineTaskAggregateRoot;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskRepositoryInterface;
@@ -28,7 +29,14 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
      */
     public function list(int|string $pipelineIdentifier, bool $withDeleted = false): Collection
     {
-        return $this->findPipeline($pipelineIdentifier, withDeleted: $withDeleted)->tasks;
+        return PipelineTask::withTrashed($withDeleted)
+            ->with([
+                'task'    =>  function ($query): void {
+                    $query->select(['id', 'uuid', 'name', 'description', 'type']);
+                },
+            ])
+            ->where('pipeline_uuid', '=', $this->resolvePipelineUUID($pipelineIdentifier, $withDeleted))
+            ->get();
     }
 
     /**
@@ -45,6 +53,10 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     public function create(int|string $pipelineIdentifier, int|string $taskIdentifier, int $order): bool
     {
         $uuid = Str::uuid()->toString();
+
+        if (PipelineTask::withTrashed(true)->where('pipeline_uuid', '=', $pipelineIdentifier)->where('task_uuid', '=', $taskIdentifier)->exists()) {
+            throw (new ModelAlreadyExistsException())->setModel(PipelineTask::class);
+        }
 
         PipelineTaskAggregateRoot::retrieve($uuid)
             ->createEntity(

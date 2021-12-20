@@ -27,6 +27,14 @@ interface PipelineTaskCreateOutputPort
     public function notFound(PipelineTaskCreateResponseModel $responseModel, string $model): ViewModel;
 
     /**
+     * Output port for "already exists"
+     * @param PipelineTaskCreateResponseModel $responseModel
+     * @param string $model
+     * @return ViewModel
+     */
+    public function alreadyExists(PipelineTaskCreateResponseModel $responseModel, string $model): ViewModel;
+
+    /**
      * Output port for "internal server error"
      * @param PipelineTaskCreateResponseModel $responseModel
      * @param Throwable $exception

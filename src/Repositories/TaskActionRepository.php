@@ -15,6 +15,7 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\AggregateRoots\TaskActionAggregateRoot;
+use ConsulConfigManager\Tasks\Exceptions\ModelAlreadyExistsException;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionRepositoryInterface;
 
 /**
@@ -28,7 +29,14 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      */
     public function list(int|string $taskIdentifier, bool $withDeleted = false): Collection
     {
-        return $this->findTask($taskIdentifier, withDeleted: $withDeleted)->actions;
+        return TaskAction::withTrashed($withDeleted)
+            ->with([
+                'action'    =>  function ($query): void {
+                    $query->select(['id', 'uuid', 'name', 'description', 'type']);
+                },
+            ])
+            ->where('task_uuid', '=', $this->resolveTaskUUID($taskIdentifier, $withDeleted))
+            ->get();
     }
 
     /**
@@ -45,6 +53,10 @@ class TaskActionRepository implements TaskActionRepositoryInterface
     public function create(string|int $taskIdentifier, string|int $actionIdentifier, int $order): bool
     {
         $uuid = Str::uuid()->toString();
+
+        if (TaskAction::withTrashed(true)->where('task_uuid', '=', $taskIdentifier)->where('action_uuid', '=', $actionIdentifier)->exists()) {
+            throw (new ModelAlreadyExistsException())->setModel(TaskAction::class);
+        }
 
         TaskActionAggregateRoot::retrieve($uuid)
             ->createEntity(

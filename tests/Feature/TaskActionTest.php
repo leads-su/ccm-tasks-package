@@ -21,9 +21,9 @@ class TaskActionTest extends AbstractFeatureTest
      */
     public function testShouldPassIfEmptyActionsListCanBeRetrieved(): void
     {
-        $this->createAndGetTask();
+        $this->createAndGetTaskAction();
         $response = $this->get('/task-manager/tasks/' . $this->getTaskIdentifier() . '/actions');
-        $response->assertExactJson([
+        $response->assertJson([
             'success'       =>  true,
             'code'          =>  200,
             'data'          =>  [],
@@ -83,6 +83,33 @@ class TaskActionTest extends AbstractFeatureTest
             'message'           =>  'Successfully created new task action',
         ]);
         $this->assertDatabaseCount('task_actions', 1);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfDuplicateTaskActionCannotBeCreated(): void
+    {
+        $response = $this->createAndGetTaskActionWithIDs();
+        $response->assertJson([
+            'success'           =>  true,
+            'code'              =>  201,
+            'data'              =>  [
+                'action_uuid'   =>  $this->getActionIdentifier(),
+                'deleted_at'    =>  null,
+                'order'         =>  1,
+                'task_uuid'     =>  $this->getTaskIdentifier(),
+            ],
+            'message'           =>  'Successfully created new task action',
+        ]);
+        $this->assertDatabaseCount('task_actions', 1);
+
+        $response =  $this->post('/task-manager/tasks/' . $this->getTaskIdentifier() . '/actions', [
+            'action_uuid'       =>  $this->getActionIdentifier(),
+            'order'             =>  1,
+        ]);
+
+        $response->assertStatus(409);
     }
 
     /**

@@ -88,6 +88,33 @@ class PipelineTaskTest extends AbstractFeatureTest
     /**
      * @return void
      */
+    public function testShouldPassIfDuplicatePipelineTaskCannotBeCreated(): void
+    {
+        $response = $this->createAndGetPipelineTaskWithIDs();
+        $response->assertJson([
+            'success'           =>  true,
+            'code'              =>  201,
+            'data'              =>  [
+                'task_uuid'     =>  $this->getTaskIdentifier(),
+                'deleted_at'    =>  null,
+                'order'         =>  1,
+                'pipeline_uuid' =>  $this->getPipelineIdentifier(),
+            ],
+            'message'           =>  'Successfully created new pipeline task',
+        ]);
+        $this->assertDatabaseCount('pipeline_tasks', 1);
+
+        $response =  $this->post('/task-manager/pipelines/' . $this->getPipelineIdentifier() . '/tasks', [
+            'task_uuid'         =>  $this->getTaskIdentifier(),
+            'order'             =>  1,
+        ]);
+
+        $response->assertStatus(409);
+    }
+
+    /**
+     * @return void
+     */
     public function testShouldPassIfNonEmptyTasksListCanBeRetrieved(): void
     {
         $this->createAndGetPipelineTask();

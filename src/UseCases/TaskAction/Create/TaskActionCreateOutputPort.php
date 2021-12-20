@@ -27,6 +27,14 @@ interface TaskActionCreateOutputPort
     public function notFound(TaskActionCreateResponseModel $responseModel, string $model): ViewModel;
 
     /**
+     * Output port for "already exists"
+     * @param TaskActionCreateResponseModel $responseModel
+     * @param string $model
+     * @return ViewModel
+     */
+    public function alreadyExists(TaskActionCreateResponseModel $responseModel, string $model): ViewModel;
+
+    /**
      * Output port for "internal server error"
      * @param TaskActionCreateResponseModel $responseModel
      * @param Throwable $exception

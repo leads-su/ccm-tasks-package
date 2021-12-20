@@ -38,6 +38,18 @@ class TaskActionCreateHttpPresenter implements TaskActionCreateOutputPort
         ));
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function alreadyExists(TaskActionCreateResponseModel $responseModel, string $model): ViewModel
+    {
+        return new HttpResponseViewModel(response_error(
+            [],
+            'Model already exists: ' . strtolower(str_replace('ConsulConfigManager\\Tasks\\Models\\', '', $model)),
+            Response::HTTP_CONFLICT,
+        ));
+    }
+
     // @codeCoverageIgnoreStart
     /**
      * @inheritDoc

@@ -5,6 +5,7 @@ namespace ConsulConfigManager\Tasks\UseCases\TaskAction\Create;
 use Throwable;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use ConsulConfigManager\Tasks\Exceptions\ModelAlreadyExistsException;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionRepositoryInterface;
 
 /**
@@ -56,6 +57,8 @@ class TaskActionCreateInteractor implements TaskActionCreateInputPort
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {
                 return $this->output->notFound(new TaskActionCreateResponseModel(), $exception->getModel());
+            } elseif ($exception instanceof ModelAlreadyExistsException) {
+                return $this->output->alreadyExists(new TaskActionCreateResponseModel(), $exception->getModel());
             }
             // @codeCoverageIgnoreStart
             return $this->output->internalServerError(new TaskActionCreateResponseModel(), $exception);

@@ -5,6 +5,7 @@ namespace ConsulConfigManager\Tasks\UseCases\PipelineTask\Create;
 use Throwable;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use ConsulConfigManager\Tasks\Exceptions\ModelAlreadyExistsException;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskRepositoryInterface;
 
 /**
@@ -56,6 +57,8 @@ class PipelineTaskCreateInteractor implements PipelineTaskCreateInputPort
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {
                 return $this->output->notFound(new PipelineTaskCreateResponseModel(), $exception->getModel());
+            } elseif ($exception instanceof ModelAlreadyExistsException) {
+                return $this->output->alreadyExists(new PipelineTaskCreateResponseModel(), $exception->getModel());
             }
             // @codeCoverageIgnoreStart
             return $this->output->internalServerError(new PipelineTaskCreateResponseModel(), $exception);
