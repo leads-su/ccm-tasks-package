@@ -360,11 +360,12 @@ class TaskActionTest extends AbstractFeatureTest
             [
                 'action'        =>  $this->getAction()->toArray(),
                 'task'          =>  $this->getTask()->toArray(),
+                'history'       =>  [],
             ],
             $this->getTaskAction()->toArray(),
         );
 
-        $response->assertExactJson([
+        $response->assertJson([
             'success'       =>  true,
             'code'          =>  200,
             'data'          =>  $data,
@@ -388,11 +389,12 @@ class TaskActionTest extends AbstractFeatureTest
             [
                 'action'        =>  $this->getAction()->toArray(),
                 'task'          =>  $this->getTask()->toArray(),
+                'history'       =>  [],
             ],
             $this->getTaskAction()->toArray(),
         );
 
-        $response->assertExactJson([
+        $response->assertJson([
             'success'           =>  true,
             'code'              =>  200,
             'data'              =>  $data,

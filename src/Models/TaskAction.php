@@ -3,7 +3,6 @@
 namespace ConsulConfigManager\Tasks\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,7 +14,7 @@ use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
  * Class TaskAction
  * @package ConsulConfigManager\Tasks\Models
  */
-class TaskAction extends Pivot implements TaskActionInterface
+class TaskAction extends AbstractSourcedPivot implements TaskActionInterface
 {
     use HasFactory;
     use SoftDeletes;

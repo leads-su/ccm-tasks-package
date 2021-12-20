@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * Interface ActionInterface
  * @package ConsulConfigManager\Tasks\Interfaces
  */
-interface ActionInterface
+interface ActionInterface extends SourcedInterface
 {
     /**
      * Get action instance by UUID

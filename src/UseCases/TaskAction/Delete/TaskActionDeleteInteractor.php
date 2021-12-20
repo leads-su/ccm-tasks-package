@@ -43,7 +43,10 @@ class TaskActionDeleteInteractor implements TaskActionDeleteInputPort
     public function delete(TaskActionDeleteRequestModel $requestModel): ViewModel
     {
         try {
-            $this->repository->delete($requestModel->getTaskIdentifier(), $requestModel->getActionIdentifier());
+            $this->repository->delete(
+                taskIdentifier: $requestModel->getTaskIdentifier(),
+                actionIdentifier: $requestModel->getActionIdentifier()
+            );
             return $this->output->delete(new TaskActionDeleteResponseModel());
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

@@ -29,12 +29,11 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
      */
     public function list(int|string $pipelineIdentifier, bool $withDeleted = false): Collection
     {
+        $with['task'] = function ($query): void {
+            $query->select(['id', 'uuid', 'name', 'description', 'type']);
+        };
         return PipelineTask::withTrashed($withDeleted)
-            ->with([
-                'task'    =>  function ($query): void {
-                    $query->select(['id', 'uuid', 'name', 'description', 'type']);
-                },
-            ])
+            ->with($with)
             ->where('pipeline_uuid', '=', $this->resolvePipelineUUID($pipelineIdentifier, $withDeleted))
             ->get();
     }
@@ -150,10 +149,10 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     {
         return $this->pipelineRepository()
             ->findByManyOrFail(
-                ['id', 'uuid'],
-                $id,
-                $columns,
-                $withDeleted
+                fields: ['id', 'uuid'],
+                value: $id,
+                columns: $columns,
+                withDeleted: $withDeleted
             );
     }
 
@@ -164,10 +163,10 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     {
         return $this->taskRepository()
             ->findByManyOrFail(
-                ['id', 'uuid'],
-                $id,
-                $columns,
-                $withDeleted
+                fields: ['id', 'uuid'],
+                value: $id,
+                columns: $columns,
+                withDeleted: $withDeleted
             );
     }
 

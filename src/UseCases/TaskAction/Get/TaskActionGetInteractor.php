@@ -43,12 +43,13 @@ class TaskActionGetInteractor implements TaskActionGetInputPort
     {
         try {
             $model = $this->repository->get(
-                $requestModel->getTaskIdentifier(),
-                $requestModel->getActionIdentifier(),
-                [
+                taskIdentifier: $requestModel->getTaskIdentifier(),
+                actionIdentifier: $requestModel->getActionIdentifier(),
+                with: [
                     'task',
                     'action',
-                ]
+                ],
+                append: ['history']
             );
             return $this->output->information(new TaskActionGetResponseModel($model));
         } catch (Throwable $exception) {

@@ -46,9 +46,9 @@ class TaskActionUpdateInteractor implements TaskActionUpdateInputPort
 
         try {
             $this->repository->update(
-                $requestModel->getTask(),
-                $requestModel->getAction(),
-                $request->get('order'),
+                taskIdentifier: $requestModel->getTask(),
+                actionIdentifier: $requestModel->getAction(),
+                order: $request->get('order'),
             );
             return $this->output->update(new TaskActionUpdateResponseModel());
         } catch (Throwable $exception) {

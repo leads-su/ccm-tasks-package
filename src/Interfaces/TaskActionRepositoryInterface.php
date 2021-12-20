@@ -15,21 +15,24 @@ interface TaskActionRepositoryInterface
     /**
      * Get list of actions for specified task
      * @param string|int $taskIdentifier
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return Collection
      * @throws BindingResolutionException
      */
-    public function list(string|int $taskIdentifier, bool $withDeleted = false): Collection;
+    public function list(string|int $taskIdentifier, array $with = [], array $append = [], bool $withDeleted = false): Collection;
 
     /**
      * Get task action information with given data
      * @param string|int $taskIdentifier
      * @param string|int $actionIdentifier
      * @param array $with
+     * @param array $append
      * @return TaskActionInterface
      * @throws BindingResolutionException
      */
-    public function get(string|int $taskIdentifier, string|int $actionIdentifier, array $with = []): TaskActionInterface;
+    public function get(string|int $taskIdentifier, string|int $actionIdentifier, array $with = [], array $append = []): TaskActionInterface;
 
     /**
      * Create new task action entity

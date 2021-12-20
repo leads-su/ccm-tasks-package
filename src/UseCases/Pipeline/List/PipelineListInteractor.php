@@ -42,11 +42,14 @@ class PipelineListInteractor implements PipelineListInputPort
     public function list(PipelineListRequestModel $requestModel): ViewModel
     {
         try {
-            $pipelines = $this->repository->all([
-                'id', 'uuid',
-                'name', 'description',
-                'created_at', 'updated_at', 'deleted_at',
-            ], $requestModel->getRequest()->get('with_deleted', false))->toArray();
+            $pipelines = $this->repository->all(
+                columns: [
+                    'id', 'uuid',
+                    'name', 'description',
+                    'created_at', 'updated_at', 'deleted_at',
+                ],
+                withDeleted: $requestModel->getRequest()->get('with_deleted', false)
+            )->toArray();
             return $this->output->list(new PipelineListResponseModel($pipelines));
             // @codeCoverageIgnoreStart
         } catch (Throwable $exception) {

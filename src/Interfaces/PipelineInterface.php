@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * Interface PipelineInterface
  * @package ConsulConfigManager\Tasks\Interfaces
  */
-interface PipelineInterface
+interface PipelineInterface extends SourcedInterface
 {
     /**
      * Get task instance by UUID

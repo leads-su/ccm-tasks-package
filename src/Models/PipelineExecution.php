@@ -2,7 +2,6 @@
 
 namespace ConsulConfigManager\Tasks\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -14,7 +13,7 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
  * Class PipelineExecution
  * @package ConsulConfigManager\Tasks\Models
  */
-class PipelineExecution extends Model implements PipelineExecutionInterface
+class PipelineExecution extends AbstractSourcedModel implements PipelineExecutionInterface
 {
     use SoftDeletes;
     use HasFactory;

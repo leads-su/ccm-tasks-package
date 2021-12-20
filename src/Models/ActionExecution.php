@@ -2,7 +2,6 @@
 
 namespace ConsulConfigManager\Tasks\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +12,7 @@ use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
  * Class ActionExecution
  * @package ConsulConfigManager\Tasks\Models
  */
-class ActionExecution extends Model implements ActionExecutionInterface
+class ActionExecution extends AbstractSourcedModel implements ActionExecutionInterface
 {
     use HasFactory;
 

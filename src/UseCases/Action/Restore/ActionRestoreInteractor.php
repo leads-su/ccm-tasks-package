@@ -43,7 +43,11 @@ class ActionRestoreInteractor implements ActionRestoreInputPort
     public function restore(ActionRestoreRequestModel $requestModel): ViewModel
     {
         try {
-            $action = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier(), ['*'], true);
+            $action = $this->repository->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $requestModel->getIdentifier(),
+                withDeleted: true,
+            );
             $this->repository->restore($action->getID());
             return $this->output->restore(new ActionRestoreResponseModel());
         } catch (Throwable $exception) {

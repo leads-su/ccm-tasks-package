@@ -14,71 +14,85 @@ interface ActionRepositoryInterface
     /**
      * Get list of all entries from database
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return Collection
      */
-    public function all(array $columns = ['*'], bool $withDeleted = false): Collection;
+    public function all(array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection;
 
     /**
      * Find action
      * @param int $id
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return ActionInterface|null
      */
-    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): ActionInterface|null;
+    public function find(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null;
 
     /**
      * Find action or fail and throw exception
      * @param int $id
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return ActionInterface
      * @throws ModelNotFoundException
      */
-    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): ActionInterface;
+    public function findOrFail(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface;
 
     /**
      * Find action by specified field
      * @param string $field
      * @param string $value
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return ActionInterface|null
      */
-    public function findBy(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): ActionInterface|null;
+    public function findBy(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null;
 
     /**
      * Find action by specified field or throw exception
      * @param string $field
      * @param string $value
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return ActionInterface
      * @throws ModelNotFoundException
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): ActionInterface;
+    public function findByOrFail(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface;
 
     /**
      * Find entity while using multiple fields to perform search
      * @param array $fields
      * @param string $value
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return ActionInterface|null
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): ActionInterface|null;
+    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null;
 
     /**
      * Find entity while using multiple fields to perform search or throw exception
      * @param array $fields
      * @param string $value
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return ActionInterface
      * @throws ModelNotFoundException
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): ActionInterface;
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface;
 
     /**
      * Create new action

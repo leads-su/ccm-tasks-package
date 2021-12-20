@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Interface TaskActionInterface
  * @package ConsulConfigManager\Tasks\Interfaces
  */
-interface TaskActionInterface
+interface TaskActionInterface extends SourcedInterface
 {
     /**
      * Get instance by UUID

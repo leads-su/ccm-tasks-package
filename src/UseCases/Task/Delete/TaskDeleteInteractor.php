@@ -43,7 +43,10 @@ class TaskDeleteInteractor implements TaskDeleteInputPort
     public function delete(TaskDeleteRequestModel $requestModel): ViewModel
     {
         try {
-            $task = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier());
+            $task = $this->repository->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $requestModel->getIdentifier(),
+            );
             $this->repository->delete($task->getID());
             return $this->output->delete(new TaskDeleteResponseModel());
         } catch (Throwable $exception) {

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Interface PipelineTaskInterface
  * @package ConsulConfigManager\Tasks\Interfaces
  */
-interface PipelineTaskInterface
+interface PipelineTaskInterface extends SourcedInterface
 {
     /**
      * Get instance by UUID

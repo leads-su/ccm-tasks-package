@@ -2,7 +2,6 @@
 
 namespace ConsulConfigManager\Tasks\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use ConsulConfigManager\Consul\Agent\Models\Service;
@@ -15,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * Class Action
  * @package ConsulConfigManager\Tasks\Models
  */
-class Action extends Model implements ActionInterface
+class Action extends AbstractSourcedModel implements ActionInterface
 {
     use SoftDeletes;
     use HasFactory;

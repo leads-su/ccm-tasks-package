@@ -43,7 +43,11 @@ class TaskRestoreInteractor implements TaskRestoreInputPort
     public function restore(TaskRestoreRequestModel $requestModel): ViewModel
     {
         try {
-            $task = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier(), ['*'], true);
+            $task = $this->repository->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $requestModel->getIdentifier(),
+                withDeleted: true,
+            );
             $this->repository->restore($task->getID());
             return $this->output->restore(new TaskRestoreResponseModel());
         } catch (Throwable $exception) {

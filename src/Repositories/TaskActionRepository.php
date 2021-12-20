@@ -27,24 +27,29 @@ class TaskActionRepository implements TaskActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function list(int|string $taskIdentifier, bool $withDeleted = false): Collection
+    public function list(int|string $taskIdentifier, array $with = [], array $append = [], bool $withDeleted = false): Collection
     {
+        $with['action'] = function ($query): void {
+            $query->select(['id', 'uuid', 'name', 'description', 'type']);
+        };
+
         return TaskAction::withTrashed($withDeleted)
-            ->with([
-                'action'    =>  function ($query): void {
-                    $query->select(['id', 'uuid', 'name', 'description', 'type']);
-                },
-            ])
+            ->with($with)
             ->where('task_uuid', '=', $this->resolveTaskUUID($taskIdentifier, $withDeleted))
-            ->get();
+            ->get()->each->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function get(int|string $taskIdentifier, int|string $actionIdentifier, array $with = []): TaskActionInterface
+    public function get(int|string $taskIdentifier, int|string $actionIdentifier, array $with = [], array $append = []): TaskActionInterface
     {
-        return $this->resolveTaskAction($taskIdentifier, $actionIdentifier, with: $with);
+        return $this->resolveTaskAction(
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier,
+            with: $with,
+            append: $append
+        );
     }
 
     /**
@@ -74,7 +79,10 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      */
     public function update(string|int $taskIdentifier, string|int $actionIdentifier, int $order): bool
     {
-        $this->resolveTaskActionAggregateRoot($taskIdentifier, $actionIdentifier)
+        $this->resolveTaskActionAggregateRoot(
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier
+        )
             ->updateEntity($order)
             ->persist();
         return true;
@@ -85,7 +93,10 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      */
     public function delete(string|int $taskIdentifier, string|int $actionIdentifier, bool $force = false): bool
     {
-        $this->resolveTaskActionAggregateRoot($taskIdentifier, $actionIdentifier)
+        $this->resolveTaskActionAggregateRoot(
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier
+        )
             ->deleteEntity($force)
             ->persist();
         return true;
@@ -97,9 +108,9 @@ class TaskActionRepository implements TaskActionRepositoryInterface
     public function forceDelete(string|int $taskIdentifier, string|int $actionIdentifier): bool
     {
         return $this->delete(
-            $taskIdentifier,
-            $actionIdentifier,
-            true,
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier,
+            force: true,
         );
     }
 
@@ -108,7 +119,10 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      */
     public function restore(string|int $taskIdentifier, string|int $actionIdentifier): bool
     {
-        $this->resolveTaskActionAggregateRoot($taskIdentifier, $actionIdentifier)
+        $this->resolveTaskActionAggregateRoot(
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier
+        )
             ->restoreEntity()
             ->persist();
         return true;
@@ -120,14 +134,21 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      * @param string|int $actionIdentifier
      * @param array $columns
      * @param array $with
+     * @param array $append
      * @return TaskActionInterface
      * @throws BindingResolutionException
      */
-    public function resolveTaskAction(string|int $taskIdentifier, string|int $actionIdentifier, array $columns = ['*'], array $with = []): TaskActionInterface
+    public function resolveTaskAction(string|int $taskIdentifier, string|int $actionIdentifier, array $columns = ['*'], array $with = [], array $append = []): TaskActionInterface
     {
         $taskIdentifier = $this->resolveTaskUUID($taskIdentifier);
         $actionIdentifier = $this->resolveActionUUID($actionIdentifier);
-        return $this->findTaskAction($taskIdentifier, $actionIdentifier, $columns, $with);
+        return $this->findTaskAction(
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier,
+            columns: $columns,
+            with: $with,
+            append: $append
+        );
     }
 
     /**
@@ -139,7 +160,11 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      */
     public function resolveTaskActionAggregateRoot(string|int $taskIdentifier, string|int $actionIdentifier): TaskActionAggregateRoot
     {
-        $taskActionInstance = $this->resolveTaskAction($taskIdentifier, $actionIdentifier, ['uuid']);
+        $taskActionInstance = $this->resolveTaskAction(
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier,
+            columns: ['uuid']
+        );
         return TaskActionAggregateRoot::retrieve($taskActionInstance->getUuid());
     }
 
@@ -150,10 +175,10 @@ class TaskActionRepository implements TaskActionRepositoryInterface
     {
         return $this->taskRepository()
             ->findByManyOrFail(
-                ['id', 'uuid'],
-                $id,
-                $columns,
-                $withDeleted
+                fields: ['id', 'uuid'],
+                value: $id,
+                columns: $columns,
+                withDeleted: $withDeleted
             );
     }
 
@@ -164,10 +189,10 @@ class TaskActionRepository implements TaskActionRepositoryInterface
     {
         return $this->actionRepository()
             ->findByManyOrFail(
-                ['id', 'uuid'],
-                $id,
-                $columns,
-                $withDeleted
+                fields: ['id', 'uuid'],
+                value: $id,
+                columns: $columns,
+                withDeleted: $withDeleted
             );
     }
 
@@ -177,15 +202,16 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      * @param string $actionIdentifier
      * @param array $columns
      * @param array $with
+     * @param array $append
      * @return TaskActionInterface
      */
-    public function findTaskAction(string $taskIdentifier, string $actionIdentifier, array $columns = ['*'], array $with = []): TaskActionInterface
+    public function findTaskAction(string $taskIdentifier, string $actionIdentifier, array $columns = ['*'], array $with = [], array $append = []): TaskActionInterface
     {
         return TaskAction::withTrashed(true)
             ->where('task_uuid', '=', $taskIdentifier)
             ->where('action_uuid', '=', $actionIdentifier)
             ->with($with)
-            ->firstOrFail($columns);
+            ->firstOrFail($columns)->setAppends($append);
     }
 
     /**
@@ -249,7 +275,10 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      */
     public function taskExists(string $taskID): bool
     {
-        return $this->taskRepository()->findBy('uuid', $taskID) !== null;
+        return $this->taskRepository()->findBy(
+            field: 'uuid',
+            value: $taskID,
+        ) !== null;
     }
 
     /**
@@ -257,7 +286,10 @@ class TaskActionRepository implements TaskActionRepositoryInterface
      */
     public function actionExists(string $actionID): bool
     {
-        return $this->actionRepository()->findBy('uuid', $actionID) !== null;
+        return $this->actionRepository()->findBy(
+            field: 'uuid',
+            value: $actionID
+        ) !== null;
     }
 
     /**

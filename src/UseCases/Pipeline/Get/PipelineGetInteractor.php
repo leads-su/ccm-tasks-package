@@ -44,10 +44,10 @@ class PipelineGetInteractor implements PipelineGetInputPort
     {
         try {
             $pipeline = $this->repository->findByManyOrFail(
-                ['id', 'uuid'],
-                $requestModel->getIdentifier(),
-                ['*'],
-                $requestModel->getRequest()->get('with_deleted', false)
+                fields: ['id', 'uuid'],
+                value: $requestModel->getIdentifier(),
+                append: ['history'],
+                withDeleted: $requestModel->getRequest()->get('with_deleted', false)
             );
             return $this->output->get(new PipelineGetResponseModel($pipeline));
         } catch (Throwable $exception) {

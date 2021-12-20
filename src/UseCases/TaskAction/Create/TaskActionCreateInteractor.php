@@ -46,9 +46,9 @@ class TaskActionCreateInteractor implements TaskActionCreateInputPort
         $request = $requestModel->getRequest();
         try {
             $this->repository->create(
-                $requestModel->getTask(),
-                $request->get('action_uuid'),
-                $request->get('order'),
+                taskIdentifier: $requestModel->getTask(),
+                actionIdentifier: $request->get('action_uuid'),
+                order: $request->get('order'),
             );
             return $this->output->create(new TaskActionCreateResponseModel($this->repository->get(
                 $requestModel->getTask(),

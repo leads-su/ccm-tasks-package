@@ -19,49 +19,63 @@ class PipelineRepository implements PipelineRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function all(array $columns = ['*'], bool $withDeleted = false): Collection
+    public function all(array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection
     {
-        return Pipeline::withTrashed($withDeleted)->get($columns);
+        return Pipeline::withTrashed($withDeleted)->with($with)->get($columns)->each->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineInterface|null
+    public function find(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null
     {
-        return $this->findBy('id', $id, $columns, $withDeleted);
+        return $this->findBy(
+            field: 'id',
+            value: $id,
+            columns: $columns,
+            with: $with,
+            append: $append,
+            withDeleted: $withDeleted,
+        );
     }
 
     /**
      * @inheritDoc
      */
-    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineInterface
+    public function findOrFail(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface
     {
-        return $this->findByOrFail('id', $id, $columns, $withDeleted);
+        return $this->findByOrFail(
+            field: 'id',
+            value: $id,
+            columns: $columns,
+            with: $with,
+            append: $append,
+            withDeleted: $withDeleted,
+        );
     }
 
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): PipelineInterface|null
+    public function findBy(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null
     {
-        return Pipeline::withTrashed($withDeleted)->where($field, '=', $value)->first($columns);
+        return Pipeline::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): PipelineInterface
+    public function findByOrFail(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface
     {
-        return Pipeline::withTrashed($withDeleted)->where($field, '=', $value)->firstOrFail($columns);
+        return Pipeline::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): PipelineInterface|null
+    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null
     {
-        $query = Pipeline::withTrashed($withDeleted);
+        $query = Pipeline::withTrashed($withDeleted)->with($with);
         foreach ($fields as $index => $field) {
             if ($index === 0) {
                 $query = $query->where($field, '=', $value);
@@ -69,15 +83,15 @@ class PipelineRepository implements PipelineRepositoryInterface
                 $query = $query->orWhere($field, '=', $value);
             }
         }
-        return $query->first($columns);
+        return $query->first($columns)->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], bool $withDeleted = false): PipelineInterface
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface
     {
-        $query = Pipeline::withTrashed($withDeleted);
+        $query = Pipeline::withTrashed($withDeleted)->with($with);
         foreach ($fields as $index => $field) {
             if ($index === 0) {
                 $query = $query->where($field, '=', $value);
@@ -85,7 +99,7 @@ class PipelineRepository implements PipelineRepositoryInterface
                 $query = $query->orWhere($field, '=', $value);
             }
         }
-        return $query->firstOrFail($columns);
+        return $query->firstOrFail($columns)->setAppends($append);
     }
 
     /**
@@ -140,7 +154,11 @@ class PipelineRepository implements PipelineRepositoryInterface
     public function restore(int $id): bool
     {
         try {
-            $model = $this->findOrFail($id, ['uuid'], true);
+            $model = $this->findOrFail(
+                id: $id,
+                columns: ['uuid'],
+                withDeleted: true
+            );
             PipelineAggregateRoot::retrieve($model->getUuid())
                 ->restoreEntity()
                 ->persist();

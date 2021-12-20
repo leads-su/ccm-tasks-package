@@ -43,7 +43,10 @@ class PipelineDeleteInteractor implements PipelineDeleteInputPort
     public function delete(PipelineDeleteRequestModel $requestModel): ViewModel
     {
         try {
-            $pipeline = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier());
+            $pipeline = $this->repository->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $requestModel->getIdentifier()
+            );
             $this->repository->delete($pipeline->getID());
             return $this->output->delete(new PipelineDeleteResponseModel());
         } catch (Throwable $exception) {

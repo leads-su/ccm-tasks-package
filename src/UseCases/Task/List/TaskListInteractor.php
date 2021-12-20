@@ -42,11 +42,14 @@ class TaskListInteractor implements TaskListInputPort
     public function list(TaskListRequestModel $requestModel): ViewModel
     {
         try {
-            $tasks = $this->repository->all([
-                'id', 'uuid',
-                'name', 'description', 'type',
-                'created_at', 'updated_at', 'deleted_at',
-            ], $requestModel->getRequest()->get('with_deleted', false))->toArray();
+            $tasks = $this->repository->all(
+                columns: [
+                    'id', 'uuid',
+                    'name', 'description', 'type',
+                    'created_at', 'updated_at', 'deleted_at',
+                ],
+                withDeleted: $requestModel->getRequest()->get('with_deleted', false)
+            )->toArray();
             return $this->output->list(new TaskListResponseModel($tasks));
             // @codeCoverageIgnoreStart
         } catch (Throwable $exception) {

@@ -43,7 +43,10 @@ class ActionDeleteInteractor implements ActionDeleteInputPort
     public function delete(ActionDeleteRequestModel $requestModel): ViewModel
     {
         try {
-            $action = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier());
+            $action = $this->repository->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $requestModel->getIdentifier()
+            );
             $this->repository->delete($action->getID());
             return $this->output->delete(new ActionDeleteResponseModel());
         } catch (Throwable $exception) {

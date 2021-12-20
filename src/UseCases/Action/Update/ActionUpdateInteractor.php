@@ -47,7 +47,10 @@ class ActionUpdateInteractor implements ActionUpdateInputPort
         $request = $requestModel->getRequest();
 
         try {
-            $model = $this->repository->findByManyOrFail(['id', 'uuid'], $requestModel->getIdentifier());
+            $model = $this->repository->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $requestModel->getIdentifier()
+            );
 
             $entity = $this->repository->update(
                 $model->getID(),

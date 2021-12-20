@@ -43,7 +43,10 @@ class TaskActionRestoreInteractor implements TaskActionRestoreInputPort
     public function restore(TaskActionRestoreRequestModel $requestModel): ViewModel
     {
         try {
-            $this->repository->restore($requestModel->getTaskIdentifier(), $requestModel->getActionIdentifier());
+            $this->repository->restore(
+                taskIdentifier: $requestModel->getTaskIdentifier(),
+                actionIdentifier: $requestModel->getActionIdentifier()
+            );
             return $this->output->restore(new TaskActionRestoreResponseModel());
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {
