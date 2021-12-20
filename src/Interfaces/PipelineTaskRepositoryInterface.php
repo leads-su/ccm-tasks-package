@@ -15,21 +15,24 @@ interface PipelineTaskRepositoryInterface
     /**
      * Get list of tasks for specified pipeline
      * @param string|int $pipelineIdentifier
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return Collection
      * @throws BindingResolutionException
      */
-    public function list(string|int $pipelineIdentifier, bool $withDeleted = false): Collection;
+    public function list(string|int $pipelineIdentifier, array $with = [], array $append = [], bool $withDeleted = false): Collection;
 
     /**
      * Get pipeline task information with given data
      * @param string|int $pipelineIdentifier
      * @param string|int $taskIdentifier
      * @param array $with
+     * @param array $append
      * @return PipelineTaskInterface
      * @throws BindingResolutionException
      */
-    public function get(string|int $pipelineIdentifier, string|int $taskIdentifier, array $with = []): PipelineTaskInterface;
+    public function get(string|int $pipelineIdentifier, string|int $taskIdentifier, array $with = [], array $append = []): PipelineTaskInterface;
 
     /**
      * Create new pipeline task entity

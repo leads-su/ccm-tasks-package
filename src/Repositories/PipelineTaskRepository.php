@@ -27,7 +27,7 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function list(int|string $pipelineIdentifier, bool $withDeleted = false): Collection
+    public function list(int|string $pipelineIdentifier, array $with = [], array $append = [], bool $withDeleted = false): Collection
     {
         $with['task'] = function ($query): void {
             $query->select(['id', 'uuid', 'name', 'description', 'type']);
@@ -35,15 +35,20 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
         return PipelineTask::withTrashed($withDeleted)
             ->with($with)
             ->where('pipeline_uuid', '=', $this->resolvePipelineUUID($pipelineIdentifier, $withDeleted))
-            ->get();
+            ->get()->each->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function get(int|string $pipelineIdentifier, int|string $taskIdentifier, array $with = []): PipelineTaskInterface
+    public function get(int|string $pipelineIdentifier, int|string $taskIdentifier, array $with = [], array $append = []): PipelineTaskInterface
     {
-        return $this->resolvePipelineTask($pipelineIdentifier, $taskIdentifier, with: $with);
+        return $this->resolvePipelineTask(
+            $pipelineIdentifier,
+            $taskIdentifier,
+            with: $with,
+            append: $append,
+        );
     }
 
     /**
@@ -119,14 +124,21 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
      * @param string|int $taskIdentifier
      * @param array $columns
      * @param array $with
+     * @param array $append
      * @return PipelineTaskInterface
      * @throws BindingResolutionException
      */
-    public function resolvePipelineTask(string|int $pipelineIdentifier, string|int $taskIdentifier, array $columns = ['*'], array $with = []): PipelineTaskInterface
+    public function resolvePipelineTask(string|int $pipelineIdentifier, string|int $taskIdentifier, array $columns = ['*'], array $with = [], array $append = []): PipelineTaskInterface
     {
         $pipelineIdentifier = $this->resolvePipelineUUID($pipelineIdentifier);
         $taskIdentifier = $this->resolveTaskUUID($taskIdentifier);
-        return $this->findPipelineTask($pipelineIdentifier, $taskIdentifier, $columns, $with);
+        return $this->findPipelineTask(
+            pipelineIdentifier: $pipelineIdentifier,
+            taskIdentifier: $taskIdentifier,
+            columns: $columns,
+            with: $with,
+            append: $append,
+        );
     }
 
     /**
@@ -176,15 +188,16 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
      * @param string $taskIdentifier
      * @param array $columns
      * @param array $with
+     * @param array $append
      * @return PipelineTaskInterface
      */
-    public function findPipelineTask(string $pipelineIdentifier, string $taskIdentifier, array $columns = ['*'], array $with = []): PipelineTaskInterface
+    public function findPipelineTask(string $pipelineIdentifier, string $taskIdentifier, array $columns = ['*'], array $with = [], array $append = []): PipelineTaskInterface
     {
         return PipelineTask::withTrashed(true)
             ->where('pipeline_uuid', '=', $pipelineIdentifier)
             ->where('task_uuid', '=', $taskIdentifier)
             ->with($with)
-            ->firstOrFail($columns);
+            ->firstOrFail($columns)->setAppends($append);
     }
 
     /**
@@ -193,7 +206,11 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     public function resolvePipelineUUID(int|string $id, bool $withDeleted = false): string
     {
         if (is_string($id) && is_numeric($id) || is_integer($id)) {
-            $id = $this->findPipeline($id, ['uuid'], $withDeleted)->getUuid();
+            $id = $this->findPipeline(
+                id: $id,
+                columns: ['uuid'],
+                withDeleted: $withDeleted
+            )->getUuid();
         }
         if (!$this->pipelineExists($id)) {
             throw (new ModelNotFoundException())->setModel(Pipeline::class);
@@ -207,7 +224,11 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     public function resolveTaskUUID(int|string $id, bool $withDeleted = false): string
     {
         if (is_numeric($id) || is_integer($id)) {
-            $id = $this->findTask($id, ['uuid'], $withDeleted)->getUuid();
+            $id = $this->findTask(
+                id: $id,
+                columns: ['uuid'],
+                withDeleted: $withDeleted
+            )->getUuid();
         }
         if (!$this->taskExists($id)) {
             throw (new ModelNotFoundException())->setModel(Task::class);
@@ -236,7 +257,12 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     public function pipelineTaskUUID(int|string $pipelineIdentifier, int|string $taskIdentifier, bool $withDeleted = false): string
     {
         try {
-            $model = $this->isBound($pipelineIdentifier, $taskIdentifier, $withDeleted, true);
+            $model = $this->isBound(
+                pipelineIdentifier: $pipelineIdentifier,
+                taskIdentifier: $taskIdentifier,
+                withDeleted: $withDeleted,
+                return: true
+            );
             return $model->getUuid();
         } catch (ModelNotFoundException) {
             return '';
@@ -248,7 +274,10 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
      */
     public function pipelineExists(string $pipelineIdentifier): bool
     {
-        return $this->pipelineRepository()->findBy('uuid', $pipelineIdentifier) !== null;
+        return $this->pipelineRepository()->findBy(
+            field: 'uuid',
+            value: $pipelineIdentifier
+        ) !== null;
     }
 
     /**
@@ -256,7 +285,10 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
      */
     public function taskExists(string $taskIdentifier): bool
     {
-        return $this->taskRepository()->findBy('uuid', $taskIdentifier) !== null;
+        return $this->taskRepository()->findBy(
+            field: 'uuid',
+            value: $taskIdentifier
+        ) !== null;
     }
 
     /**

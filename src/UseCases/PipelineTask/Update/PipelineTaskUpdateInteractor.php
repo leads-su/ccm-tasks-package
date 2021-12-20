@@ -46,9 +46,9 @@ class PipelineTaskUpdateInteractor implements PipelineTaskUpdateInputPort
 
         try {
             $this->repository->update(
-                $requestModel->getPipelineIdentifier(),
-                $requestModel->getTaskIdentifier(),
-                $request->get('order'),
+                pipelineIdentifier: $requestModel->getPipelineIdentifier(),
+                taskIdentifier: $requestModel->getTaskIdentifier(),
+                order: $request->get('order'),
             );
             return $this->output->update(new PipelineTaskUpdateResponseModel());
         } catch (Throwable $exception) {

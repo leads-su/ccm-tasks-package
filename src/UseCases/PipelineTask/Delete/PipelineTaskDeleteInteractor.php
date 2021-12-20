@@ -43,7 +43,10 @@ class PipelineTaskDeleteInteractor implements PipelineTaskDeleteInputPort
     public function delete(PipelineTaskDeleteRequestModel $requestModel): ViewModel
     {
         try {
-            $this->repository->delete($requestModel->getPipelineIdentifier(), $requestModel->getTaskIdentifier());
+            $this->repository->delete(
+                pipelineIdentifier: $requestModel->getPipelineIdentifier(),
+                taskIdentifier: $requestModel->getTaskIdentifier()
+            );
             return $this->output->delete(new PipelineTaskDeleteResponseModel());
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

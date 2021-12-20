@@ -43,7 +43,10 @@ class PipelineTaskRestoreInteractor implements PipelineTaskRestoreInputPort
     public function restore(PipelineTaskRestoreRequestModel $requestModel): ViewModel
     {
         try {
-            $this->repository->restore($requestModel->getPipelineIdentifier(), $requestModel->getTaskIdentifier());
+            $this->repository->restore(
+                pipelineIdentifier: $requestModel->getPipelineIdentifier(),
+                taskIdentifier: $requestModel->getTaskIdentifier()
+            );
             return $this->output->restore(new PipelineTaskRestoreResponseModel());
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

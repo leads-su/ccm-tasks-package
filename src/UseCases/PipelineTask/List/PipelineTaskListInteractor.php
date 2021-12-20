@@ -44,8 +44,8 @@ class PipelineTaskListInteractor implements PipelineTaskListInputPort
     {
         try {
             $actions = $this->repository->list(
-                $requestModel->getIdentifier(),
-                $requestModel->getRequest()->get('with_deleted', false)
+                pipelineIdentifier: $requestModel->getIdentifier(),
+                withDeleted: $requestModel->getRequest()->get('with_deleted', false)
             );
             return $this->output->list(new PipelineTaskListResponseModel($actions));
         } catch (Throwable $exception) {

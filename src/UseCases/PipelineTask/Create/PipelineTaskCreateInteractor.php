@@ -46,9 +46,9 @@ class PipelineTaskCreateInteractor implements PipelineTaskCreateInputPort
         $request = $requestModel->getRequest();
         try {
             $this->repository->create(
-                $requestModel->getPipelineIdentifier(),
-                $request->get('task_uuid'),
-                $request->get('order'),
+                pipelineIdentifier: $requestModel->getPipelineIdentifier(),
+                taskIdentifier: $request->get('task_uuid'),
+                order: $request->get('order'),
             );
             return $this->output->create(new PipelineTaskCreateResponseModel($this->repository->get(
                 $requestModel->getPipelineIdentifier(),

@@ -43,12 +43,13 @@ class PipelineTaskGetInteractor implements PipelineTaskGetInputPort
     {
         try {
             $model = $this->repository->get(
-                $requestModel->getPipelineIdentifier(),
-                $requestModel->getTaskIdentifier(),
-                [
+                pipelineIdentifier: $requestModel->getPipelineIdentifier(),
+                taskIdentifier: $requestModel->getTaskIdentifier(),
+                with: [
                     'pipeline',
                     'task',
-                ]
+                ],
+                append: ['history']
             );
             return $this->output->information(new PipelineTaskGetResponseModel($model));
         } catch (Throwable $exception) {

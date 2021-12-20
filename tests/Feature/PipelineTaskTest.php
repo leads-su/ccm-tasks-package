@@ -360,11 +360,12 @@ class PipelineTaskTest extends AbstractFeatureTest
             [
                 'pipeline'      =>  $this->getPipeline()->toArray(),
                 'task'          =>  $this->getTask()->toArray(),
+                'history'       =>  [],
             ],
             $this->getPipelineTask()->toArray(),
         );
 
-        $response->assertExactJson([
+        $response->assertJson([
             'success'       =>  true,
             'code'          =>  200,
             'data'          =>  $data,
@@ -388,11 +389,12 @@ class PipelineTaskTest extends AbstractFeatureTest
             [
                 'pipeline'      =>  $this->getPipeline()->toArray(),
                 'task'          =>  $this->getTask()->toArray(),
+                'history'       =>  [],
             ],
             $this->getPipelineTask()->toArray(),
         );
 
-        $response->assertExactJson([
+        $response->assertJson([
             'success'           =>  true,
             'code'              =>  200,
             'data'              =>  $data,
