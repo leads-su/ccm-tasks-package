@@ -25,6 +25,7 @@ class ActionExecution extends AbstractSourcedModel implements ActionExecutionInt
      * @inheritDoc
      */
     public $fillable = [
+        'server_uuid',
         'action_uuid',
         'task_uuid',
         'pipeline_uuid',
@@ -37,6 +38,7 @@ class ActionExecution extends AbstractSourcedModel implements ActionExecutionInt
      */
     public $casts = [
         'id'                        =>  'integer',
+        'server_uuid'               =>  'string',
         'action_uuid'               =>  'string',
         'task_uuid'                 =>  'string',
         'pipeline_uuid'             =>  'string',
@@ -89,6 +91,23 @@ class ActionExecution extends AbstractSourcedModel implements ActionExecutionInt
     public function setID(int $id): ActionExecutionInterface
     {
         $this->attributes['id'] = (int) $id;
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getServerUuid(): string|null
+    {
+        return $this->attributes['server_uuid'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setServerUuid(string $uuid): ActionExecutionInterface
+    {
+        $this->attributes['server_uuid'] = (string) $uuid;
         return $this;
     }
 

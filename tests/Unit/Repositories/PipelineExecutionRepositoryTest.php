@@ -36,7 +36,6 @@ class PipelineExecutionRepositoryTest extends AbstractRepositoryTest
         Arr::set($data, 'state', 2);
         $entity = $this->repository()->update(
             $createdEntity->getID(),
-            Arr::get($data, 'pipeline_uuid'),
             Arr::get($data, 'state'),
         );
         $this->assertSameReturned($entity, $data);
@@ -89,6 +88,29 @@ class PipelineExecutionRepositoryTest extends AbstractRepositoryTest
     {
         $this->expectException(ModelNotFoundException::class);
         $this->repository()->findOrFail(Arr::get($data, 'id'));
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfNullIsReturnedFromFindByManyRequest(array $data): void
+    {
+        $result = $this->repository()->findByMany(fields: ['id', 'uuid'], value: Arr::get($data, 'id'));
+        $this->assertNull($result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValueIsReturnedFromFindByManyRequest(array $data): void
+    {
+        $this->createEntity($data);
+        $result = $this->repository()->findByMany(fields: ['id', 'uuid'], value: Arr::get($data, 'id'));
+        $this->assertNotNull($result);
     }
 
     /**

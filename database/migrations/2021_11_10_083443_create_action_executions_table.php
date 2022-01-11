@@ -23,6 +23,7 @@ class CreateActionExecutionsTable extends Migration
     {
         Schema::create($this->tableName, function (Blueprint $table): void {
             $table->id();
+            $table->foreignUuid('server_uuid');
             $table->foreignUuid('action_uuid');
             $table->foreignUuid('task_uuid');
             $table->foreignUuid('pipeline_uuid');

@@ -96,6 +96,29 @@ class PipelineRepositoryTest extends AbstractRepositoryTest
      * @dataProvider entityDataProvider
      * @return void
      */
+    public function testShouldPassIfNullIsReturnedFromFindByManyRequest(array $data): void
+    {
+        $result = $this->repository()->findByMany(fields: ['id', 'uuid'], value: Arr::get($data, 'id'));
+        $this->assertNull($result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValueIsReturnedFromFindByManyRequest(array $data): void
+    {
+        $this->createEntity($data);
+        $result = $this->repository()->findByMany(fields: ['id', 'uuid'], value: Arr::get($data, 'id'));
+        $this->assertNotNull($result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
     public function testShouldPassIfTrueReturnedFromDeleteMethod(array $data): void
     {
         $this->createEntity($data);

@@ -24,6 +24,19 @@ interface ActionExecutionInterface
     public function setID(int $id): ActionExecutionInterface;
 
     /**
+     * Get server uuid
+     * @return string | null
+     */
+    public function getServerUuid(): string|null;
+
+    /**
+     * Set server uuid
+     * @param string $uuid
+     * @return ActionExecutionInterface
+     */
+    public function setServerUuid(string $uuid): ActionExecutionInterface;
+
+    /**
      * Get action uuid
      * @return string
      */

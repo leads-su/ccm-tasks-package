@@ -83,7 +83,11 @@ class TaskRepository implements TaskRepositoryInterface
                 $query = $query->orWhere($field, '=', $value);
             }
         }
-        return $query->first($columns)->setAppends($append);
+        $result = $query->first($columns);
+        if (!$result) {
+            return $result;
+        }
+        return $result->setAppends($append);
     }
 
     /**

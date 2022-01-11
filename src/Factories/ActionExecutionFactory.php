@@ -22,6 +22,7 @@ class ActionExecutionFactory extends Factory
     public function definition(): array
     {
         return [
+            'server_uuid'               =>  $this->faker->uuid(),
             'action_uuid'               =>  $this->faker->uuid(),
             'task_uuid'                 =>  $this->faker->uuid(),
             'pipeline_uuid'             =>  $this->faker->uuid(),

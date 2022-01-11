@@ -79,6 +79,7 @@ abstract class AbstractModelTest extends TestCase
             'example_action_execution_entry'    =>  [
                 'data'                          =>  [
                     'id'                        =>  1,
+                    'server_uuid'               =>  self::$serviceUUID,
                     'action_uuid'               =>  self::$actionUUID,
                     'task_uuid'                 =>  self::$taskUUID,
                     'pipeline_uuid'             =>  self::$pipelineUUID,

@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 /**
  * Class Task
  * @package ConsulConfigManager\Tasks\Models
+ *
+ * @property \Illuminate\Database\Eloquent\Collection actions
  */
 class Task extends AbstractSourcedModel implements TaskInterface
 {

@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 /**
  * Class Action
  * @package ConsulConfigManager\Tasks\Models
+ *
+ * @property \Illuminate\Database\Eloquent\Collection hosts
  */
 class Action extends AbstractSourcedModel implements ActionInterface
 {

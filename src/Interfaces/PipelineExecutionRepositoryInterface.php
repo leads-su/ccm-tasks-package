@@ -60,6 +60,31 @@ interface PipelineExecutionRepositoryInterface
     public function findByOrFail(string $field, string $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface;
 
     /**
+     * Find entity while using multiple fields to perform search
+     * @param array $fields
+     * @param string $value
+     * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
+     * @param bool $withDeleted
+     * @return PipelineExecutionInterface|null
+     */
+    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null;
+
+    /**
+     * Find entity while using multiple fields to perform search or throw exception
+     * @param array $fields
+     * @param string $value
+     * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
+     * @param bool $withDeleted
+     * @return PipelineExecutionInterface
+     * @throws ModelNotFoundException
+     */
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface;
+
+    /**
      * Create new pipeline execution
      * @param string $pipelineUuid
      * @param int $state
@@ -69,32 +94,31 @@ interface PipelineExecutionRepositoryInterface
 
     /**
      * Update existing pipeline execution
-     * @param int $id
-     * @param string $pipelineUuid
+     * @param string|int $identifier
      * @param int $state
      * @return PipelineExecutionInterface
      */
-    public function update(int $id, string $pipelineUuid, int $state): PipelineExecutionInterface;
+    public function update(string|int $identifier, int $state): PipelineExecutionInterface;
 
     /**
      * Delete pipeline execution
-     * @param int $id
+     * @param string|int $identifier
      * @param bool $forceDelete
      * @return bool
      */
-    public function delete(int $id, bool $forceDelete = false): bool;
+    public function delete(string|int $identifier, bool $forceDelete = false): bool;
 
     /**
      * Restore pipeline execution
-     * @param int $id
+     * @param string|int $identifier
      * @return bool
      */
-    public function restore(int $id): bool;
+    public function restore(string|int $identifier): bool;
 
     /**
      * Force pipeline execution deletion
-     * @param int $id
+     * @param string|int $identifier
      * @return bool
      */
-    public function forceDelete(int $id): bool;
+    public function forceDelete(string|int $identifier): bool;
 }

@@ -12,6 +12,8 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 /**
  * Class Pipeline
  * @package ConsulConfigManager\Tasks\Models
+ *
+ * @property \Illuminate\Database\Eloquent\Collection tasks
  */
 class Pipeline extends AbstractSourcedModel implements PipelineInterface
 {

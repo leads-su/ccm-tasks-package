@@ -47,6 +47,31 @@ class ActionExecutionTest extends AbstractModelTest
      * @dataProvider modelDataProvider
      * @return void
      */
+    public function testShouldPassIfValidDataReturnedFromGetServerUuidMethod(array $data): void
+    {
+        $response = $this->model($data)->getServerUuid();
+        $this->assertEquals(Arr::get($data, 'server_uuid'), $response);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromSetServerUuidMethod(array $data): void
+    {
+        $model = $this->model($data);
+        $model->setServerUuid('1c64f76a-84d3-4196-a0bf-3f3bef6d05da');
+        $this->assertEquals('1c64f76a-84d3-4196-a0bf-3f3bef6d05da', $model->getServerUuid());
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
     public function testShouldPassIfValidDataReturnedFromGetActionUuidMethod(array $data): void
     {
         $response = $this->model($data)->getActionUuid();

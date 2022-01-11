@@ -59,6 +59,42 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
     /**
      * @inheritDoc
      */
+    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null
+    {
+        $query = PipelineExecution::withTrashed($withDeleted)->with($with);
+        foreach ($fields as $index => $field) {
+            if ($index === 0) {
+                $query = $query->where($field, '=', $value);
+            } else {
+                $query = $query->orWhere($field, '=', $value);
+            }
+        }
+        $result = $query->first($columns);
+        if (!$result) {
+            return $result;
+        }
+        return $result->setAppends($append);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface
+    {
+        $query = PipelineExecution::withTrashed($withDeleted)->with($with);
+        foreach ($fields as $index => $field) {
+            if ($index === 0) {
+                $query = $query->where($field, '=', $value);
+            } else {
+                $query = $query->orWhere($field, '=', $value);
+            }
+        }
+        return $query->firstOrFail($columns)->setAppends($append);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function create(string $pipelineUuid, int $state): PipelineExecutionInterface
     {
         $uuid = Str::uuid()->toString();
@@ -74,12 +110,16 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
     /**
      * @inheritDoc
      */
-    public function update(int $id, string $pipelineUuid, int $state): PipelineExecutionInterface
+    public function update(string|int $identifier, int $state): PipelineExecutionInterface
     {
-        $model = $this->findOrFail($id, ['uuid']);
+        $model = $this->findByManyOrFail(
+            fields: ['id', 'uuid'],
+            value: $identifier,
+            columns: ['uuid', 'pipeline_uuid']
+        );
         PipelineExecutionAggregateRoot::retrieve($model->getUuid())
             ->updateEntity(
-                $pipelineUuid,
+                $model->getPipelineUuid(),
                 $state
             )
             ->persist();
@@ -89,10 +129,14 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
     /**
      * @inheritDoc
      */
-    public function delete(int $id, bool $forceDelete = false): bool
+    public function delete(string|int $identifier, bool $forceDelete = false): bool
     {
         try {
-            $model = $this->findOrFail($id, ['uuid']);
+            $model = $this->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $identifier,
+                columns: ['uuid']
+            );
             PipelineExecutionAggregateRoot::retrieve($model->getUuid())
                 ->deleteEntity()
                 ->persist();
@@ -105,10 +149,15 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
     /**
      * @inheritDoc
      */
-    public function restore(int $id): bool
+    public function restore(string|int $identifier): bool
     {
         try {
-            $model = $this->findOrFail($id, ['uuid'], true);
+            $model = $this->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $identifier,
+                columns: ['uuid'],
+                withDeleted: true,
+            );
             PipelineExecutionAggregateRoot::retrieve($model->getUuid())
                 ->restoreEntity()
                 ->persist();
@@ -121,8 +170,8 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
     /**
      * @inheritDoc
      */
-    public function forceDelete(int $id): bool
+    public function forceDelete(string|int $identifier): bool
     {
-        return $this->delete($id, true);
+        return $this->delete($identifier, true);
     }
 }
