@@ -163,6 +163,6 @@ class Pipeline extends AbstractSourcedModel implements PipelineInterface
             'uuid',
             'uuid',
             'task_uuid'
-        )->orderBy((new PipelineTask)->getTable() .'.order', 'ASC');
+        )->orderBy((new PipelineTask())->getTable() .'.order', 'ASC');
     }
 }
