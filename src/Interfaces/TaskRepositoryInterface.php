@@ -54,7 +54,7 @@ interface TaskRepositoryInterface
      * @param bool $withDeleted
      * @return TaskInterface|null
      */
-    public function findBy(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null;
+    public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null;
 
     /**
      * Find task by specified field or throw exception
@@ -67,7 +67,7 @@ interface TaskRepositoryInterface
      * @return TaskInterface
      * @throws ModelNotFoundException
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface;
+    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface;
 
     /**
      * Find entity while using multiple fields to perform search
@@ -79,7 +79,7 @@ interface TaskRepositoryInterface
      * @param bool $withDeleted
      * @return TaskInterface|null
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null;
+    public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null;
 
     /**
      * Find entity while using multiple fields to perform search or throw exception
@@ -92,7 +92,7 @@ interface TaskRepositoryInterface
      * @return TaskInterface
      * @throws ModelNotFoundException
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface;
+    public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface;
 
     /**
      * Create new task

@@ -57,7 +57,7 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null
+    public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null
     {
         return Task::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
     }
@@ -65,7 +65,7 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface
+    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface
     {
         return Task::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
     }
@@ -73,7 +73,7 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null
+    public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null
     {
         $query = Task::withTrashed($withDeleted)->with($with);
         foreach ($fields as $index => $field) {
@@ -93,7 +93,7 @@ class TaskRepository implements TaskRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface
+    public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface
     {
         $query = Task::withTrashed($withDeleted)->with($with);
         foreach ($fields as $index => $field) {

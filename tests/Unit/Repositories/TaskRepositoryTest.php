@@ -121,6 +121,53 @@ class TaskRepositoryTest extends AbstractRepositoryTest
      * @dataProvider entityDataProvider
      * @return void
      */
+    public function testShouldPassIfNullIsReturnedFromFindByManyOrFailRequestWithId(array $data): void
+    {
+        $this->expectException(ModelNotFoundException::class);
+        $this->repository()->findByManyOrFail(fields: ['id', 'uuid'], value: Arr::get($data, 'id'));
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValueIsReturnedFromFindByManyOrFailRequestWithId(array $data): void
+    {
+        $this->createEntity($data);
+        $response = $this->repository()->findByManyOrFail(fields: ['id', 'uuid'], value: Arr::get($data, 'id'));
+        $this->assertSameReturned($response, $data);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfNullIsReturnedFromFindByManyOrFailRequestWithUuid(array $data): void
+    {
+        $this->expectException(ModelNotFoundException::class);
+        $this->repository()->findByManyOrFail(fields: ['id', 'uuid'], value: Arr::get($data, 'uuid'));
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValueIsReturnedFromFindByManyOrFailRequestWithUuid(array $data): void
+    {
+        $entity = $this->createEntity($data);
+        Arr::set($data, 'uuid', $entity->getUuid());
+        $response = $this->repository()->findByManyOrFail(fields: ['id', 'uuid'], value: Arr::get($data, 'uuid'));
+        $this->assertSameReturned($response, $data);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
     public function testShouldPassIfTrueReturnedFromDeleteMethod(array $data): void
     {
         $this->createEntity($data);

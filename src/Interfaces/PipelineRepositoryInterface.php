@@ -54,7 +54,7 @@ interface PipelineRepositoryInterface
      * @param bool $withDeleted
      * @return PipelineInterface|null
      */
-    public function findBy(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null;
+    public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null;
 
     /**
      * Find pipeline by specified field or throw exception
@@ -67,7 +67,7 @@ interface PipelineRepositoryInterface
      * @return PipelineInterface
      * @throws ModelNotFoundException
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface;
+    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface;
 
     /**
      * Find entity while using multiple fields to perform search
@@ -79,7 +79,7 @@ interface PipelineRepositoryInterface
      * @param bool $withDeleted
      * @return PipelineInterface|null
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null;
+    public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null;
 
     /**
      * Find entity while using multiple fields to perform search or throw exception
@@ -92,7 +92,7 @@ interface PipelineRepositoryInterface
      * @return PipelineInterface
      * @throws ModelNotFoundException
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface;
+    public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface;
 
     /**
      * Create new pipeline

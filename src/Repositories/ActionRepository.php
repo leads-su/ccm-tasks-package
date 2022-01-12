@@ -57,7 +57,7 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null
+    public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null
     {
         return Action::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
     }
@@ -65,7 +65,7 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface
+    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface
     {
         return Action::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
     }
@@ -73,7 +73,7 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null
+    public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null
     {
         $query = Action::withTrashed($withDeleted)->with($with);
         foreach ($fields as $index => $field) {
@@ -93,7 +93,7 @@ class ActionRepository implements ActionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface
+    public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface
     {
         $query = Action::withTrashed($withDeleted)->with($with);
         foreach ($fields as $index => $field) {

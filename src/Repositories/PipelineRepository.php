@@ -57,7 +57,7 @@ class PipelineRepository implements PipelineRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null
+    public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null
     {
         return Pipeline::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
     }
@@ -65,7 +65,7 @@ class PipelineRepository implements PipelineRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface
+    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface
     {
         return Pipeline::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
     }
@@ -73,7 +73,7 @@ class PipelineRepository implements PipelineRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByMany(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null
+    public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface|null
     {
         $query = Pipeline::withTrashed($withDeleted)->with($with);
         foreach ($fields as $index => $field) {
@@ -93,7 +93,7 @@ class PipelineRepository implements PipelineRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByManyOrFail(array $fields, string $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface
+    public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineInterface
     {
         $query = Pipeline::withTrashed($withDeleted)->with($with);
         foreach ($fields as $index => $field) {
