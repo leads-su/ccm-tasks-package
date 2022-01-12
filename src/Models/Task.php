@@ -183,6 +183,6 @@ class Task extends AbstractSourcedModel implements TaskInterface
             'uuid',
             'uuid',
             'action_uuid'
-        );
+        )->orderBy((new TaskAction)->getTable() .'.order', 'ASC');
     }
 }
