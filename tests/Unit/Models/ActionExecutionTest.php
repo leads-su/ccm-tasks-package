@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Models;
+namespace ConsulConfigManager\Tasks\Test\backup\Models;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Models\ActionExecution;
@@ -9,6 +9,7 @@ use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionExecutionLogInterface;
 
 /**
  * Class ActionExecutionTest
@@ -229,6 +230,16 @@ class ActionExecutionTest extends AbstractModelTest
         $this->createCompletePipeline();
         $entity = ActionExecution::where('action_uuid', '=', self::$actionUUID)->first();
         $this->assertInstanceOf(PipelineExecutionInterface::class, $entity->pipelineExecution);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromLogRelation(): void
+    {
+        $this->createCompletePipeline();
+        $execution = ActionExecution::where('action_uuid', '=', self::$actionUUID)->first();
+        $this->assertInstanceOf(ActionExecutionLogInterface::class, $execution->log);
     }
 
     /**

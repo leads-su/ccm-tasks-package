@@ -2,6 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
@@ -118,6 +119,12 @@ interface ActionExecutionInterface
      * @return BelongsTo
      */
     public function pipeline(): BelongsTo;
+
+    /**
+     * Get log for this Action Execution
+     * @return HasOne
+     */
+    public function log(): HasOne;
 
     /**
      * Get instance of pipeline execution model

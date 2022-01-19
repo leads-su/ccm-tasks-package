@@ -9,10 +9,10 @@ use ConsulConfigManager\Users\Models\User;
 use Spatie\EventSourcing\EventSourcingServiceProvider;
 use ConsulConfigManager\Tasks\Providers\TasksServiceProvider;
 use ConsulConfigManager\Users\Providers\UsersServiceProvider;
-use ConsulConfigManager\Tasks\Test\Concerns\WithConsulServices;
 use ConsulConfigManager\Users\Domain\ValueObjects\EmailValueObject;
 use ConsulConfigManager\Users\Domain\ValueObjects\PasswordValueObject;
 use ConsulConfigManager\Users\Domain\ValueObjects\UsernameValueObject;
+use ConsulConfigManager\Consul\Agent\Providers\ConsulAgentServiceProvider;
 
 /**
  * Class TestCase
@@ -22,13 +22,13 @@ abstract class TestCase extends \ConsulConfigManager\Testing\TestCase
 {
     use Concerns\WithQueueMigrations;
     use Concerns\WithEventSourcingMigrations;
-    use WithConsulServices;
 
     /**
      * @inheritDoc
      */
     protected array $packageProviders = [
         EventSourcingServiceProvider::class,
+        ConsulAgentServiceProvider::class,
         TasksServiceProvider::class,
         UsersServiceProvider::class,
     ];
@@ -63,7 +63,6 @@ abstract class TestCase extends \ConsulConfigManager\Testing\TestCase
             'email'         =>  new EmailValueObject('admin@leads.su'),
             'password'      =>  new PasswordValueObject('1234567890'),
         ]);
-        $this->createConsulServicesTables();
     }
 
 
@@ -73,7 +72,6 @@ abstract class TestCase extends \ConsulConfigManager\Testing\TestCase
     public function runBeforeTearDown(): void
     {
         TaskDomain::ignoreRoutes();
-        $this->dropConsulServicesTables();
     }
 
     /**

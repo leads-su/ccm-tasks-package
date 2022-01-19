@@ -1,9 +1,9 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Events\Task;
+namespace ConsulConfigManager\Tasks\Test\backup\Events\Task;
 
 use Illuminate\Support\Carbon;
-use ConsulConfigManager\Tasks\Test\Unit\Events\AbstractEventTest;
+use ConsulConfigManager\Tasks\Test\backup\Events\AbstractEventTest;
 
 /**
  * Class AbstractTaskEventTest

@@ -7,6 +7,7 @@ use React\EventLoop\Loop;
 use Illuminate\Support\Arr;
 use React\EventLoop\LoopInterface;
 use ConsulConfigManager\Tasks\Enums\ExecutionState;
+use ConsulConfigManager\Tasks\Models\ActionExecutionLog;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
@@ -289,8 +290,15 @@ class EventLoop
             actionIdentifier: $actionIdentifier,
         )->execute(function (int $statusCode, array $output = []) use ($serverIdentifier, $taskIdentifier, $actionIdentifier): void {
             $stateCode = $statusCode === 0 ? ExecutionState::SUCCESS : ExecutionState::FAILURE;
-            $this->setActionState($serverIdentifier, $taskIdentifier, $stateCode, $actionIdentifier);
-            var_dump($output);
+            $this
+                ->setActionExecutionLog(
+                    $serverIdentifier,
+                    $taskIdentifier,
+                    $statusCode,
+                    $output,
+                    $actionIdentifier,
+                )
+                ->setActionState($serverIdentifier, $taskIdentifier, $stateCode, $actionIdentifier);
         });
     }
 
@@ -588,6 +596,29 @@ class EventLoop
         $actionIdentifier = $actionIdentifier ?? $this->getCurrentAction($actionIdentifier);
         $execution = $this->getActionExecution($serverIdentifier, $taskIdentifier, $actionIdentifier);
         $this->actionExecutionRepository->updateById($execution->getID(), $state);
+        return $this;
+    }
+
+    /**
+     * Set action execution log information
+     * @param string $serverIdentifier
+     * @param string $taskIdentifier
+     * @param int $exitCode
+     * @param array $output
+     * @param string|null $actionIdentifier
+     * @return EventLoop
+     */
+    private function setActionExecutionLog(string $serverIdentifier, string $taskIdentifier, int $exitCode, array $output, ?string $actionIdentifier = null): EventLoop
+    {
+        $actionIdentifier = $actionIdentifier ?? $this->getCurrentAction($actionIdentifier);
+        $execution = $this->getActionExecution($serverIdentifier, $taskIdentifier, $actionIdentifier);
+
+        $log = new ActionExecutionLog();
+        $log->setActionExecutionID($execution->getID());
+        $log->setExitCode($exitCode);
+        $log->setOutput($output);
+        $log->save();
+
         return $this;
     }
 

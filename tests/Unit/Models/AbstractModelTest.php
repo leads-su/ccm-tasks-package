@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Models;
+namespace ConsulConfigManager\Tasks\Test\backup\Models;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Models\Task;
@@ -15,6 +15,7 @@ use ConsulConfigManager\Consul\Agent\Models\Service;
 use ConsulConfigManager\Tasks\Models\ActionExecution;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Models\PipelineExecution;
+use ConsulConfigManager\Tasks\Models\ActionExecutionLog;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
@@ -25,6 +26,7 @@ use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionExecutionLogInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
 
@@ -70,7 +72,7 @@ abstract class AbstractModelTest extends TestCase
     protected static string $pipelineExecutionUUID = '0062eb34-62dc-41b7-a0f3-097d5e7da889';
 
     /**
-     * Action execution model data provider
+     * Action Execution model data provider
      * @return \array[][]
      */
     protected function actionExecutionModelDataProvider(): array
@@ -85,6 +87,33 @@ abstract class AbstractModelTest extends TestCase
                     'pipeline_uuid'             =>  self::$pipelineUUID,
                     'pipeline_execution_uuid'   =>  self::$pipelineExecutionUUID,
                     'state'                     =>  1,
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Action Execution Log model data provider
+     * @return \array[][]
+     */
+    protected function actionExecutionLogModelDataProvider(): array
+    {
+        return [
+            'example_action_execution_log_entry'    =>  [
+                'data'                              =>  [
+                    'id'                            =>  1,
+                    'action_execution_id'           =>  1,
+                    'exit_code'                     =>  0,
+                    'output'                        =>  [
+                        [
+                            'message'               =>  'Hello World',
+                            'timestamp'             =>  1642592730,
+                        ],
+                        [
+                            'message'               =>  'exit status 0',
+                            'timestamp'             =>  1642592731,
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -260,6 +289,20 @@ abstract class AbstractModelTest extends TestCase
             return ActionExecution::factory()->create($data);
         }
         return ActionExecution::factory()->make($data);
+    }
+
+    /**
+     * Create action execution log model instance
+     * @param array $data
+     * @param bool $create
+     * @return ActionExecutionLogInterface
+     */
+    protected function actionExecutionLogModel(array $data, bool $create = false): ActionExecutionLogInterface
+    {
+        if ($create) {
+            return ActionExecutionLog::factory()->create($data);
+        }
+        return ActionExecutionLog::factory()->make($data);
     }
 
     /**
@@ -461,6 +504,21 @@ abstract class AbstractModelTest extends TestCase
         $this->actionHostModel([
             'action_uuid'       =>  $actionUUID,
             'service_uuid'      =>  $serviceUUID,
+        ], true);
+
+        $this->actionExecutionLogModel([
+            'action_execution_id'           =>  1,
+            'exit_code'                     =>  0,
+            'output'                        =>  [
+                [
+                    'message'               =>  'Hello World',
+                    'timestamp'             =>  1642592730,
+                ],
+                [
+                    'message'               =>  'exit status 0',
+                    'timestamp'             =>  1642592731,
+                ],
+            ],
         ], true);
 
         $this->actionExecutionModel([

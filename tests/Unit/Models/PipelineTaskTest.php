@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Models;
+namespace ConsulConfigManager\Tasks\Test\backup\Models;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Models\PipelineTask;

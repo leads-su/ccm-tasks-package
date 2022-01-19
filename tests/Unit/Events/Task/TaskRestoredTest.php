@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Events\Task;
+namespace ConsulConfigManager\Tasks\Test\backup\Events\Task;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Events\Task\TaskRestored;

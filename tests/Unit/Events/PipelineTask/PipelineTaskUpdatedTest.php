@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Events\PipelineTask;
+namespace ConsulConfigManager\Tasks\Test\backup\Events\PipelineTask;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Events\PipelineTask\PipelineTaskUpdated;

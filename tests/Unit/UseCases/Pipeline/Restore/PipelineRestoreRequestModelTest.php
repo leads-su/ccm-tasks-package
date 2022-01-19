@@ -1,7 +1,8 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\UseCases\Pipeline\Restore;
+namespace ConsulConfigManager\Tasks\Test\backup\UseCases\Pipeline\Restore;
 
+use function request;
 use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\UseCases\Pipeline\Restore\PipelineRestoreRequestModel;
 

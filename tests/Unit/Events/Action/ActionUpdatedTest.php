@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Events\Action;
+namespace ConsulConfigManager\Tasks\Test\backup\Events\Action;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Events\Action\ActionUpdated;

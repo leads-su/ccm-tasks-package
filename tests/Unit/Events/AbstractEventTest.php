@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Events;
+namespace ConsulConfigManager\Tasks\Test\backup\Events;
 
 use Exception;
 use Illuminate\Support\Arr;
