@@ -10,6 +10,7 @@ use ConsulConfigManager\Tasks\Models\Pipeline;
 use ConsulConfigManager\Consul\Agent\Models\Service;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Runner;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
@@ -94,6 +95,7 @@ class RunnerIntegrationTest extends TestCase
     public function testShouldPassIfCanCreateBasePipelineItemsThroughModels(): void
     {
         $this->createCompletePipeline(false, false);
+        $this->startRunner();
     }
 
     /**
@@ -103,6 +105,7 @@ class RunnerIntegrationTest extends TestCase
     public function testShouldPassIfCanCreateBasePipelineItemsThroughRepositories(): void
     {
         $this->createCompletePipeline(true, false);
+        $this->startRunner();
     }
 
     /**
@@ -112,6 +115,7 @@ class RunnerIntegrationTest extends TestCase
     public function testShouldPassIfCanCreateBasePipelineItemsThroughModelsWithFailing(): void
     {
         $this->createCompletePipeline(false, true);
+        $this->startRunner();
     }
 
     /**
@@ -121,6 +125,18 @@ class RunnerIntegrationTest extends TestCase
     public function testShouldPassIfCanCreateBasePipelineItemsThroughRepositoriesWithFailing(): void
     {
         $this->createCompletePipeline(true, true);
+        $this->startRunner();
+    }
+
+    /**
+     * Start runner
+     * @return void
+     * @throws BindingResolutionException
+     */
+    private function startRunner(): void {
+        return;
+        $runner = new Runner($this->pipelineIdentifier);
+        $runner->run();
     }
 
     /**
@@ -288,7 +304,7 @@ class RunnerIntegrationTest extends TestCase
             $this->createFirstServerThroughRepository() :
             $this->createFirstServerThroughModel();
 
-        $this->assertNotNull($this->serverRepository()->find('ccm-first-server.local-172.18.0.235'));
+        $this->assertNotNull($this->serverRepository()->find('ccm-first-server.local-172.18.1.106'));
         return $instance;
     }
 
@@ -303,7 +319,7 @@ class RunnerIntegrationTest extends TestCase
             $this->createSecondServerThroughRepository() :
             $this->createSecondServerThroughModel();
 
-        $this->assertNotNull($this->serverRepository()->find('ccm-second-server.local-172.18.0.235'));
+        $this->assertNotNull($this->serverRepository()->find('ccm-second-server.local-172.18.1.106'));
         return $instance;
     }
 
@@ -475,9 +491,9 @@ class RunnerIntegrationTest extends TestCase
             TaskType::REMOTE,
             'php',
             [ 'success.php' ],
-            '/home/scripts',
-            null,
-            true,
+            '/home/cabinet',
+            'cabinet',
+            false,
             true,
         );
         $this->firstSuccessfulActionIdentifier = $instance->getUuid();
@@ -497,9 +513,9 @@ class RunnerIntegrationTest extends TestCase
             TaskType::REMOTE,
             'php',
             [ 'success.php' ],
-            '/home/scripts',
-            null,
-            true,
+            '/home/cabinet',
+            'cabinet',
+            false,
             true,
         );
     }
@@ -516,9 +532,9 @@ class RunnerIntegrationTest extends TestCase
             TaskType::REMOTE,
             'php',
             [ 'success.php' ],
-            '/home/scripts',
-            null,
-            true,
+            '/home/cabinet',
+            'cabinet',
+            false,
             true,
         );
         $this->secondSuccessfulActionIdentifier = $instance->getUuid();
@@ -538,9 +554,9 @@ class RunnerIntegrationTest extends TestCase
             TaskType::REMOTE,
             'php',
             [ 'success.php' ],
-            '/home/scripts',
-            null,
-            true,
+            '/home/cabinet',
+            'cabinet',
+            false,
             true,
         );
     }
@@ -557,9 +573,9 @@ class RunnerIntegrationTest extends TestCase
             TaskType::REMOTE,
             'php',
             [ 'failure.php' ],
-            '/home/scripts',
-            null,
-            true,
+            '/home/cabinet',
+            'cabinet',
+            false,
             true,
         );
         $this->failingActionIdentifier = $instance->getUuid();
@@ -579,9 +595,9 @@ class RunnerIntegrationTest extends TestCase
             TaskType::REMOTE,
             'php',
             [ 'failure.php' ],
-            '/home/scripts',
-            null,
-            true,
+            '/home/cabinet',
+            'cabinet',
+            false,
             true,
         );
     }
@@ -621,9 +637,9 @@ class RunnerIntegrationTest extends TestCase
     private function createFirstServerThroughRepository(): ServiceInterface
     {
         $instance = $this->createNewServerThroughRepository(
-            'ccm-first-server.local-172.18.0.235',
+            'ccm-first-server.local-172.18.1.106',
             'ccm',
-            '172.18.0.235',
+            '172.18.1.106',
             32175,
             'leads',
             [],
@@ -643,9 +659,9 @@ class RunnerIntegrationTest extends TestCase
     {
         return $this->createNewServerThroughModel(
             $this->firstServerIdentifier,
-            'ccm-first-server.local-172.18.0.235',
+            'ccm-first-server.local-172.18.1.106',
             'ccm',
-            '172.18.0.235',
+            '172.18.1.106',
             32175,
             'leads',
             [],
@@ -662,9 +678,9 @@ class RunnerIntegrationTest extends TestCase
     private function createSecondServerThroughRepository(): ServiceInterface
     {
         $instance = $this->createNewServerThroughRepository(
-            'ccm-second-server.local-172.18.0.235',
+            'ccm-second-server.local-172.18.1.106',
             'ccm',
-            '172.18.0.235',
+            '172.18.1.106',
             32175,
             'leads',
             [],
@@ -684,9 +700,9 @@ class RunnerIntegrationTest extends TestCase
     {
         return $this->createNewServerThroughModel(
             $this->secondServerIdentifier,
-            'ccm-second-server.local-172.18.0.235',
+            'ccm-second-server.local-172.18.1.106',
             'ccm',
-            '172.18.0.235',
+            '172.18.1.106',
             32175,
             'leads',
             [],

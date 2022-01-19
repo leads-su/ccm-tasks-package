@@ -1,7 +1,7 @@
 {
     "name": "ccm/tasks",
     "description": "Tasks package for CCM backend",
-    "version": "1.0.9",
+    "version": "1.0.13",
     "license": "proprietary",
     "keywords": [
         "ccm",
@@ -25,6 +25,8 @@
         "ccm/consul-kv": "^1.0",
         "ccm/domain": "^1.0",
         "ccm/users": "^1.0",
+        "clue/reactphp-eventsource": "dev-master",
+        "react/promise": "^2.8",
         "spatie/laravel-event-sourcing": "^5.0"
     },
     "require-dev": {

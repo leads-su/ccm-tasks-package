@@ -341,16 +341,6 @@ class EventLoop
     }
 
     /**
-     * Get pipeline execution state
-     * @return int
-     */
-    private function getPipelineExecutionState(): int
-    {
-        $execution = $this->getPipelineExecution();
-        return $execution->refresh()->getState();
-    }
-
-    /**
      * Set pipeline execution state to specified value
      * @param int $state
      * @return EventLoop
@@ -410,19 +400,6 @@ class EventLoop
     }
 
     /**
-     * Get Task Execution current state
-     * @param string $serverIdentifier
-     * @param string|null $taskIdentifier
-     * @return int
-     */
-    private function getTaskExecutionState(string $serverIdentifier, ?string $taskIdentifier = null): int
-    {
-        $taskIdentifier = $taskIdentifier ?? $this->getCurrentTask($serverIdentifier);
-        $execution = $this->getTaskExecution($serverIdentifier, $taskIdentifier);
-        return $execution->refresh()->getState();
-    }
-
-    /**
      * Set Task Execution state
      * @param string $serverIdentifier
      * @param int $state
@@ -465,7 +442,12 @@ class EventLoop
             foreach ($serverTasks as $localTaskIdentifier => $state) {
                 if ($localTaskIdentifier === $taskIdentifier) {
                     $serversWithTask++;
-                    if ($state === ExecutionState::SUCCESS || $state === ExecutionState::FAILURE) {
+                    if (
+                        $state === ExecutionState::SUCCESS ||
+                        $state === ExecutionState::FAILURE ||
+                        $state === ExecutionState::PARTIALLY_COMPLETED ||
+                        $state === ExecutionState::CANCELED
+                    ) {
                         $serversCompleted++;
                     }
                 }
@@ -483,7 +465,11 @@ class EventLoop
     {
         $has = false;
         foreach ($this->taskStateReference[$serverIdentifier] as $identifier => $state) {
-            if ($state !== ExecutionState::SUCCESS && $state !== ExecutionState::FAILURE) {
+            if (
+                $state !== ExecutionState::SUCCESS &&
+                $state !== ExecutionState::FAILURE &&
+                $state !== ExecutionState::CANCELED
+            ) {
                 $this->setCurrentTask($serverIdentifier, $identifier);
                 $has = true;
                 break;
@@ -570,20 +556,6 @@ class EventLoop
     }
 
     /**
-     * Get Action Execution current state
-     * @param string $serverIdentifier
-     * @param string $taskIdentifier
-     * @param string|null $actionIdentifier
-     * @return int
-     */
-    private function getActionExecutionState(string $serverIdentifier, string $taskIdentifier, ?string $actionIdentifier = null): int
-    {
-        $actionIdentifier = $actionIdentifier ?? $this->getCurrentAction($actionIdentifier);
-        $execution = $this->getActionExecution($serverIdentifier, $taskIdentifier, $actionIdentifier);
-        return $execution->refresh()->getState();
-    }
-
-    /**
      * Set Action Execution state
      * @param string $serverIdentifier
      * @param string $taskIdentifier
@@ -662,6 +634,9 @@ class EventLoop
         $actionIdentifier = $actionIdentifier ?? $this->getCurrentAction($serverIdentifier);
         $this->setActionExecutionState($serverIdentifier, $taskIdentifier, $state, $actionIdentifier);
         $this->actionStateReference[$serverIdentifier][$taskIdentifier][$actionIdentifier] = $state;
+        if ($state === ExecutionState::FAILURE) {
+            $this->markOtherActionsAs($serverIdentifier, $taskIdentifier, ExecutionState::CANCELED);
+        }
         return $this;
     }
 
@@ -676,7 +651,9 @@ class EventLoop
     {
         $actionIdentifier = $actionIdentifier ?? $this->getCurrentAction($serverIdentifier);
         $state = $this->actionStateReference[$serverIdentifier][$taskIdentifier][$actionIdentifier];
-        return $state === ExecutionState::SUCCESS || $state === ExecutionState::FAILURE;
+        return $state === ExecutionState::SUCCESS ||
+            $state === ExecutionState::FAILURE ||
+            $state === ExecutionState::CANCELED;
     }
 
     /**
@@ -689,7 +666,11 @@ class EventLoop
     {
         $has = false;
         foreach ($this->actionStateReference[$serverIdentifier][$taskIdentifier] as $identifier => $state) {
-            if ($state !== ExecutionState::SUCCESS && $state !== ExecutionState::FAILURE) {
+            if (
+                $state !== ExecutionState::SUCCESS &&
+                $state !== ExecutionState::FAILURE &&
+                $state !== ExecutionState::CANCELED
+            ) {
                 $this->setCurrentAction($serverIdentifier, $identifier);
                 $has = true;
                 break;
