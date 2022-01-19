@@ -11,6 +11,7 @@ use ConsulConfigManager\Consul\Agent\Models\Service;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
@@ -18,6 +19,7 @@ use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionHostRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionRepositoryInterface;
@@ -87,54 +89,87 @@ class RunnerIntegrationTest extends TestCase
 
     /**
      * @return void
+     * @throws BindingResolutionException
      */
     public function testShouldPassIfCanCreateBasePipelineItemsThroughModels(): void
     {
-        $pipeline = $this->createPipeline();
-        $firstTask = $this->createFirstSuccessfulTask();
-        $secondTask = $this->createSecondSuccessfulTask();
-        $failingTask = $this->createFailingTask();
-
-        $this->bindPipelineAndTask($pipeline, $firstTask, 1);
-        $this->bindPipelineAndTask($pipeline, $secondTask, 2);
-        $this->bindPipelineAndTask($pipeline, $failingTask, 3);
-
-        $firstAction = $this->createFirstSuccessfulAction();
-        $secondAction = $this->createSecondSuccessfulAction();
-        $failingAction = $this->createFailingAction();
-
-        $this->bindTaskAndAction($firstTask, $firstAction, 1);
-        $this->bindTaskAndAction($secondTask, $secondAction, 1);
-        $this->bindTaskAndAction($failingTask, $failingAction, 1);
-
-        $this->createFirstServer();
-        $this->createSecondServer();
+        $this->createCompletePipeline(false, false);
     }
 
     /**
      * @return void
+     * @throws BindingResolutionException
      */
     public function testShouldPassIfCanCreateBasePipelineItemsThroughRepositories(): void
     {
-        $pipeline = $this->createPipeline(true);
-        $firstTask = $this->createFirstSuccessfulTask(true);
-        $secondTask = $this->createSecondSuccessfulTask(true);
-        $failingTask = $this->createFailingTask(true);
+        $this->createCompletePipeline(true, false);
+    }
 
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     */
+    public function testShouldPassIfCanCreateBasePipelineItemsThroughModelsWithFailing(): void
+    {
+        $this->createCompletePipeline(false, true);
+    }
+
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     */
+    public function testShouldPassIfCanCreateBasePipelineItemsThroughRepositoriesWithFailing(): void
+    {
+        $this->createCompletePipeline(true, true);
+    }
+
+    /**
+     * @param bool $repository
+     * @param bool $withFailing
+     * @return void
+     * @throws BindingResolutionException
+     */
+    private function createCompletePipeline(bool $repository = false, bool $withFailing = false): void
+    {
+        $pipeline = $this->createPipeline($repository);
+
+        $firstTask = $this->createFirstSuccessfulTask($repository);
         $this->bindPipelineAndTask($pipeline, $firstTask, 1);
-        $this->bindPipelineAndTask($pipeline, $secondTask, 2);
-        $this->bindPipelineAndTask($pipeline, $failingTask, 3);
 
-        $firstAction = $this->createFirstSuccessfulAction(true);
-        $secondAction = $this->createSecondSuccessfulAction(true);
-        $failingAction = $this->createFailingAction(true);
+        $secondTask = $this->createSecondSuccessfulTask($repository);
+        $this->bindPipelineAndTask($pipeline, $secondTask, 2);
+
+        if ($withFailing) {
+            $failingTask = $this->createFailingTask($repository);
+            $this->bindPipelineAndTask($pipeline, $failingTask, 3);
+        }
+
+        $firstAction = $this->createFirstSuccessfulAction($repository);
+        $secondAction = $this->createSecondSuccessfulAction($repository);
 
         $this->bindTaskAndAction($firstTask, $firstAction, 1);
-        $this->bindTaskAndAction($secondTask, $secondAction, 1);
-        $this->bindTaskAndAction($failingTask, $failingAction, 1);
+        $this->bindTaskAndAction($firstTask, $secondAction, 2);
 
-        $this->createFirstServer(true);
-        $this->createSecondServer(true);
+        $this->bindTaskAndAction($secondTask, $firstAction, 1);
+
+        if ($withFailing) {
+            $failingAction = $this->createFailingAction($repository);
+            $this->bindTaskAndAction($failingTask, $firstAction, 1);
+            $this->bindTaskAndAction($failingTask, $failingAction, 2);
+            $this->bindTaskAndAction($failingTask, $secondAction, 3);
+        }
+
+        $firstServer = $this->createFirstServer($repository);
+        $secondServer = $this->createSecondServer($repository);
+
+        $this->bindActionAndServer($firstAction, $firstServer);
+        $this->bindActionAndServer($firstAction, $secondServer);
+        $this->bindActionAndServer($secondAction, $firstServer);
+        $this->bindActionAndServer($secondAction, $secondServer);
+
+        if ($withFailing) {
+            $this->bindActionAndServer($failingAction, $firstServer);
+        }
     }
 
     /**
@@ -331,6 +366,20 @@ class RunnerIntegrationTest extends TestCase
             $instance
         );
         return $instance;
+    }
+
+    /**
+     * Bind action and server
+     * @param ActionInterface $action
+     * @param ServiceInterface $server
+     * @return ActionHostInterface
+     */
+    private function bindActionAndServer(ActionInterface $action, ServiceInterface $server): ActionHostInterface
+    {
+        return $this->actionHostRepository()->create(
+            $action->getUuid(),
+            $server->getUuid(),
+        );
     }
 
     /**
@@ -900,6 +949,15 @@ class RunnerIntegrationTest extends TestCase
     private function actionRepository(): ActionRepositoryInterface
     {
         return $this->app->make(ActionRepositoryInterface::class);
+    }
+
+    /**
+     * Create new instance of Action Host repository
+     * @return ActionHostRepositoryInterface
+     */
+    private function actionHostRepository(): ActionHostRepositoryInterface
+    {
+        return $this->app->make(ActionHostRepositoryInterface::class);
     }
 
     /**
