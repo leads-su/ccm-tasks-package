@@ -49,4 +49,11 @@ class ExecutionState
      * @var integer
      */
     public const FAILURE = 5;
+
+    /**
+     * Execution State Constant: Partially Completed
+     * Job contains items which were not successfully completed
+     * @var integer
+     */
+    public const PARTIALLY_COMPLETED = 6;
 }
