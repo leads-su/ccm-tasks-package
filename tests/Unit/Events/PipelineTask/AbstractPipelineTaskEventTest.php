@@ -1,9 +1,9 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\Events\PipelineTask;
+namespace ConsulConfigManager\Tasks\Test\Unit\Events\PipelineTask;
 
 use Illuminate\Support\Carbon;
-use ConsulConfigManager\Tasks\Test\backup\Events\AbstractEventTest;
+use ConsulConfigManager\Tasks\Test\Unit\Events\AbstractEventTest;
 
 /**
  * Class AbstractPipelineTaskEventTest

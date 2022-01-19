@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\Models;
+namespace ConsulConfigManager\Tasks\Test\Unit\Models;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Models\ActionHost;
@@ -15,6 +15,31 @@ use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
  */
 class ActionHostTest extends AbstractModelTest
 {
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromGetIdMethod(array $data): void
+    {
+        $response = $this->model($data)->getID();
+        $this->assertEquals(Arr::get($data, 'id'), $response);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromSetIdMethod(array $data): void
+    {
+        $model = $this->model($data);
+        $model->setID(2);
+        $this->assertEquals(2, $model->getID());
+    }
+
     /**
      * @param array $data
      *

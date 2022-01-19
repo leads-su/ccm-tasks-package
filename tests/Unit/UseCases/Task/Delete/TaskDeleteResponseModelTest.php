@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\UseCases\Task\Delete;
+namespace ConsulConfigManager\Tasks\Test\Unit\UseCases\Task\Delete;
 
 use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\UseCases\Task\Delete\TaskDeleteResponseModel;

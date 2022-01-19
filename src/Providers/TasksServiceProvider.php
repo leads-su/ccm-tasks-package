@@ -38,6 +38,7 @@ class TasksServiceProvider extends DomainServiceProvider
         Interfaces\PipelineTaskRepositoryInterface::class       =>  Repositories\PipelineTaskRepository::class,
         Interfaces\TaskExecutionRepositoryInterface::class      =>  Repositories\TaskExecutionRepository::class,
         Interfaces\ActionExecutionRepositoryInterface::class    =>  Repositories\ActionExecutionRepository::class,
+        Interfaces\ActionHostRepositoryInterface::class         =>  Repositories\ActionHostRepository::class,
     ];
 
 

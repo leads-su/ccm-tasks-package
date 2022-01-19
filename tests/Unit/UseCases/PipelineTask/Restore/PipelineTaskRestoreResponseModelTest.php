@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\UseCases\PipelineTask\Restore;
+namespace ConsulConfigManager\Tasks\Test\Unit\UseCases\PipelineTask\Restore;
 
 use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\UseCases\PipelineTask\Restore\PipelineTaskRestoreResponseModel;

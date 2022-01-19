@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\UseCases\PipelineTask\Delete;
+namespace ConsulConfigManager\Tasks\Test\Unit\UseCases\PipelineTask\Delete;
 
 use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\UseCases\PipelineTask\Delete\PipelineTaskDeleteResponseModel;

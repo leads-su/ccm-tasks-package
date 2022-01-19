@@ -11,6 +11,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 interface ActionHostInterface
 {
     /**
+     * Get identifier
+     * @return int
+     */
+    public function getID(): int;
+
+    /**
+     * Set identifier
+     * @param int $identifier
+     * @return ActionHostInterface
+     */
+    public function setID(int $identifier): ActionHostInterface;
+
+    /**
      * Get action uuid
      * @return string
      */

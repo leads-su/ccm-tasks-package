@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\Models;
+namespace ConsulConfigManager\Tasks\Test\Unit\Models;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Models\Task;
@@ -129,6 +129,7 @@ abstract class AbstractModelTest extends TestCase
         return [
             'example_action_host_entity'        =>  [
                 'data'                          =>  [
+                    'id'                        =>  1,
                     'action_uuid'               =>  self::$actionUUID,
                     'service_uuid'              =>  self::$serviceUUID,
                 ],

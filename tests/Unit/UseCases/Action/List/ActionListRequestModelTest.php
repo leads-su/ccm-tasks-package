@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\UseCases\Action\List;
+namespace ConsulConfigManager\Tasks\Test\Unit\UseCases\Action\List;
 
 use function request;
 use ConsulConfigManager\Tasks\Test\TestCase;

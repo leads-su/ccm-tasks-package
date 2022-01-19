@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\UseCases\PipelineTask\Update;
+namespace ConsulConfigManager\Tasks\Test\Unit\UseCases\PipelineTask\Update;
 
 use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\UseCases\PipelineTask\Update\PipelineTaskUpdateResponseModel;

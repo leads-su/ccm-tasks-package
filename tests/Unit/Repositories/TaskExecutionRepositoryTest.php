@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\backup\Repositories;
+namespace ConsulConfigManager\Tasks\Test\Unit\Repositories;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Models\TaskExecution;

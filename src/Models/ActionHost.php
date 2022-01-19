@@ -2,7 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Models;
 
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use ConsulConfigManager\Consul\Agent\Models\Service;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +14,7 @@ use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
  * Class ActionHost
  * @package ConsulConfigManager\Tasks\Models
  */
-class ActionHost extends Pivot implements ActionHostInterface
+class ActionHost extends Model implements ActionHostInterface
 {
     use HasFactory;
 
@@ -66,6 +66,24 @@ class ActionHost extends Pivot implements ActionHostInterface
     protected static function newFactory(): Factory
     {
         return ActionHostFactory::new();
+    }
+
+    /**
+     * @return int
+     */
+    public function getID(): int
+    {
+        return (int) $this->attributes['id'];
+    }
+
+    /**
+     * @param int $identifier
+     * @return ActionHostInterface
+     */
+    public function setID(int $identifier): ActionHostInterface
+    {
+        $this->attributes['id'] = (int) $identifier;
+        return $this;
     }
 
     /**
