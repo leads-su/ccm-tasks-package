@@ -130,7 +130,6 @@ class EventLoop
             }
 
             $this->serversTaskTimers[$serverIdentifier] = $this->loop->addPeriodicTimer(1.0, function () use ($serverIdentifier): void {
-                $this->handleServerExecution($serverIdentifier);
                 try {
                     $this->handleServerExecution($serverIdentifier);
                 } catch (Throwable) {
@@ -178,39 +177,56 @@ class EventLoop
     private function handleTasksProcessing(string $serverIdentifier, string $currentTask): void
     {
         $currentTaskState = $this->getTaskState($serverIdentifier);
+        $isTaskCompleted = $this->isTaskCompleted($currentTask);
+        $hasFailedTasks = $this->hasFailedTasks($serverIdentifier);
+        $hasIncompleteTasks = $this->hasIncompleteTasks($serverIdentifier);
 
-        if ($this->isTaskCompleted($currentTask)) {
-            if (!$this->hasIncompleteTasks($serverIdentifier)) {
+        if ($isTaskCompleted) {
+            if (!$hasIncompleteTasks) {
                 $this->setPipelineExecutionState($this->generatePipelineStateBasedOnTasksStates($serverIdentifier));
                 $this->loop->cancelTimer($this->serversTaskTimers[$serverIdentifier]);
             }
         }
 
-        switch ($currentTaskState) {
-            case ExecutionState::CREATED:
-                $this->setTaskState(
-                    serverIdentifier: $serverIdentifier,
-                    state: ExecutionState::EXECUTING,
-                    taskIdentifier: $currentTask,
-                )->markOtherTasksAs($serverIdentifier, ExecutionState::WAITING);
-                break;
-            case ExecutionState::WAITING:
-                if ($this->hasFailedTasks($serverIdentifier)) {
-                    $this->markOtherTasksAs($serverIdentifier, ExecutionState::CANCELED);
-                } else {
-                    $this->setCurrentAction(
-                        $serverIdentifier,
-                        Arr::first(array_keys(
-                            $this->actionStateReference[$serverIdentifier][$currentTask]
-                        ))
-                    )->setTaskState(
+        if ($hasFailedTasks) {
+            $this->cancelTasks($serverIdentifier);
+        } else {
+            switch ($currentTaskState) {
+                case ExecutionState::CREATED:
+                    $this->setTaskState(
                         serverIdentifier: $serverIdentifier,
                         state: ExecutionState::EXECUTING,
                         taskIdentifier: $currentTask,
-                    );
-                }
-                break;
-            default:
+                    )->markOtherTasksAs($serverIdentifier, ExecutionState::WAITING);
+                    break;
+                case ExecutionState::WAITING:
+                    if ($this->hasFailedTasks($serverIdentifier)) {
+                        $this->cancelTasks($serverIdentifier);
+                    } else {
+                        $this->setCurrentAction(
+                            $serverIdentifier,
+                            Arr::first(array_keys(
+                                $this->actionStateReference[$serverIdentifier][$currentTask]
+                            ))
+                        )->setTaskState(
+                            serverIdentifier: $serverIdentifier,
+                            state: ExecutionState::EXECUTING,
+                            taskIdentifier: $currentTask,
+                        );
+                    }
+                    break;
+                case ExecutionState::EXECUTING:
+
+                    break;
+                case ExecutionState::SUCCESS:
+                    $this->selectNextTask($serverIdentifier);
+                    break;
+                case ExecutionState::FAILURE:
+                    $this->cancelTasks($serverIdentifier);
+                    break;
+                default:
+                    return;
+            }
         }
     }
 
@@ -223,11 +239,25 @@ class EventLoop
     private function handleActionsProcessing(string $serverIdentifier, string $currentTask): void
     {
         $currentTaskState = $this->getTaskState($serverIdentifier);
-        if ($currentTaskState !== ExecutionState::EXECUTING) {
+        if (
+            (
+                $currentTaskState === ExecutionState::CREATED ||
+                $currentTaskState === ExecutionState::WAITING
+            ) &&
+            $currentTaskState !== ExecutionState::EXECUTING
+        ) {
+            // Task is not yet ready, just return nothing for now
+            // as we will be processing actions anyway in 1 second.
             return;
         }
 
         $currentAction = $this->getCurrentAction($serverIdentifier);
+        if ($currentTaskState === ExecutionState::CANCELED) {
+            // This statement is needed to mark actions as canceled if whole task is canceled
+            $this->cancelActions($serverIdentifier, $currentTask);
+            return;
+        }
+
         $currentActionState = $this->getActionState($serverIdentifier, $currentTask, $currentAction);
 
         if ($this->isActionCompleted($serverIdentifier, $currentTask, $currentAction)) {
@@ -256,7 +286,7 @@ class EventLoop
                 break;
             case ExecutionState::WAITING:
                 if ($this->hasFailedActions($serverIdentifier, $currentTask)) {
-                    $this->markOtherActionsAs($serverIdentifier, $currentTask, ExecutionState::CANCELED);
+                    $this->cancelActions($serverIdentifier, $currentTask);
                 } else {
                     $this->setActionState(
                         serverIdentifier: $serverIdentifier,
@@ -271,7 +301,14 @@ class EventLoop
                     );
                 }
                 break;
+            case ExecutionState::SUCCESS:
+                $this->selectNextAction($serverIdentifier, $currentTask);
+                break;
+            case ExecutionState::FAILURE:
+                $this->cancelActions($serverIdentifier, $currentTask);
+                break;
             default:
+                return;
         }
     }
 
@@ -291,14 +328,14 @@ class EventLoop
         )->execute(function (int $statusCode, array $output = []) use ($serverIdentifier, $taskIdentifier, $actionIdentifier): void {
             $stateCode = $statusCode === 0 ? ExecutionState::SUCCESS : ExecutionState::FAILURE;
             $this
+                ->setActionState($serverIdentifier, $taskIdentifier, $stateCode, $actionIdentifier)
                 ->setActionExecutionLog(
                     $serverIdentifier,
                     $taskIdentifier,
                     $statusCode,
                     $output,
                     $actionIdentifier,
-                )
-                ->setActionState($serverIdentifier, $taskIdentifier, $stateCode, $actionIdentifier);
+                );
         });
     }
 
@@ -453,6 +490,7 @@ class EventLoop
                 }
             }
         }
+
         return $serversWithTask === $serversCompleted;
     }
 
@@ -468,7 +506,8 @@ class EventLoop
             if (
                 $state !== ExecutionState::SUCCESS &&
                 $state !== ExecutionState::FAILURE &&
-                $state !== ExecutionState::CANCELED
+                $state !== ExecutionState::CANCELED &&
+                $state !== ExecutionState::PARTIALLY_COMPLETED
             ) {
                 $this->setCurrentTask($serverIdentifier, $identifier);
                 $has = true;
@@ -476,6 +515,30 @@ class EventLoop
             }
         }
         return $has;
+    }
+
+    /**
+     * Select next task
+     * @param string $serverIdentifier
+     * @param bool $firstRun
+     * @return void
+     */
+    private function selectNextTask(string $serverIdentifier, bool $firstRun = false): void
+    {
+        foreach ($this->taskStateReference[$serverIdentifier] as $identifier => $state) {
+            $isCreated = $state === ExecutionState::CREATED;
+            $isWaiting = $state === ExecutionState::WAITING;
+
+            if ($firstRun && $isCreated) {
+                $this->setCurrentTask($serverIdentifier, $identifier);
+                break;
+            } else {
+                if ($isWaiting) {
+                    $this->setCurrentTask($serverIdentifier, $identifier);
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -487,7 +550,11 @@ class EventLoop
     {
         $has = false;
         foreach ($this->taskStateReference[$serverIdentifier] as $identifier => $state) {
-            if ($state === ExecutionState::FAILURE) {
+            if (
+                $state === ExecutionState::FAILURE ||
+                $state === ExecutionState::CANCELED ||
+                $state === ExecutionState::PARTIALLY_COMPLETED
+            ) {
                 $has = true;
                 break;
             }
@@ -513,6 +580,30 @@ class EventLoop
                     serverIdentifier: $serverIdentifier,
                     state: $state,
                     taskIdentifier: $identifier,
+                );
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Cancel tasks which are not marked as completed
+     * @param string $serverIdentifier
+     * @return EventLoop
+     */
+    private function cancelTasks(string $serverIdentifier): EventLoop
+    {
+        foreach ($this->taskStateReference[$serverIdentifier] as $identifier => $oldState) {
+            if (
+                $oldState !== ExecutionState::SUCCESS &&
+                $oldState !== ExecutionState::FAILURE &&
+                $oldState !== ExecutionState::CANCELED &&
+                $oldState !== ExecutionState::PARTIALLY_COMPLETED
+            ) {
+                $this->setTaskState(
+                    serverIdentifier: $serverIdentifier,
+                    state: ExecutionState::CANCELED,
+                    taskIdentifier: $identifier
                 );
             }
         }
@@ -634,9 +725,6 @@ class EventLoop
         $actionIdentifier = $actionIdentifier ?? $this->getCurrentAction($serverIdentifier);
         $this->setActionExecutionState($serverIdentifier, $taskIdentifier, $state, $actionIdentifier);
         $this->actionStateReference[$serverIdentifier][$taskIdentifier][$actionIdentifier] = $state;
-        if ($state === ExecutionState::FAILURE) {
-            $this->markOtherActionsAs($serverIdentifier, $taskIdentifier, ExecutionState::CANCELED);
-        }
         return $this;
     }
 
@@ -671,12 +759,37 @@ class EventLoop
                 $state !== ExecutionState::FAILURE &&
                 $state !== ExecutionState::CANCELED
             ) {
-                $this->setCurrentAction($serverIdentifier, $identifier);
                 $has = true;
                 break;
             }
         }
         return $has;
+    }
+
+
+    /**
+     * Select next action
+     * @param string $serverIdentifier
+     * @param string $taskIdentifier
+     * @param bool $firstRun
+     * @return void
+     */
+    private function selectNextAction(string $serverIdentifier, string $taskIdentifier, bool $firstRun = false): void
+    {
+        foreach ($this->actionStateReference[$serverIdentifier][$taskIdentifier] as $identifier => $state) {
+            $isCreated = $state === ExecutionState::CREATED;
+            $isWaiting = $state === ExecutionState::WAITING;
+
+            if ($firstRun && $isCreated) {
+                $this->setCurrentAction($serverIdentifier, $identifier);
+                break;
+            } else {
+                if ($isWaiting) {
+                    $this->setCurrentAction($serverIdentifier, $identifier);
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -716,6 +829,32 @@ class EventLoop
                     serverIdentifier: $serverIdentifier,
                     taskIdentifier: $taskIdentifier,
                     state: $state,
+                    actionIdentifier: $identifier,
+                );
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Cancel actions which are not marked as completed
+     * @param string $serverIdentifier
+     * @param string $taskIdentifier
+     * @return EventLoop
+     */
+    private function cancelActions(string $serverIdentifier, string $taskIdentifier): EventLoop
+    {
+        foreach ($this->actionStateReference[$serverIdentifier][$taskIdentifier] as $identifier => $oldState) {
+            if (
+                $oldState !== ExecutionState::SUCCESS &&
+                $oldState !== ExecutionState::FAILURE &&
+                $oldState !== ExecutionState::CANCELED &&
+                $oldState !== ExecutionState::PARTIALLY_COMPLETED
+            ) {
+                $this->setActionState(
+                    serverIdentifier: $serverIdentifier,
+                    taskIdentifier: $taskIdentifier,
+                    state: ExecutionState::CANCELED,
                     actionIdentifier: $identifier,
                 );
             }
