@@ -3,7 +3,9 @@
 namespace ConsulConfigManager\Tasks\UseCases\Action\List;
 
 use Throwable;
+use Illuminate\Support\Arr;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
+use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 
 /**
@@ -48,8 +50,14 @@ class ActionListInteractor implements ActionListInputPort
                     'name', 'description', 'type',
                     'created_at', 'updated_at', 'deleted_at',
                 ],
+                append: ['servers_extended'],
                 withDeleted: $requestModel->getRequest()->get('with_deleted', false)
-            )->toArray();
+            )->map(function (ActionInterface $action): array {
+                $action = $action->toArray();
+                $action['servers'] = Arr::get($action, 'servers_extended');
+                unset($action['servers_extended']);
+                return $action;
+            })->toArray();
             return $this->output->list(new ActionListResponseModel($actions));
             // @codeCoverageIgnoreStart
         } catch (Throwable $exception) {

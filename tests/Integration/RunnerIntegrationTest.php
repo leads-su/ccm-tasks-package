@@ -3,9 +3,6 @@
 namespace ConsulConfigManager\Tasks\Test\Integration;
 
 use ConsulConfigManager\Tasks\Enums\ExecutionState;
-use ConsulConfigManager\Tasks\Models\TaskExecution;
-use ConsulConfigManager\Tasks\Models\ActionExecution;
-use ConsulConfigManager\Tasks\Models\PipelineExecution;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Runner;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
@@ -39,39 +36,37 @@ class RunnerIntegrationTest extends AbstractRunnerIntegrationTest
 //        $this->assertMatchesForCompletedPipeline();
 //    }
 //
-    /**
-     * @return void
-     * @throws BindingResolutionException
-     */
-    public function testShouldPassIfCanCreateBasePipelineItemsThroughModelsWithFailing(): void
-    {
-        $this->createCompletePipeline(false, true);
-        $this->startRunner();
-        $this->assertMatchesForPartiallyCompletedPipeline();
-
-        $data = [];
-
-        foreach (PipelineExecution::all() as $pipeline) {
-            $data[$pipeline->getUuid()] = [
-                'pipeline'      =>  $pipeline->toArray(),
-                'tasks'         =>  [],
-            ];
-        }
-
-        foreach (TaskExecution::all() as $task) {
-            $data[$task->getPipelineExecutionUuid()]['tasks'][$task->getTaskUuid()] = [
-                'task'      =>  $task->toArray(),
-                'actions'   =>  [],
-            ];
-        }
-
-        foreach (ActionExecution::all() as $action) {
-            $data[$action->getPipelineExecutionUuid()]['tasks'][$action->getTaskUuid()]['actions'][$action->getActionUuid()] = $action->toArray();
-        }
-
-        echo json_encode($data, JSON_PRETTY_PRINT) . PHP_EOL;
-        die();
-    }
+//    /**
+//     * @return void
+//     * @throws BindingResolutionException
+//     */
+//    public function testShouldPassIfCanCreateBasePipelineItemsThroughModelsWithFailing(): void
+//    {
+//        $this->createCompletePipeline(false, true);
+//        $this->startRunner();
+//        $this->assertMatchesForPartiallyCompletedPipeline();
+//
+//        $data = [];
+//
+//        foreach (PipelineExecution::all() as $pipeline) {
+//            $data[$pipeline->getUuid()] = [
+//                'pipeline'      =>  $pipeline->toArray(),
+//                'tasks'         =>  [],
+//            ];
+//        }
+//
+//        foreach (TaskExecution::all() as $task) {
+//            $data[$task->getPipelineExecutionUuid()]['tasks'][$task->getTaskUuid()] = [
+//                'task'      =>  $task->toArray(),
+//                'actions'   =>  [],
+//            ];
+//        }
+//
+//        foreach (ActionExecution::all() as $action) {
+//            $data[$action->getPipelineExecutionUuid()]['tasks'][$action->getTaskUuid()]['actions'][$action->getActionUuid()] = $action->toArray();
+//        }
+//
+//    }
 //
 //    /**
 //     * @return void
@@ -90,7 +85,6 @@ class RunnerIntegrationTest extends AbstractRunnerIntegrationTest
      */
     private function startRunner(): void
     {
-        return;
         $runner = new Runner($this->pipelineIdentifier);
         $runner->run();
     }

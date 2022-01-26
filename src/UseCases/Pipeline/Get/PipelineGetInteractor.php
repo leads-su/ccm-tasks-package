@@ -3,6 +3,7 @@
 namespace ConsulConfigManager\Tasks\UseCases\Pipeline\Get;
 
 use Throwable;
+use Illuminate\Support\Arr;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
@@ -46,9 +47,19 @@ class PipelineGetInteractor implements PipelineGetInputPort
             $pipeline = $this->repository->findByManyOrFail(
                 fields: ['id', 'uuid'],
                 value: $requestModel->getIdentifier(),
-                append: ['history'],
+                append: ['history', 'tasks_list_extended'],
                 withDeleted: $requestModel->getRequest()->get('with_deleted', false)
-            );
+            )->toArray();
+
+            if (isset($pipeline['tasks_list'])) {
+                $pipeline['tasks'] = Arr::get($pipeline, 'tasks_list');
+                unset($pipeline['tasks_list']);
+            }
+            if (isset($pipeline['tasks_list_extended'])) {
+                $pipeline['tasks'] = Arr::get($pipeline, 'tasks_list_extended');
+                unset($pipeline['tasks_list_extended']);
+            }
+
             return $this->output->get(new PipelineGetResponseModel($pipeline));
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

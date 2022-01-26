@@ -254,6 +254,7 @@ abstract class AbstractModelTest extends TestCase
                     'name'          =>  'Example Task',
                     'description'   =>  'Example Task Description',
                     'type'          =>  1,
+                    'fail_on_error' =>  false,
                 ],
             ],
         ];
@@ -536,6 +537,7 @@ abstract class AbstractModelTest extends TestCase
             'name'          =>  Arr::get($taskData, 'name'),
             'description'   =>  Arr::get($taskData, 'description'),
             'type'          =>  Arr::get($taskData, 'type'),
+            'fail_on_error' =>  Arr::get($taskData, 'fail_on_error'),
         ], true);
 
         $this->taskActionModel([

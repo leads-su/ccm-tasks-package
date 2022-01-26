@@ -26,6 +26,7 @@ class TaskExecution extends Model implements TaskExecutionInterface
      * @inheritDoc
      */
     public $fillable = [
+        'id',
         'task_uuid',
         'pipeline_uuid',
         'pipeline_execution_uuid',

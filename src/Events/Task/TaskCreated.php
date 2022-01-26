@@ -29,15 +29,23 @@ class TaskCreated extends AbstractEvent
      */
     private int $type;
 
+    /**
+     * Fail task on error
+     * @var bool
+     */
+    private bool $failOnError;
+
     public function __construct(
         string $name,
         string $description,
         int $type,
+        bool $failOnError = false,
         UserEntity|int|null $user = null,
     ) {
         $this->name = $name;
         $this->description = $description;
         $this->type = $type;
+        $this->failOnError = $failOnError;
         $this->user = $user;
         parent::__construct();
     }
@@ -67,5 +75,14 @@ class TaskCreated extends AbstractEvent
     public function getType(): int
     {
         return $this->type;
+    }
+
+    /**
+     * Check whether task should fail on error
+     * @return bool
+     */
+    public function shouldFailOnError(): bool
+    {
+        return $this->failOnError;
     }
 }

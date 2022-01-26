@@ -35,6 +35,15 @@ interface TaskActionRepositoryInterface
     public function get(string|int $taskIdentifier, string|int $actionIdentifier, array $with = [], array $append = []): TaskActionInterface;
 
     /**
+     * Check whether relation between task and action exists
+     * @param string|int $taskIdentifier
+     * @param string|int $actionIdentifier
+     * @throws BindingResolutionException
+     * @return bool
+     */
+    public function exists(string|int $taskIdentifier, string|int $actionIdentifier): bool;
+
+    /**
      * Create new task action entity
      * @param string|int $taskIdentifier
      * @param string|int $actionIdentifier
@@ -96,6 +105,14 @@ interface TaskActionRepositoryInterface
      * @throws BindingResolutionException
      */
     public function findTask(string|int $id, array $columns = ['*'], bool $withDeleted = false): TaskInterface;
+
+    /**
+     * Get actions for specified task
+     * @param string|int $identifier
+     * @throws BindingResolutionException
+     * @return Collection
+     */
+    public function getTaskActions(string|int $identifier): Collection;
 
     /**
      * Find action by given task id

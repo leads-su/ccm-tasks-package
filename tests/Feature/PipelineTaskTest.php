@@ -2,13 +2,8 @@
 
 namespace ConsulConfigManager\Tasks\Test\Feature;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use ConsulConfigManager\Tasks\Models\Task;
-use ConsulConfigManager\Tasks\Models\Pipeline;
-use ConsulConfigManager\Tasks\Models\PipelineTask;
-use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
-use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
-use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 
 /**
  * Class PipelineTaskTest
@@ -22,7 +17,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfEmptyTasksListCanBeRetrieved(): void
     {
         $this->createAndGetPipeline();
-        $response = $this->get('/task-manager/pipelines/' . $this->getPipelineIdentifier() . '/tasks');
+        $response = $this->get('/task-manager/pipelines/' . $this->getPipelineStringIdentifier() . '/tasks');
         $response->assertExactJson([
             'success'       =>  true,
             'code'          =>  200,
@@ -51,17 +46,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfPipelineTaskCanBeCreatedWithUuid(): void
     {
         $response = $this->createAndGetPipelineTask();
-        $response->assertJson([
-            'success'           =>  true,
-            'code'              =>  201,
-            'data'              =>  [
-                'task_uuid'     =>  $this->getTaskIdentifier(),
-                'deleted_at'    =>  null,
-                'order'         =>  1,
-                'pipeline_uuid' =>  $this->getPipelineIdentifier(),
-            ],
-            'message'           =>  'Successfully created new pipeline task',
-        ]);
+        $response->assertStatus(201);
+        $this->validatePipelineTask($response->json('data'));
         $this->assertDatabaseCount('pipeline_tasks', 1);
     }
 
@@ -71,17 +57,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfPipelineTaskCanBeCreatedWithId(): void
     {
         $response = $this->createAndGetPipelineTaskWithIDs();
-        $response->assertJson([
-            'success'           =>  true,
-            'code'              =>  201,
-            'data'              =>  [
-                'task_uuid'     =>  $this->getTaskIdentifier(),
-                'deleted_at'    =>  null,
-                'order'         =>  1,
-                'pipeline_uuid' =>  $this->getPipelineIdentifier(),
-            ],
-            'message'           =>  'Successfully created new pipeline task',
-        ]);
+        $response->assertStatus(201);
+        $this->validatePipelineTask($response->json('data'));
         $this->assertDatabaseCount('pipeline_tasks', 1);
     }
 
@@ -91,21 +68,12 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfDuplicatePipelineTaskCannotBeCreated(): void
     {
         $response = $this->createAndGetPipelineTaskWithIDs();
-        $response->assertJson([
-            'success'           =>  true,
-            'code'              =>  201,
-            'data'              =>  [
-                'task_uuid'     =>  $this->getTaskIdentifier(),
-                'deleted_at'    =>  null,
-                'order'         =>  1,
-                'pipeline_uuid' =>  $this->getPipelineIdentifier(),
-            ],
-            'message'           =>  'Successfully created new pipeline task',
-        ]);
+        $response->assertStatus(201);
+        $this->validatePipelineTask($response->json('data'));
         $this->assertDatabaseCount('pipeline_tasks', 1);
 
-        $response =  $this->post('/task-manager/pipelines/' . $this->getPipelineIdentifier() . '/tasks', [
-            'task_uuid'         =>  $this->getTaskIdentifier(),
+        $response =  $this->post('/task-manager/pipelines/' . $this->getPipelineStringIdentifier() . '/tasks', [
+            'task_uuid'         =>  $this->getTaskStringIdentifier(),
             'order'             =>  1,
         ]);
 
@@ -119,7 +87,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     {
         $this->createAndGetPipelineTask();
 
-        $response = $this->get('/task-manager/pipelines/' . $this->getPipelineIdentifier() . '/tasks');
+        $response = $this->get('/task-manager/pipelines/' . $this->getPipelineStringIdentifier() . '/tasks');
         $response->assertStatus(200);
         $data = $response->json('data');
         $this->assertCount(1, $data);
@@ -161,7 +129,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToUpdatePipelineTaskWithInvalidPipeline(): void
     {
         $this->createAndGetPipelineTaskWithIDs();
-        $response = $this->patch('/task-manager/pipelines/' . Str::uuid()->toString() . '/tasks/' . $this->getTaskIdentifier(), [
+        $response = $this->patch('/task-manager/pipelines/' . Str::uuid()->toString() . '/tasks/' . $this->getTaskStringIdentifier(), [
             'order'             =>  1,
         ]);
         $response->assertStatus(404);
@@ -180,7 +148,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     {
         $this->createAndGetPipelineTaskWithIDs();
 
-        $response = $this->patch('/task-manager/pipelines/' . $this->getPipelineIdentifier() . '/tasks/' . Str::uuid()->toString(), [
+        $response = $this->patch('/task-manager/pipelines/' . $this->getPipelineStringIdentifier() . '/tasks/' . Str::uuid()->toString(), [
             'order'             =>  2,
         ]);
         $response->assertStatus(404);
@@ -198,8 +166,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfPipelineTaskCanBeUpdatedWithUuids(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineUuid = $this->getPipelineIdentifier();
-        $taskUuid = $this->getTaskIdentifier();
+        $pipelineUuid = $this->getPipelineStringIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
 
         $response = $this->patch('/task-manager/pipelines/' . $pipelineUuid . '/tasks/' . $taskUuid, [
             'order'     =>  2,
@@ -223,8 +191,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfPipelineTaskCanBeUpdatedWithIds(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineId = $this->getPipelineIdentifier(true);
-        $taskId = $this->getTaskIdentifier(true);
+        $pipelineId = $this->getPipelineIntegerIdentifier();
+        $taskId = $this->getTaskIntegerIdentifier();
 
         $response = $this->patch('/task-manager/pipelines/' . $pipelineId . '/tasks/' . $taskId, [
             'order'     =>  3,
@@ -237,8 +205,8 @@ class PipelineTaskTest extends AbstractFeatureTest
             'message'       =>  'Successfully updated pipeline task',
         ]);
 
-        $this->assertPipelineTaskHasSamePipeline($this->getPipelineIdentifier());
-        $this->assertPipelineTaskHasSameTask($this->getTaskIdentifier());
+        $this->assertPipelineTaskHasSamePipeline($this->getPipelineStringIdentifier());
+        $this->assertPipelineTaskHasSameTask($this->getTaskStringIdentifier());
         $this->assertPipelineTaskHasSameOrder(3);
     }
 
@@ -248,8 +216,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfPipelineTaskCanBeDeletedWithUuids(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineUuid = $this->getPipelineIdentifier();
-        $taskUuid = $this->getTaskIdentifier();
+        $pipelineUuid = $this->getPipelineStringIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
 
         $response = $this->delete('/task-manager/pipelines/' . $pipelineUuid . '/tasks/' . $taskUuid);
         $response->assertStatus(200);
@@ -267,8 +235,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfPipelineTaskCanBeDeletedWithIds(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineId = $this->getPipelineIdentifier(true);
-        $taskId = $this->getTaskIdentifier(true);
+        $pipelineId = $this->getPipelineIntegerIdentifier();
+        $taskId = $this->getTaskIntegerIdentifier();
 
         $response = $this->delete('/task-manager/pipelines/' . $pipelineId . '/tasks/' . $taskId);
         $response->assertStatus(200);
@@ -286,7 +254,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToDeletePipelineTaskWithInvalidPipelineIdentifierAsUuid(): void
     {
         $this->createAndGetPipelineTask();
-        $response = $this->delete('/task-manager/pipelines/' . Str::uuid()->toString() . '/tasks/' . $this->getTaskIdentifier());
+        $response = $this->delete('/task-manager/pipelines/' . Str::uuid()->toString() . '/tasks/' . $this->getTaskStringIdentifier());
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -302,7 +270,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToDeletePipelineTaskWithInvalidPipelineIdentifierAsId(): void
     {
         $this->createAndGetPipelineTask();
-        $response = $this->delete('/task-manager/pipelines/2/tasks/' . $this->getTaskIdentifier(true));
+        $response = $this->delete('/task-manager/pipelines/2/tasks/' . $this->getTaskIntegerIdentifier());
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -318,7 +286,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToDeletePipelineTaskWithInvalidTaskIdentifierAsUuid(): void
     {
         $this->createAndGetPipelineTask();
-        $response = $this->delete('/task-manager/pipelines/' . $this->getPipelineIdentifier() . '/tasks/' . Str::uuid()->toString());
+        $response = $this->delete('/task-manager/pipelines/' . $this->getPipelineStringIdentifier() . '/tasks/' . Str::uuid()->toString());
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -334,7 +302,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToDeletePipelineTaskWithInvalidTaskIdentifierAsId(): void
     {
         $this->createAndGetPipelineTask();
-        $response = $this->delete('/task-manager/pipelines/' . $this->getPipelineIdentifier(true) . '/tasks/2');
+        $response = $this->delete('/task-manager/pipelines/' . $this->getPipelineIntegerIdentifier() . '/tasks/2');
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -350,26 +318,24 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfAbleToRetrievePipelineTaskWithUuids(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineIdentifier = $this->getPipelineIdentifier();
-        $taskIdentifier = $this->getTaskIdentifier();
+        $pipelineIdentifier = $this->getPipelineStringIdentifier();
+        $taskIdentifier = $this->getTaskStringIdentifier();
 
         $response = $this->get('/task-manager/pipelines/' . $pipelineIdentifier . '/tasks/' . $taskIdentifier);
         $response->assertStatus(200);
 
-        $data = array_merge(
-            [
-                'pipeline'      =>  $this->getPipeline()->toArray(),
-                'task'          =>  $this->getTask()->toArray(),
-                'history'       =>  [],
-            ],
-            $this->getPipelineTask()->toArray(),
-        );
+        $data = $response->json('data');
 
+        $this->assertArrayHasKey('history', $data);
+        $this->assertArrayHasKey('task', $data);
+        $this->assertArrayHasKey('pipeline', $data);
+        $this->validateTask(Arr::get($data, 'task'));
+        $this->validatePipeline(Arr::get($data, 'pipeline'));
         $response->assertJson([
-            'success'       =>  true,
-            'code'          =>  200,
-            'data'          =>  $data,
-            'message'       =>  'Successfully fetched pipeline task information',
+            'success'           =>  true,
+            'code'              =>  200,
+            'data'              =>  $data,
+            'message'           =>  'Successfully fetched pipeline task information',
         ]);
     }
 
@@ -379,21 +345,18 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfAbleToRetrievePipelineTaskWithIds(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineIdentifier = $this->getPipelineIdentifier(true);
-        $taskIdentifier = $this->getTaskIdentifier(true);
+        $pipelineIdentifier = $this->getPipelineIntegerIdentifier();
+        $taskIdentifier = $this->getTaskIntegerIdentifier();
 
         $response = $this->get('/task-manager/pipelines/' . $pipelineIdentifier . '/tasks/' . $taskIdentifier);
         $response->assertStatus(200);
+        $data = $response->json('data');
 
-        $data = array_merge(
-            [
-                'pipeline'      =>  $this->getPipeline()->toArray(),
-                'task'          =>  $this->getTask()->toArray(),
-                'history'       =>  [],
-            ],
-            $this->getPipelineTask()->toArray(),
-        );
-
+        $this->assertArrayHasKey('history', $data);
+        $this->assertArrayHasKey('task', $data);
+        $this->assertArrayHasKey('pipeline', $data);
+        $this->validateTask(Arr::get($data, 'task'));
+        $this->validatePipeline(Arr::get($data, 'pipeline'));
         $response->assertJson([
             'success'           =>  true,
             'code'              =>  200,
@@ -409,9 +372,9 @@ class PipelineTaskTest extends AbstractFeatureTest
     {
         $this->createAndGetPipelineTask();
         $pipelineIdentifier = Str::uuid()->toString();
-        $pipelineIdentifier = $this->getTaskIdentifier();
+        $taskIdentifier = $this->getTaskStringIdentifier();
 
-        $response = $this->get('/task-manager/pipelines/' . $pipelineIdentifier . '/tasks/' . $pipelineIdentifier);
+        $response = $this->get('/task-manager/pipelines/' . $pipelineIdentifier . '/tasks/' . $taskIdentifier);
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -428,7 +391,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     {
         $this->createAndGetPipelineTask();
         $pipelineIdentifier = 2;
-        $taskIdentifier = $this->getTaskIdentifier(true);
+        $taskIdentifier = $this->getTaskIntegerIdentifier();
 
         $response = $this->get('/task-manager/pipelines/' . $pipelineIdentifier . '/tasks/' . $taskIdentifier);
         $response->assertStatus(404);
@@ -446,7 +409,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRetrievePipelineTaskWithInvalidTaskIdentifierAndUuids(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineIdentifier = $this->getPipelineIdentifier();
+        $pipelineIdentifier = $this->getPipelineStringIdentifier();
         $taskIdentifier = Str::uuid()->toString();
 
         $response = $this->get('/task-manager/pipelines/' . $pipelineIdentifier . '/tasks/' . $taskIdentifier);
@@ -465,7 +428,7 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRetrievePipelineTaskWithInvalidTaskIdentifierAndIds(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineIdentifier = $this->getPipelineIdentifier(true);
+        $pipelineIdentifier = $this->getPipelineIntegerIdentifier();
         $taskIdentifier = 2;
 
         $response = $this->get('/task-manager/pipelines/' . $pipelineIdentifier . '/tasks/' . $taskIdentifier);
@@ -484,8 +447,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfPipelineTaskCanBeRestoredUsingUuids(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineUuid = $this->getPipelineIdentifier();
-        $taskUuid = $this->getTaskIdentifier();
+        $pipelineUuid = $this->getPipelineStringIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
 
         $this->restorePipelineTask($pipelineUuid, $taskUuid);
     }
@@ -496,8 +459,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfPipelineTaskCanBeRestoredUsingIds(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineId = $this->getPipelineIdentifier(true);
-        $taskId = $this->getTaskIdentifier(true);
+        $pipelineId = $this->getPipelineIntegerIdentifier();
+        $taskId = $this->getTaskIntegerIdentifier();
 
         $this->restorePipelineTask($pipelineId, $taskId);
     }
@@ -508,8 +471,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRestorePipelineTaskWithInvalidPipelineIdentifierUsingUuids(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineUuid = $this->getPipelineIdentifier();
-        $taskUuid = $this->getTaskIdentifier();
+        $pipelineUuid = $this->getPipelineStringIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
 
         $this->restorePipelineTask($pipelineUuid, $taskUuid, failForPipelineIdentifier: true);
     }
@@ -520,8 +483,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRestorePipelineTaskWithInvalidPipelineIdentifierUsingIds(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineId = $this->getPipelineIdentifier(true);
-        $taskId = $this->getTaskIdentifier(true);
+        $pipelineId = $this->getPipelineIntegerIdentifier();
+        $taskId = $this->getTaskIntegerIdentifier();
 
         $this->restorePipelineTask($pipelineId, $taskId, failForPipelineIdentifier: true);
     }
@@ -532,8 +495,8 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRestorePipelineTaskWithInvalidTaskIdentifierUsingUuids(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineUuid = $this->getPipelineIdentifier();
-        $taskUuid = $this->getTaskIdentifier();
+        $pipelineUuid = $this->getPipelineStringIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
 
         $this->restorePipelineTask($pipelineUuid, $taskUuid, failForTaskIdentifier: true);
     }
@@ -544,104 +507,10 @@ class PipelineTaskTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRestorePipelineTaskWithInvalidTaskIdentifierUsingIds(): void
     {
         $this->createAndGetPipelineTask();
-        $pipelineId = $this->getPipelineIdentifier(true);
-        $taskId = $this->getTaskIdentifier(true);
+        $pipelineId = $this->getPipelineIntegerIdentifier();
+        $taskId = $this->getTaskIntegerIdentifier();
 
         $this->restorePipelineTask($pipelineId, $taskId, failForTaskIdentifier: true);
-    }
-
-    /**
-     * Get created pipeline
-     * @return PipelineInterface
-     */
-    private function getPipeline(): PipelineInterface
-    {
-        return Pipeline::all()->first();
-    }
-
-    /**
-     * Get created pipeline identifier
-     * @param bool $asInteger
-     * @return string|int
-     */
-    private function getPipelineIdentifier(bool $asInteger = false): string|int
-    {
-        $model = $this->getPipeline();
-        if ($asInteger) {
-            return $model->getID();
-        }
-        return $model->getUuid();
-    }
-
-    /**
-     * Get created task instance
-     * @return TaskInterface
-     */
-    private function getTask(): TaskInterface
-    {
-        return Task::all()->first();
-    }
-
-    /**
-     * Get created task identifier
-     * @param bool $asInteger
-     * @return string|int
-     */
-    private function getTaskIdentifier(bool $asInteger = false): string|int
-    {
-        $model = $this->getTask();
-        if ($asInteger) {
-            return $model->getID();
-        }
-        return $model->getUuid();
-    }
-
-    /**
-     * Get created pipeline task
-     * @return PipelineTaskInterface
-     */
-    private function getPipelineTask(): PipelineTaskInterface
-    {
-        return PipelineTask::all()->first();
-    }
-
-    /**
-     * Get created pipeline task identifier
-     * @return string
-     */
-    private function getPipelineTaskIdentifier(): string
-    {
-        return $this->getPipelineTask()->getUuid();
-    }
-
-    /**
-     * Assert that created pipeline task has same pipeline as specified
-     * @param string $pipeline
-     * @return void
-     */
-    private function assertPipelineTaskHasSamePipeline(string $pipeline): void
-    {
-        $this->assertSame($pipeline, $this->getPipelineTask()->getPipelineUuid());
-    }
-
-    /**
-     * Assert that created pipeline task has same task as specified
-     * @param string $task
-     * @return void
-     */
-    private function assertPipelineTaskHasSameTask(string $task): void
-    {
-        $this->assertSame($task, $this->getPipelineTask()->getTaskUuid());
-    }
-
-    /**
-     * Assert that created pipeline task has same order as specified
-     * @param int $order
-     * @return void
-     */
-    private function assertPipelineTaskHasSameOrder(int $order): void
-    {
-        $this->assertSame($order, $this->getPipelineTask()->getOrder());
     }
 
     /**

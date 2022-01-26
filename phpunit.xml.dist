@@ -26,8 +26,8 @@
         <testsuite name="Feature Test Suite">
             <directory>./tests/Feature/ActionTest.php</directory>
             <directory>./tests/Feature/TaskTest.php</directory>
-            <directory>./tests/Feature/PipelineTest.php</directory>
             <directory>./tests/Feature/TaskActionTest.php</directory>
+            <directory>./tests/Feature/PipelineTest.php</directory>
             <directory>./tests/Feature/PipelineTaskTest.php</directory>
         </testsuite>
         <testsuite name="Integration Test Suite">

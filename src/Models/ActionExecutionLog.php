@@ -28,6 +28,7 @@ class ActionExecutionLog extends Model implements ActionExecutionLogInterface
      * @inheritDoc
      */
     public $fillable = [
+        'id',
         'action_execution_id',
         'exit_code',
         'output',

@@ -35,6 +35,7 @@ class ActionCreateUpdateRequest extends FormRequest
             'run_as'        =>  ['nullable', 'string'],
             'use_sudo'      =>  ['boolean'],
             'fail_on_error' =>  ['boolean'],
+            'servers'       =>  ['array'],
         ];
     }
 }

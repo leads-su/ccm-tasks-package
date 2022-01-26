@@ -2,6 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
@@ -75,4 +76,22 @@ interface PipelineInterface extends SourcedInterface
      * @return HasManyThrough
      */
     public function tasks(): HasManyThrough;
+
+    /**
+     * Get list of tasks references
+     * @return HasMany
+     */
+    public function tasksList(): HasMany;
+
+    /**
+     * Get list of tasks for this pipeline as array
+     * @return array
+     */
+    public function getTasksListAttribute(): array;
+
+    /**
+     * Get list of tasks for this pipeline as array (with extended information)
+     * @return array
+     */
+    public function getTasksListExtendedAttribute(): array;
 }

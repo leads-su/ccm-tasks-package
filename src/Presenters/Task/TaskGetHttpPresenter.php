@@ -21,7 +21,7 @@ class TaskGetHttpPresenter implements TaskGetOutputPort
     public function get(TaskGetResponseModel $responseModel): ViewModel
     {
         return new HttpResponseViewModel(response_success(
-            $responseModel->getEntity()->toArray(),
+            $responseModel->getEntity(),
             'Successfully fetched task information',
             Response::HTTP_OK,
         ));

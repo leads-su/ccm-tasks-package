@@ -110,4 +110,9 @@ Route::prefix('task-manager')->group(static function (): void {
             });
         });
     });
+
+    Route::prefix('services')->group(static function (): void {
+        Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Service\ServiceListController::class)
+            ->name('domain.tasks.servers.list');
+    });
 });

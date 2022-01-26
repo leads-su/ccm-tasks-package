@@ -4,11 +4,13 @@ namespace ConsulConfigManager\Tasks\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use ConsulConfigManager\Consul\Agent\Models\Service;
 use ConsulConfigManager\Tasks\Factories\ActionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
 
 /**
  * Class Action
@@ -30,6 +32,7 @@ class Action extends AbstractSourcedModel implements ActionInterface
      * @inheritDoc
      */
     protected $fillable = [
+        'id',
         'uuid',
         'name',
         'description',
@@ -298,5 +301,44 @@ class Action extends AbstractSourcedModel implements ActionInterface
             'uuid',
             'service_uuid'
         );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function servers(): HasMany
+    {
+        return $this->hasMany(
+            ActionHost::class,
+            'action_uuid',
+            'uuid'
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getServersAttribute(): array
+    {
+        return $this->servers()->getResults()->map(function (ActionHost $actionHost): string {
+            return $actionHost->getServiceUuid();
+        })->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getServersExtendedAttribute(): array
+    {
+        return $this->hosts()->getResults()->map(function (ServiceInterface $service): array {
+            return [
+                'uuid'          =>  $service->getUuid(),
+                'identifier'    =>  $service->getIdentifier(),
+                'service'       =>  $service->getService(),
+                'address'       =>  $service->getAddress(),
+                'port'          =>  $service->getPort(),
+                'environment'   =>  $service->getEnvironment(),
+            ];
+        })->toArray();
     }
 }

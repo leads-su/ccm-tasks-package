@@ -2,6 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
@@ -166,4 +167,22 @@ interface ActionInterface extends SourcedInterface
      * @return HasManyThrough
      */
     public function hosts(): HasManyThrough;
+
+    /**
+     * Get list of servers bound to this action as relations
+     * @return HasMany
+     */
+    public function servers(): HasMany;
+
+    /**
+     * Get list of servers bound to this action as array
+     * @return array
+     */
+    public function getServersAttribute(): array;
+
+    /**
+     * Get list of servers bound to this action as array with extended information
+     * @return array
+     */
+    public function getServersExtendedAttribute(): array;
 }

@@ -24,6 +24,7 @@ class TaskProjector extends Projector
         $model->setName($event->getName());
         $model->setDescription($event->getDescription());
         $model->setType($event->getType());
+        $model->failOnError($event->shouldFailOnError());
         $model->save();
     }
 
@@ -38,6 +39,7 @@ class TaskProjector extends Projector
         $model->setName($event->getName());
         $model->setDescription($event->getDescription());
         $model->setType($event->getType());
+        $model->failOnError($event->shouldFailOnError());
         $model->save();
     }
 

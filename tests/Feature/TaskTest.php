@@ -34,8 +34,15 @@ class TaskTest extends AbstractFeatureTest
         $this->createAndGetTask();
         $response = $this->get('/task-manager/tasks');
         $response->assertStatus(200);
-        $data = Arr::first($response->json('data'));
-        $this->assertSameTask($data);
+        $tasks = $response->json('data');
+        $this->validateTasksArray(
+            tasks: $tasks,
+            only: [
+                'id', 'uuid', 'name', 'description',
+                'type', 'created_at', 'updated_at',
+                'deleted_at', 'servers',
+            ]
+        );
     }
 
     /**
@@ -46,13 +53,13 @@ class TaskTest extends AbstractFeatureTest
         $response = $this->createAndGetTask();
         $response->assertStatus(201);
         $data = $response->json('data');
-        $this->assertSameTask($data);
+        $this->validateTask($data);
     }
 
     /**
      * @return void
      */
-    public function testShouldPassIfNotFoundResponseReturnedFromGetWithID(): void
+    public function testShouldPassIfNotFoundResponseReturnedFromGetWithId(): void
     {
         $response = $this->get('/task-manager/tasks/100');
         $response->assertStatus(404);
@@ -70,12 +77,12 @@ class TaskTest extends AbstractFeatureTest
     /**
      * @return void
      */
-    public function testShouldPassIfNotFoundResponseReturnedFromUpdateWithID(): void
+    public function testShouldPassIfNotFoundResponseReturnedFromUpdateWithId(): void
     {
         $response = $this->patch('/task-manager/tasks/100', [
             'name'              =>  'Example Task',
-            'description'       =>  'This is description for example task',
-            'type'              =>  TaskType::LOCAL,
+            'description'       =>  'This is description for Example Task',
+            'type'              =>  TaskType::REMOTE,
         ]);
         $response->assertStatus(404);
     }
@@ -87,8 +94,8 @@ class TaskTest extends AbstractFeatureTest
     {
         $response = $this->patch('/task-manager/tasks/ced57182-a253-44f4-9d76-b6e04e5b2890', [
             'name'              =>  'Example Task',
-            'description'       =>  'This is description for example task',
-            'type'              =>  TaskType::LOCAL,
+            'description'       =>  'This is description for Example Task',
+            'type'              =>  TaskType::REMOTE,
         ]);
         $response->assertStatus(404);
     }
@@ -96,7 +103,7 @@ class TaskTest extends AbstractFeatureTest
     /**
      * @return void
      */
-    public function testShouldPassIfCorrectResponseReturnedFromUpdateWithID(): void
+    public function testShouldPassIfCorrectResponseReturnedFromUpdateWithId(): void
     {
         $createResponse = $this->createAndGetTask();
         $createResponse->assertStatus(201);
@@ -104,13 +111,21 @@ class TaskTest extends AbstractFeatureTest
 
         $response = $this->patch('/task-manager/tasks/' . Arr::get($createData, 'id'), [
             'name'              =>  'New Example Task',
-            'description'       =>  'This is description for example task',
+            'description'       =>  'This is description for Example Task',
             'type'              =>  TaskType::REMOTE,
+            'fail_on_error'     =>  Arr::get($createData, 'fail_on_error'),
+            'actions'           =>  array_merge(
+                $this->getTaskActions($createData)->toArray(),
+                [$this->createAndGetActionModel()->toArray()]
+            ),
         ]);
-        $this->assertSameTask($response->json('data'), [
-            'name'              =>  'New Example Task',
-            'type'              =>  TaskType::REMOTE,
-        ]);
+        $this->validateTask(
+            task: $response->json('data'),
+            expectedNew: [
+                'name'              =>  'New Example Task',
+                'type'              =>  TaskType::REMOTE,
+            ]
+        );
     }
 
     /**
@@ -124,19 +139,27 @@ class TaskTest extends AbstractFeatureTest
 
         $response = $this->patch('/task-manager/tasks/' . Arr::get($createData, 'uuid'), [
             'name'              =>  'New Example Task',
-            'description'       =>  'This is description for example task',
+            'description'       =>  'This is description for Example Task',
             'type'              =>  TaskType::REMOTE,
+            'fail_on_error'     =>  Arr::get($createData, 'fail_on_error'),
+            'actions'           =>  array_merge(
+                $this->getTaskActions($createData)->toArray(),
+                [$this->createAndGetActionModel()->toArray()]
+            ),
         ]);
-        $this->assertSameTask($response->json('data'), [
-            'name'              =>  'New Example Task',
-            'type'              =>  TaskType::REMOTE,
-        ]);
+        $this->validateTask(
+            task: $response->json('data'),
+            expectedNew: [
+                'name'              =>  'New Example Task',
+                'type'              =>  TaskType::REMOTE,
+            ]
+        );
     }
 
     /**
      * @return void
      */
-    public function testShouldPassIfCorrectResponseReturnedFromGetWithID(): void
+    public function testShouldPassIfCorrectResponseReturnedFromGetWithId(): void
     {
         $createResponse = $this->createAndGetTask();
         $createResponse->assertStatus(201);
@@ -145,7 +168,7 @@ class TaskTest extends AbstractFeatureTest
         $response = $this->get('/task-manager/tasks/' . Arr::get($createData, 'id'));
         $response->assertStatus(200);
         $data = $response->json('data');
-        $this->assertSameTask($data);
+        $this->validateTask($data);
     }
 
     /**
@@ -160,7 +183,7 @@ class TaskTest extends AbstractFeatureTest
         $response = $this->get('/task-manager/tasks/' . Arr::get($createData, 'uuid'));
         $response->assertStatus(200);
         $data = $response->json('data');
-        $this->assertSameTask($data);
+        $this->validateTask($data);
     }
 
     /**
@@ -253,20 +276,5 @@ class TaskTest extends AbstractFeatureTest
         $response->assertStatus(200);
         $response = $this->patch('/task-manager/tasks/' . Arr::get($createData, 'uuid') . '/restore');
         $response->assertStatus(200);
-    }
-
-    /**
-     * Assert that same task is returned
-     * @param array $data
-     * @param array $newExpected
-     * @return void
-     */
-    private function assertSameTask(array $data, array $newExpected = []): void
-    {
-        $this->assertArrayHasKey('id', $data);
-        $this->assertArrayHasKey('uuid', $data);
-        $this->assertSame(Arr::get($newExpected, 'name', 'Example Task'), Arr::get($data, 'name'));
-        $this->assertSame(Arr::get($newExpected, 'description', 'This is description for example task'), Arr::get($data, 'description'));
-        $this->assertSame(Arr::get($newExpected, 'type', TaskType::LOCAL), Arr::get($data, 'type'));
     }
 }

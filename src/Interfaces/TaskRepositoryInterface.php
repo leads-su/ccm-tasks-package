@@ -99,9 +99,10 @@ interface TaskRepositoryInterface
      * @param string $name
      * @param string $description
      * @param int $type
+     * @param bool $failOnError
      * @return TaskInterface
      */
-    public function create(string $name, string $description, int $type): TaskInterface;
+    public function create(string $name, string $description, int $type, bool $failOnError = false): TaskInterface;
 
     /**
      * Update existing task
@@ -109,9 +110,10 @@ interface TaskRepositoryInterface
      * @param string $name
      * @param string $description
      * @param int $type
+     * @param bool $failOnError
      * @return TaskInterface
      */
-    public function update(int $id, string $name, string $description, int $type): TaskInterface;
+    public function update(int $id, string $name, string $description, int $type, bool $failOnError = false): TaskInterface;
 
     /**
      * Delete task

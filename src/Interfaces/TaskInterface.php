@@ -2,6 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
@@ -84,8 +85,39 @@ interface TaskInterface extends SourcedInterface
     public function setType(int $type): self;
 
     /**
+     * Check whether task should fail on error
+     * @return bool
+     */
+    public function isFailingOnError(): bool;
+
+    /**
+     * Set whether task should fail on error
+     * @param bool $failOnError
+     * @return $this
+     */
+    public function failOnError(bool $failOnError): self;
+
+    /**
      * Get list of actions for given task
      * @return HasManyThrough
      */
     public function actions(): HasManyThrough;
+
+    /**
+     * Get list of actions references
+     * @return HasMany
+     */
+    public function actionsList(): HasMany;
+
+    /**
+     * Get list of actions bound to this task as array
+     * @return array
+     */
+    public function getActionsListAttribute(): array;
+
+    /**
+     * Get list of actions bound to this task as array (with extended information)
+     * @return array
+     */
+    public function getActionsListExtendedAttribute(): array;
 }

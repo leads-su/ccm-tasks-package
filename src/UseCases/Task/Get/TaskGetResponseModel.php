@@ -14,23 +14,29 @@ class TaskGetResponseModel
      * Get of entities
      * @var TaskInterface|null
      */
-    private ?TaskInterface $entity;
+    private TaskInterface|array|null $entity;
 
     /**
      * TaskGetResponseModel constructor.
-     * @param TaskInterface|null $entity
+     * @param TaskInterface|array|null $entity
      */
-    public function __construct(?TaskInterface $entity = null)
+    public function __construct(TaskInterface|array|null $entity = null)
     {
         $this->entity = $entity;
     }
 
     /**
      * Get entity
-     * @return TaskInterface|null
+     * @return array
      */
-    public function getEntity(): ?TaskInterface
+    public function getEntity(): array
     {
-        return $this->entity;
+        if ($this->entity === null) {
+            return [];
+        }
+        if (is_array($this->entity)) {
+            return $this->entity;
+        }
+        return $this->entity->toArray();
     }
 }

@@ -32,6 +32,7 @@ class ActionExecution extends Model implements ActionExecutionInterface
      * @inheritDoc
      */
     public $fillable = [
+        'id',
         'server_uuid',
         'action_uuid',
         'task_uuid',

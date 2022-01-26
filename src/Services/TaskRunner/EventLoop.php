@@ -251,13 +251,13 @@ class EventLoop
             return;
         }
 
-        $currentAction = $this->getCurrentAction($serverIdentifier);
         if ($currentTaskState === ExecutionState::CANCELED) {
             // This statement is needed to mark actions as canceled if whole task is canceled
             $this->cancelActions($serverIdentifier, $currentTask);
             return;
         }
 
+        $currentAction = $this->getCurrentAction($serverIdentifier);
         $currentActionState = $this->getActionState($serverIdentifier, $currentTask, $currentAction);
 
         if ($this->isActionCompleted($serverIdentifier, $currentTask, $currentAction)) {

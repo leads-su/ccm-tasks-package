@@ -150,7 +150,9 @@ class TasksServiceProvider extends DomainServiceProvider
         $this->registerTaskInterceptors();
         $this->registerTaskActionInterceptors();
         $this->registerPipelineTaskInterceptors();
+        $this->registerServiceInterceptors();
     }
+
 
     /**
      * Register action specific interceptors
@@ -394,6 +396,20 @@ class TasksServiceProvider extends DomainServiceProvider
             UseCases\PipelineTask\Restore\PipelineTaskRestoreInteractor::class,
             Http\Controllers\PipelineTask\PipelineTaskRestoreController::class,
             Presenters\PipelineTask\PipelineTaskRestoreHttpPresenter::class,
+        );
+    }
+
+    /**
+     * Register service specific interceptors
+     * @return void
+     */
+    private function registerServiceInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\Service\List\ServiceListInputPort::class,
+            UseCases\Service\List\ServiceListInteractor::class,
+            Http\Controllers\Service\ServiceListController::class,
+            Presenters\Service\ServiceListHttpPresenter::class,
         );
     }
 

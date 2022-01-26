@@ -54,13 +54,36 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function exists(string|int $pipelineIdentifier, string|int $taskIdentifier): bool
+    {
+        $pipelineIdentifier = $this->resolvePipelineUUID($pipelineIdentifier);
+        $taskIdentifier = $this->resolveTaskUUID($taskIdentifier);
+
+        return PipelineTask::withTrashed(true)
+            ->where('pipeline_uuid', '=', $pipelineIdentifier)
+            ->where('task_uuid', '=', $taskIdentifier)
+            ->exists();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPipelineTasks(string|int $pipelineIdentifier): Collection
+    {
+        $pipelineIdentifier = $this->resolvePipelineUUID($pipelineIdentifier);
+        return PipelineTask::withTrashed(true)->where('pipeline_uuid', '=', $pipelineIdentifier)->get();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function create(int|string $pipelineIdentifier, int|string $taskIdentifier, int $order): bool
     {
         $uuid = Str::uuid()->toString();
         $pipelineIdentifier = $this->resolvePipelineUUID($pipelineIdentifier);
         $taskIdentifier = $this->resolveTaskUUID($taskIdentifier);
 
-        if (PipelineTask::withTrashed(true)->where('pipeline_uuid', '=', $pipelineIdentifier)->where('task_uuid', '=', $taskIdentifier)->exists()) {
+        if ($this->exists($pipelineIdentifier, $taskIdentifier)) {
             throw (new ModelAlreadyExistsException())->setModel(PipelineTask::class);
         }
 

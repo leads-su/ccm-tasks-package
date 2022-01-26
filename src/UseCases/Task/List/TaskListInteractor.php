@@ -3,7 +3,9 @@
 namespace ConsulConfigManager\Tasks\UseCases\Task\List;
 
 use Throwable;
+use Illuminate\Support\Arr;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
+use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 
 /**
@@ -48,8 +50,14 @@ class TaskListInteractor implements TaskListInputPort
                     'name', 'description', 'type',
                     'created_at', 'updated_at', 'deleted_at',
                 ],
+                append: ['actions_list_extended'],
                 withDeleted: $requestModel->getRequest()->get('with_deleted', false)
-            )->toArray();
+            )->map(function (TaskInterface $task): array {
+                $task = $task->toArray();
+                $task['actions'] = Arr::get($task, 'actions_list_extended');
+                unset($task['actions_list_extended']);
+                return $task;
+            })->toArray();
             return $this->output->list(new TaskListResponseModel($tasks));
             // @codeCoverageIgnoreStart
         } catch (Throwable $exception) {

@@ -30,6 +30,7 @@ class CreateTasksTable extends Migration
              * @see \ConsulConfigManager\Tasks\Enums\TaskType
              */
             $table->integer('type');
+            $table->boolean('fail_on_error');
             $table->softDeletes();
             $table->timestamps();
         });

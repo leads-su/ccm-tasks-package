@@ -26,9 +26,12 @@ class TaskCreateUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          =>  ['required', 'string'],
-            'description'   =>  ['required', 'string'],
-            'type'          =>  ['required', 'integer'],
+            'name'              =>  ['required', 'string'],
+            'description'       =>  ['required', 'string'],
+            'type'              =>  ['required', 'integer'],
+            'fail_on_error'     =>  ['sometimes', 'required', 'boolean'],
+            'actions'           =>  ['sometimes', 'required', 'array'],
+            'actions.*.uuid'    =>  ['sometimes', 'required', 'string'],
         ];
     }
 }

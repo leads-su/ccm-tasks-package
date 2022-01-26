@@ -53,6 +53,20 @@ class TaskActionRepository implements TaskActionRepositoryInterface
     }
 
     /**
+     * @@inheritDoc
+     */
+    public function exists(string|int $taskIdentifier, string|int $actionIdentifier): bool
+    {
+        $taskIdentifier = $this->resolveTaskUUID($taskIdentifier);
+        $actionIdentifier = $this->resolveActionUUID($actionIdentifier);
+
+        return TaskAction::withTrashed(true)
+            ->where('task_uuid', '=', $taskIdentifier)
+            ->where('action_uuid', '=', $actionIdentifier)
+            ->exists();
+    }
+
+    /**
      * @inheritDoc
      */
     public function create(string|int $taskIdentifier, string|int $actionIdentifier, int $order): bool
@@ -61,7 +75,7 @@ class TaskActionRepository implements TaskActionRepositoryInterface
         $taskIdentifier = $this->resolveTaskUUID($taskIdentifier);
         $actionIdentifier = $this->resolveActionUUID($actionIdentifier);
 
-        if (TaskAction::withTrashed(true)->where('task_uuid', '=', $taskIdentifier)->where('action_uuid', '=', $actionIdentifier)->exists()) {
+        if ($this->exists($taskIdentifier, $actionIdentifier)) {
             throw (new ModelAlreadyExistsException())->setModel(TaskAction::class);
         }
 
@@ -185,6 +199,15 @@ class TaskActionRepository implements TaskActionRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function getTaskActions(string|int $identifier): Collection
+    {
+        $taskIdentifier = $this->resolveTaskUUID($identifier);
+        return TaskAction::withTrashed(true)->where('task_uuid', '=', $taskIdentifier)->get();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findAction(string|int $id, array $columns = ['*'], bool $withDeleted = false): ActionInterface
     {
         return $this->actionRepository()
@@ -213,6 +236,7 @@ class TaskActionRepository implements TaskActionRepositoryInterface
             ->with($with)
             ->firstOrFail($columns)->setAppends($append);
     }
+
 
     /**
      * @inheritDoc

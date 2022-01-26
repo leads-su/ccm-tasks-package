@@ -33,8 +33,14 @@ class PipelineTest extends AbstractFeatureTest
         $this->createAndGetPipeline();
         $response = $this->get('/task-manager/pipelines');
         $response->assertStatus(200);
-        $data = Arr::first($response->json('data'));
-        $this->assertSamePipeline($data);
+        $pipelines = $response->json('data');
+        $this->validatePipelinesArray(
+            pipelines: $pipelines,
+            only: [
+                'id', 'uuid', 'name', 'description',
+                'created_at', 'updated_at', 'deleted_at',
+            ]
+        );
     }
 
     /**
@@ -45,7 +51,7 @@ class PipelineTest extends AbstractFeatureTest
         $response = $this->createAndGetPipeline();
         $response->assertStatus(201);
         $data = $response->json('data');
-        $this->assertSamePipeline($data);
+        $this->validatePipeline($data);
     }
 
     /**
@@ -73,7 +79,7 @@ class PipelineTest extends AbstractFeatureTest
     {
         $response = $this->patch('/task-manager/pipelines/100', [
             'name'              =>  'Example Pipeline',
-            'description'       =>  'This is description for example pipeline',
+            'description'       =>  'This is description for Example Pipeline',
         ]);
         $response->assertStatus(404);
     }
@@ -85,7 +91,7 @@ class PipelineTest extends AbstractFeatureTest
     {
         $response = $this->patch('/task-manager/pipelines/ced57182-a253-44f4-9d76-b6e04e5b2890', [
             'name'              =>  'Example Pipeline',
-            'description'       =>  'This is description for example pipeline',
+            'description'       =>  'This is description for Example Pipeline',
         ]);
         $response->assertStatus(404);
     }
@@ -101,11 +107,18 @@ class PipelineTest extends AbstractFeatureTest
 
         $response = $this->patch('/task-manager/pipelines/' . Arr::get($createData, 'id'), [
             'name'              =>  'New Example Pipeline',
-            'description'       =>  'This is description for example pipeline',
+            'description'       =>  'This is description for Example Pipeline',
+            'tasks'             =>  array_merge(
+                $this->getPipelineTasks($createData)->toArray(),
+                [$this->createAndGetTaskModel()->toArray()]
+            ),
         ]);
-        $this->assertSamePipeline($response->json('data'), [
-            'name'              =>  'New Example Pipeline',
-        ]);
+        $this->validatePipeline(
+            pipeline: $response->json('data'),
+            expectedNew: [
+                'name'              =>  'New Example Pipeline',
+            ]
+        );
     }
 
     /**
@@ -119,11 +132,18 @@ class PipelineTest extends AbstractFeatureTest
 
         $response = $this->patch('/task-manager/pipelines/' . Arr::get($createData, 'uuid'), [
             'name'              =>  'New Example Pipeline',
-            'description'       =>  'This is description for example pipeline',
+            'description'       =>  'This is description for Example Pipeline',
+            'tasks'             =>  array_merge(
+                $this->getPipelineTasks($createData)->toArray(),
+                [$this->createAndGetTaskModel()->toArray()]
+            ),
         ]);
-        $this->assertSamePipeline($response->json('data'), [
-            'name'              =>  'New Example Pipeline',
-        ]);
+        $this->validatePipeline(
+            pipeline: $response->json('data'),
+            expectedNew: [
+                'name'              =>  'New Example Pipeline',
+            ]
+        );
     }
 
     /**
@@ -138,7 +158,7 @@ class PipelineTest extends AbstractFeatureTest
         $response = $this->get('/task-manager/pipelines/' . Arr::get($createData, 'id'));
         $response->assertStatus(200);
         $data = $response->json('data');
-        $this->assertSamePipeline($data);
+        $this->validatePipeline($data);
     }
 
     /**
@@ -153,7 +173,7 @@ class PipelineTest extends AbstractFeatureTest
         $response = $this->get('/task-manager/pipelines/' . Arr::get($createData, 'uuid'));
         $response->assertStatus(200);
         $data = $response->json('data');
-        $this->assertSamePipeline($data);
+        $this->validatePipeline($data);
     }
 
     /**
@@ -246,19 +266,5 @@ class PipelineTest extends AbstractFeatureTest
         $response->assertStatus(200);
         $response = $this->patch('/task-manager/pipelines/' . Arr::get($createData, 'uuid') . '/restore');
         $response->assertStatus(200);
-    }
-
-    /**
-     * Assert that same pipeline is returned
-     * @param array $data
-     * @param array $newExpected
-     * @return void
-     */
-    private function assertSamePipeline(array $data, array $newExpected = []): void
-    {
-        $this->assertArrayHasKey('id', $data);
-        $this->assertArrayHasKey('uuid', $data);
-        $this->assertSame(Arr::get($newExpected, 'name', 'Example Pipeline'), Arr::get($data, 'name'));
-        $this->assertSame(Arr::get($newExpected, 'description', 'This is description for example pipeline'), Arr::get($data, 'description'));
     }
 }

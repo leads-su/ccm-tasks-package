@@ -46,7 +46,7 @@ class ActionGetInteractor implements ActionGetInputPort
             $action = $this->repository->findByManyOrFail(
                 fields: ['id', 'uuid'],
                 value: $requestModel->getIdentifier(),
-                append: ['history'],
+                append: ['history', 'servers'],
                 withDeleted: $requestModel->getRequest()->get('with_deleted', false)
             );
             return $this->output->get(new ActionGetResponseModel($action));

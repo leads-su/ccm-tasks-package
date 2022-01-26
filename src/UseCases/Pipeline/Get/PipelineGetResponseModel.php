@@ -12,25 +12,31 @@ class PipelineGetResponseModel
 {
     /**
      * Get of entities
-     * @var PipelineInterface|null
+     * @var PipelineInterface|array|null
      */
-    private ?PipelineInterface $entity;
+    private PipelineInterface|array|null $entity;
 
     /**
      * PipelineGetResponseModel constructor.
-     * @param PipelineInterface|null $entity
+     * @param PipelineInterface|array|null $entity
      */
-    public function __construct(?PipelineInterface $entity = null)
+    public function __construct(PipelineInterface|array|null $entity = null)
     {
         $this->entity = $entity;
     }
 
     /**
      * Get entity
-     * @return PipelineInterface|null
+     * @return array
      */
-    public function getEntity(): ?PipelineInterface
+    public function getEntity(): array
     {
-        return $this->entity;
+        if ($this->entity === null) {
+            return [];
+        }
+        if (is_array($this->entity)) {
+            return $this->entity;
+        }
+        return $this->entity->toArray();
     }
 }

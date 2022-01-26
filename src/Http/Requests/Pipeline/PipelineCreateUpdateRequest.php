@@ -28,6 +28,8 @@ class PipelineCreateUpdateRequest extends FormRequest
         return [
             'name'          =>  ['required', 'string'],
             'description'   =>  ['required', 'string'],
+            'tasks'         =>  ['sometimes', 'required', 'array'],
+            'tasks.*.uuid'  =>  ['sometimes', 'required', 'string'],
         ];
     }
 }

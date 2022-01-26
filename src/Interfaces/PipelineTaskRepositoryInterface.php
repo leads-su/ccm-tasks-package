@@ -35,6 +35,23 @@ interface PipelineTaskRepositoryInterface
     public function get(string|int $pipelineIdentifier, string|int $taskIdentifier, array $with = [], array $append = []): PipelineTaskInterface;
 
     /**
+     * Check whether specified task exists on pipeline
+     * @param string|int $pipelineIdentifier
+     * @param string|int $taskIdentifier
+     * @return bool
+     * @throws BindingResolutionException
+     */
+    public function exists(string|int $pipelineIdentifier, string|int $taskIdentifier): bool;
+
+    /**
+     * Get list of all pipeline tasks
+     * @param string|int $pipelineIdentifier
+     * @return Collection
+     * @throws BindingResolutionException
+     */
+    public function getPipelineTasks(string|int $pipelineIdentifier): Collection;
+
+    /**
      * Create new pipeline task entity
      * @param string|int $pipelineIdentifier
      * @param string|int $taskIdentifier

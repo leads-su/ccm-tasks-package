@@ -4,10 +4,13 @@ namespace ConsulConfigManager\Tasks\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Factories\PipelineFactory;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 
 /**
  * Class Pipeline
@@ -29,6 +32,7 @@ class Pipeline extends AbstractSourcedModel implements PipelineInterface
      * @inheritDoc
      */
     protected $fillable = [
+        'id',
         'uuid',
         'name',
         'description',
@@ -164,5 +168,42 @@ class Pipeline extends AbstractSourcedModel implements PipelineInterface
             'uuid',
             'task_uuid'
         )->orderBy((new PipelineTask())->getTable() .'.order', 'ASC');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function tasksList(): HasMany
+    {
+        return $this->hasMany(
+            PipelineTask::class,
+            'pipeline_uuid',
+            'uuid',
+        )->orderBy((new PipelineTask())->getTable() .'.order', 'ASC');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTasksListAttribute(): array
+    {
+        return $this->tasksList()->getResults()->map(function (PipelineTaskInterface $pipelineTask): string {
+            return $pipelineTask->getTaskUuid();
+        })->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTasksListExtendedAttribute(): array
+    {
+        return $this->tasks()->getResults()->map(function (TaskInterface $task): array {
+            return [
+                'uuid'          =>  $task->getUuid(),
+                'name'          =>  $task->getName(),
+                'description'   =>  $task->getDescription(),
+                'actions'       =>  $task->getActionsListExtendedAttribute(),
+            ];
+        })->toArray();
     }
 }

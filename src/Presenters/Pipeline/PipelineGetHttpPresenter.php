@@ -21,7 +21,7 @@ class PipelineGetHttpPresenter implements PipelineGetOutputPort
     public function get(PipelineGetResponseModel $responseModel): ViewModel
     {
         return new HttpResponseViewModel(response_success(
-            $responseModel->getEntity()->toArray(),
+            $responseModel->getEntity(),
             'Successfully fetched pipeline information',
             Response::HTTP_OK,
         ));

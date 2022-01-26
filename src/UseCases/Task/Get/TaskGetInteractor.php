@@ -3,6 +3,7 @@
 namespace ConsulConfigManager\Tasks\UseCases\Task\Get;
 
 use Throwable;
+use Illuminate\Support\Arr;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
@@ -46,9 +47,19 @@ class TaskGetInteractor implements TaskGetInputPort
             $task = $this->repository->findByManyOrFail(
                 fields: ['id', 'uuid'],
                 value: $requestModel->getIdentifier(),
-                append: ['history'],
+                append: ['history', 'actions_list_extended'],
                 withDeleted: $requestModel->getRequest()->get('with_deleted', false),
-            );
+            )->toArray();
+
+            if (isset($task['actions_list'])) {
+                $task['actions'] = Arr::get($task, 'actions_list');
+                unset($task['actions_list']);
+            }
+            if (isset($task['actions_list_extended'])) {
+                $task['actions'] = Arr::get($task, 'actions_list_extended');
+                unset($task['actions_list_extended']);
+            }
+
             return $this->output->get(new TaskGetResponseModel($task));
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

@@ -27,6 +27,7 @@ class PipelineExecution extends AbstractSourcedModel implements PipelineExecutio
      * @inheritDoc
      */
     protected $fillable = [
+        'id',
         'uuid',
         'pipeline_uuid',
         'state',

@@ -4,10 +4,13 @@ namespace ConsulConfigManager\Tasks\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use ConsulConfigManager\Tasks\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
 
 /**
  * Class Task
@@ -29,10 +32,12 @@ class Task extends AbstractSourcedModel implements TaskInterface
      * @inheritDoc
      */
     protected $fillable = [
+        'id',
         'uuid',
         'name',
         'description',
         'type',
+        'fail_on_error',
     ];
 
     /**
@@ -44,6 +49,7 @@ class Task extends AbstractSourcedModel implements TaskInterface
         'name'          =>  'string',
         'description'   =>  'string',
         'type'          =>  'integer',
+        'fail_on_error' =>  'boolean',
     ];
 
     /**
@@ -170,6 +176,23 @@ class Task extends AbstractSourcedModel implements TaskInterface
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function isFailingOnError(): bool
+    {
+        return (bool) $this->attributes['fail_on_error'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function failOnError(bool $failOnError): TaskInterface
+    {
+        $this->attributes['fail_on_error'] = (bool) $failOnError;
+        return $this;
+    }
+
 
     /**
      * @inheritDoc
@@ -184,5 +207,42 @@ class Task extends AbstractSourcedModel implements TaskInterface
             'uuid',
             'action_uuid'
         )->orderBy((new TaskAction())->getTable() .'.order', 'ASC');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function actionsList(): HasMany
+    {
+        return $this->hasMany(
+            TaskAction::class,
+            'task_uuid',
+            'uuid',
+        )->orderBy((new TaskAction())->getTable() .'.order', 'ASC');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getActionsListAttribute(): array
+    {
+        return $this->actionsList()->getResults()->map(function (TaskActionInterface $taskAction): string {
+            return $taskAction->getActionUuid();
+        })->toArray();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getActionsListExtendedAttribute(): array
+    {
+        return $this->actions()->getResults()->map(function (ActionInterface $action): array {
+            return [
+                'uuid'          =>  $action->getUuid(),
+                'name'          =>  $action->getName(),
+                'description'   =>  $action->getDescription(),
+                'servers'       =>  $action->getServersExtendedAttribute(),
+            ];
+        })->toArray();
     }
 }

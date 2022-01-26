@@ -5,7 +5,10 @@ namespace ConsulConfigManager\Tasks\UseCases\Action\Update;
 use Throwable;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionHostInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionHostRepositoryInterface;
 
 /**
  * Class ActionUpdateInteractor
@@ -26,17 +29,25 @@ class ActionUpdateInteractor implements ActionUpdateInputPort
     private ActionRepositoryInterface $repository;
 
     /**
+     * Action Host repository instance
+     * @var ActionHostRepositoryInterface
+     */
+    private ActionHostRepositoryInterface $actionHostRepository;
+
+    /**
      * ActionUpdateInteractor constructor.
      * @param ActionUpdateOutputPort $output
      * @param ActionRepositoryInterface $repository
-     * @return void
+     * @param ActionHostRepositoryInterface $actionHostRepository
      */
     public function __construct(
         ActionUpdateOutputPort $output,
         ActionRepositoryInterface $repository,
+        ActionHostRepositoryInterface $actionHostRepository,
     ) {
         $this->output = $output;
         $this->repository = $repository;
+        $this->actionHostRepository = $actionHostRepository;
     }
 
     /**
@@ -64,6 +75,7 @@ class ActionUpdateInteractor implements ActionUpdateInputPort
                 $request->get('use_sudo', false),
                 $request->get('fail_on_error', true),
             );
+            $this->updateServersList($entity, $request->get('servers', []));
             return $this->output->update(new ActionUpdateResponseModel($entity));
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {
@@ -72,6 +84,33 @@ class ActionUpdateInteractor implements ActionUpdateInputPort
             // @codeCoverageIgnoreStart
             return $this->output->internalServerError(new ActionUpdateResponseModel(), $exception);
             // @codeCoverageIgnoreEnd
+        }
+    }
+
+    /**
+     * Update servers list for action
+     * @param ActionInterface $action
+     * @param array $servers
+     * @return void
+     */
+    private function updateServersList(ActionInterface $action, array $servers = []): void
+    {
+        $existingServers = $this->actionHostRepository
+            ->findByAction($action->getUuid())
+            ->map(function (ActionHostInterface $actionHost): string {
+                return $actionHost->getServiceUuid();
+            })
+            ->toArray();
+
+        $removedServers = array_diff($existingServers, $servers);
+        $addedServers = array_diff($servers, $existingServers);
+
+        foreach ($removedServers as $server) {
+            $this->actionHostRepository->delete($action->getUuid(), $server);
+        }
+
+        foreach ($addedServers as $server) {
+            $this->actionHostRepository->create($action->getUuid(), $server);
         }
     }
 }

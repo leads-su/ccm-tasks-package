@@ -2,13 +2,8 @@
 
 namespace ConsulConfigManager\Tasks\Test\Feature;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use ConsulConfigManager\Tasks\Models\Task;
-use ConsulConfigManager\Tasks\Models\Action;
-use ConsulConfigManager\Tasks\Models\TaskAction;
-use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
-use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
-use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
 
 /**
  * Class TaskActionTest
@@ -22,7 +17,7 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfEmptyActionsListCanBeRetrieved(): void
     {
         $this->createAndGetTaskAction();
-        $response = $this->get('/task-manager/tasks/' . $this->getTaskIdentifier() . '/actions');
+        $response = $this->get('/task-manager/tasks/' . $this->getTaskStringIdentifier() . '/actions');
         $response->assertJson([
             'success'       =>  true,
             'code'          =>  200,
@@ -34,9 +29,23 @@ class TaskActionTest extends AbstractFeatureTest
     /**
      * @return void
      */
-    public function testShouldPassIfNotFoundReturnedOnNonExistentTask(): void
+    public function testShouldPassIfNotFoundReturnedOnNonExistentTaskWithId(): void
     {
         $response = $this->get('/task-manager/tasks/1/actions');
+        $response->assertExactJson([
+            'success'       =>  false,
+            'code'          =>  404,
+            'data'          =>  [],
+            'message'       =>  'Unable to find requested task',
+        ]);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfNotFoundReturnedOnNonExistentTaskWithUuid(): void
+    {
+        $response = $this->get('/task-manager/tasks/67701d77-c123-48e9-a84b-41db955f2e09/actions');
         $response->assertExactJson([
             'success'       =>  false,
             'code'          =>  404,
@@ -51,17 +60,7 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfTaskActionCanBeCreatedWithUuid(): void
     {
         $response = $this->createAndGetTaskAction();
-        $response->assertJson([
-            'success'           =>  true,
-            'code'              =>  201,
-            'data'              =>  [
-                'action_uuid'   =>  $this->getActionIdentifier(),
-                'deleted_at'    =>  null,
-                'order'         =>  1,
-                'task_uuid'     =>  $this->getTaskIdentifier(),
-            ],
-            'message'           =>  'Successfully created new task action',
-        ]);
+        $this->validateTaskAction($response->json('data'));
         $this->assertDatabaseCount('task_actions', 1);
     }
 
@@ -71,17 +70,7 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfTaskActionCanBeCreatedWithId(): void
     {
         $response = $this->createAndGetTaskActionWithIDs();
-        $response->assertJson([
-            'success'           =>  true,
-            'code'              =>  201,
-            'data'              =>  [
-                'action_uuid'   =>  $this->getActionIdentifier(),
-                'deleted_at'    =>  null,
-                'order'         =>  1,
-                'task_uuid'     =>  $this->getTaskIdentifier(),
-            ],
-            'message'           =>  'Successfully created new task action',
-        ]);
+        $this->validateTaskAction($response->json('data'));
         $this->assertDatabaseCount('task_actions', 1);
     }
 
@@ -95,17 +84,17 @@ class TaskActionTest extends AbstractFeatureTest
             'success'           =>  true,
             'code'              =>  201,
             'data'              =>  [
-                'action_uuid'   =>  $this->getActionIdentifier(),
+                'action_uuid'   =>  $this->getActionStringIdentifier(),
                 'deleted_at'    =>  null,
                 'order'         =>  1,
-                'task_uuid'     =>  $this->getTaskIdentifier(),
+                'task_uuid'     =>  $this->getTaskStringIdentifier(),
             ],
             'message'           =>  'Successfully created new task action',
         ]);
         $this->assertDatabaseCount('task_actions', 1);
 
-        $response =  $this->post('/task-manager/tasks/' . $this->getTaskIdentifier() . '/actions', [
-            'action_uuid'       =>  $this->getActionIdentifier(),
+        $response =  $this->post('/task-manager/tasks/' . $this->getTaskStringIdentifier() . '/actions', [
+            'action_uuid'       =>  $this->getActionStringIdentifier(),
             'order'             =>  1,
         ]);
 
@@ -119,7 +108,7 @@ class TaskActionTest extends AbstractFeatureTest
     {
         $this->createAndGetTaskAction();
 
-        $response = $this->get('/task-manager/tasks/' . $this->getTaskIdentifier() . '/actions');
+        $response = $this->get('/task-manager/tasks/' . $this->getTaskStringIdentifier() . '/actions');
         $response->assertStatus(200);
         $data = $response->json('data');
         $this->assertCount(1, $data);
@@ -161,7 +150,7 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToUpdateTaskActionWithInvalidTask(): void
     {
         $this->createAndGetTaskActionWithIDs();
-        $response = $this->patch('/task-manager/tasks/' . Str::uuid()->toString() . '/actions/' . $this->getActionIdentifier(), [
+        $response = $this->patch('/task-manager/tasks/' . Str::uuid()->toString() . '/actions/' . $this->getActionStringIdentifier(), [
             'order'             =>  1,
         ]);
         $response->assertStatus(404);
@@ -180,7 +169,7 @@ class TaskActionTest extends AbstractFeatureTest
     {
         $this->createAndGetTaskActionWithIDs();
 
-        $response = $this->patch('/task-manager/tasks/' . $this->getTaskIdentifier() . '/actions/' . Str::uuid()->toString(), [
+        $response = $this->patch('/task-manager/tasks/' . $this->getTaskStringIdentifier() . '/actions/' . Str::uuid()->toString(), [
             'order'             =>  2,
         ]);
         $response->assertStatus(404);
@@ -198,8 +187,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfTaskActionCanBeUpdatedWithUuids(): void
     {
         $this->createAndGetTaskAction();
-        $taskUuid = $this->getTaskIdentifier();
-        $actionUuid = $this->getActionIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
+        $actionUuid = $this->getActionStringIdentifier();
 
         $response = $this->patch('/task-manager/tasks/' . $taskUuid . '/actions/' . $actionUuid, [
             'order'     =>  2,
@@ -223,8 +212,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfTaskActionCanBeUpdatedWithIds(): void
     {
         $this->createAndGetTaskAction();
-        $taskId = $this->getTaskIdentifier(true);
-        $actionId = $this->getActionIdentifier(true);
+        $taskId = $this->getTaskIntegerIdentifier();
+        $actionId = $this->getActionIntegerIdentifier();
 
         $response = $this->patch('/task-manager/tasks/' . $taskId . '/actions/' . $actionId, [
             'order'     =>  3,
@@ -237,8 +226,8 @@ class TaskActionTest extends AbstractFeatureTest
             'message'       =>  'Successfully updated task action',
         ]);
 
-        $this->assertTaskActionHasSameTask($this->getTaskIdentifier());
-        $this->assertTaskActionHasSameAction($this->getActionIdentifier());
+        $this->assertTaskActionHasSameTask($this->getTaskStringIdentifier());
+        $this->assertTaskActionHasSameAction($this->getActionStringIdentifier());
         $this->assertTaskActionHasSameOrder(3);
     }
 
@@ -248,8 +237,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfTaskActionCanBeDeletedWithUuids(): void
     {
         $this->createAndGetTaskAction();
-        $taskUuid = $this->getTaskIdentifier();
-        $actionUuid = $this->getActionIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
+        $actionUuid = $this->getActionStringIdentifier();
 
         $response = $this->delete('/task-manager/tasks/' . $taskUuid . '/actions/' . $actionUuid);
         $response->assertStatus(200);
@@ -267,8 +256,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfTaskActionCanBeDeletedWithIds(): void
     {
         $this->createAndGetTaskAction();
-        $taskId = $this->getTaskIdentifier(true);
-        $actionId = $this->getActionIdentifier(true);
+        $taskId = $this->getTaskIntegerIdentifier();
+        $actionId = $this->getActionIntegerIdentifier();
 
         $response = $this->delete('/task-manager/tasks/' . $taskId . '/actions/' . $actionId);
         $response->assertStatus(200);
@@ -285,8 +274,8 @@ class TaskActionTest extends AbstractFeatureTest
      */
     public function testShouldPassIfFailedToDeleteTaskActionWithInvalidTaskIdentifierAsUuid(): void
     {
-        $this->createAndGetTaskAction();
-        $response = $this->delete('/task-manager/tasks/' . Str::uuid()->toString() . '/actions/' . $this->getActionIdentifier());
+        $this->createAndGetTaskActionModel();
+        $response = $this->delete('/task-manager/tasks/' . Str::uuid()->toString() . '/actions/' . $this->getActionStringIdentifier());
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -301,8 +290,8 @@ class TaskActionTest extends AbstractFeatureTest
      */
     public function testShouldPassIfFailedToDeleteTaskActionWithInvalidTaskIdentifierAsId(): void
     {
-        $this->createAndGetTaskAction();
-        $response = $this->delete('/task-manager/tasks/2/actions/' . $this->getActionIdentifier(true));
+        $this->createAndGetTaskActionModel();
+        $response = $this->delete('/task-manager/tasks/2/actions/' . $this->getActionIntegerIdentifier());
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -318,7 +307,7 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToDeleteTaskActionWithInvalidActionIdentifierAsUuid(): void
     {
         $this->createAndGetTaskAction();
-        $response = $this->delete('/task-manager/tasks/' . $this->getTaskIdentifier() . '/actions/' . Str::uuid()->toString());
+        $response = $this->delete('/task-manager/tasks/' . $this->getTaskStringIdentifier() . '/actions/' . Str::uuid()->toString());
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -334,7 +323,7 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToDeleteTaskActionWithInvalidActionIdentifierAsId(): void
     {
         $this->createAndGetTaskAction();
-        $response = $this->delete('/task-manager/tasks/' . $this->getTaskIdentifier(true) . '/actions/2');
+        $response = $this->delete('/task-manager/tasks/' . $this->getTaskIntegerIdentifier() . '/actions/2');
         $response->assertStatus(404);
         $response->assertExactJson([
             'success'       =>  false,
@@ -350,20 +339,18 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfAbleToRetrieveTaskActionWithUuids(): void
     {
         $this->createAndGetTaskAction();
-        $taskIdentifier = $this->getTaskIdentifier();
-        $actionIdentifier = $this->getActionIdentifier();
+        $taskIdentifier = $this->getTaskStringIdentifier();
+        $actionIdentifier = $this->getActionStringIdentifier();
 
         $response = $this->get('/task-manager/tasks/' . $taskIdentifier . '/actions/' . $actionIdentifier);
         $response->assertStatus(200);
 
-        $data = array_merge(
-            [
-                'action'        =>  $this->getAction()->toArray(),
-                'task'          =>  $this->getTask()->toArray(),
-                'history'       =>  [],
-            ],
-            $this->getTaskAction()->toArray(),
-        );
+        $data = $response->json('data');
+        $this->assertArrayHasKey('history', $data);
+        $this->assertArrayHasKey('task', $data);
+        $this->assertArrayHasKey('action', $data);
+        $this->validateTask(Arr::get($data, 'task'));
+        $this->validateAction(Arr::get($data, 'action'));
 
         $response->assertJson([
             'success'       =>  true,
@@ -379,26 +366,23 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfAbleToRetrieveTaskActionWithIds(): void
     {
         $this->createAndGetTaskAction();
-        $taskIdentifier = $this->getTaskIdentifier(true);
-        $actionIdentifier = $this->getActionIdentifier(true);
+        $taskIdentifier = $this->getTaskIntegerIdentifier();
+        $actionIdentifier = $this->getActionIntegerIdentifier();
 
         $response = $this->get('/task-manager/tasks/' . $taskIdentifier . '/actions/' . $actionIdentifier);
         $response->assertStatus(200);
+        $data = $response->json('data');
 
-        $data = array_merge(
-            [
-                'action'        =>  $this->getAction()->toArray(),
-                'task'          =>  $this->getTask()->toArray(),
-                'history'       =>  [],
-            ],
-            $this->getTaskAction()->toArray(),
-        );
-
+        $this->assertArrayHasKey('history', $data);
+        $this->assertArrayHasKey('task', $data);
+        $this->assertArrayHasKey('action', $data);
+        $this->validateTask(Arr::get($data, 'task'));
+        $this->validateAction(Arr::get($data, 'action'));
         $response->assertJson([
-            'success'           =>  true,
-            'code'              =>  200,
-            'data'              =>  $data,
-            'message'           =>  'Successfully fetched task action information',
+            'success'       =>  true,
+            'code'          =>  200,
+            'data'          =>  $data,
+            'message'       =>  'Successfully fetched task action information',
         ]);
     }
 
@@ -409,7 +393,7 @@ class TaskActionTest extends AbstractFeatureTest
     {
         $this->createAndGetTaskAction();
         $taskIdentifier = Str::uuid()->toString();
-        $actionIdentifier = $this->getActionIdentifier();
+        $actionIdentifier = $this->getActionStringIdentifier();
 
         $response = $this->get('/task-manager/tasks/' . $taskIdentifier . '/actions/' . $actionIdentifier);
         $response->assertStatus(404);
@@ -428,7 +412,7 @@ class TaskActionTest extends AbstractFeatureTest
     {
         $this->createAndGetTaskAction();
         $taskIdentifier = 2;
-        $actionIdentifier = $this->getActionIdentifier(true);
+        $actionIdentifier = $this->getActionIntegerIdentifier();
 
         $response = $this->get('/task-manager/tasks/' . $taskIdentifier . '/actions/' . $actionIdentifier);
         $response->assertStatus(404);
@@ -446,7 +430,7 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRetrieveTaskActionWithInvalidActionIdentifierAndUuids(): void
     {
         $this->createAndGetTaskAction();
-        $taskIdentifier = $this->getTaskIdentifier();
+        $taskIdentifier = $this->getTaskStringIdentifier();
         $actionIdentifier = Str::uuid()->toString();
 
         $response = $this->get('/task-manager/tasks/' . $taskIdentifier . '/actions/' . $actionIdentifier);
@@ -465,7 +449,7 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRetrieveTaskActionWithInvalidActionIdentifierAndIds(): void
     {
         $this->createAndGetTaskAction();
-        $taskIdentifier = $this->getTaskIdentifier(true);
+        $taskIdentifier = $this->getTaskIntegerIdentifier();
         $actionIdentifier = 2;
 
         $response = $this->get('/task-manager/tasks/' . $taskIdentifier . '/actions/' . $actionIdentifier);
@@ -484,8 +468,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfTaskActionCanBeRestoredUsingUuids(): void
     {
         $this->createAndGetTaskAction();
-        $taskUuid = $this->getTaskIdentifier();
-        $actionUuid = $this->getActionIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
+        $actionUuid = $this->getActionStringIdentifier();
 
         $this->restoreTaskAction($taskUuid, $actionUuid);
     }
@@ -496,8 +480,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfTaskActionCanBeRestoredUsingIds(): void
     {
         $this->createAndGetTaskAction();
-        $taskId = $this->getTaskIdentifier(true);
-        $actionId = $this->getActionIdentifier(true);
+        $taskId = $this->getTaskIntegerIdentifier();
+        $actionId = $this->getActionIntegerIdentifier();
 
         $this->restoreTaskAction($taskId, $actionId);
     }
@@ -508,8 +492,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRestoreTaskActionWithInvalidTaskIdentifierUsingUuids(): void
     {
         $this->createAndGetTaskAction();
-        $taskUuid = $this->getTaskIdentifier();
-        $actionUuid = $this->getActionIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
+        $actionUuid = $this->getActionStringIdentifier();
 
         $this->restoreTaskAction($taskUuid, $actionUuid, failForTaskIdentifier: true);
     }
@@ -520,8 +504,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRestoreTaskActionWithInvalidTaskIdentifierUsingIds(): void
     {
         $this->createAndGetTaskAction();
-        $taskId = $this->getTaskIdentifier(true);
-        $actionId = $this->getActionIdentifier(true);
+        $taskId = $this->getTaskIntegerIdentifier();
+        $actionId = $this->getActionIntegerIdentifier();
 
         $this->restoreTaskAction($taskId, $actionId, failForTaskIdentifier: true);
     }
@@ -532,8 +516,8 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRestoreTaskActionWithInvalidActionIdentifierUsingUuids(): void
     {
         $this->createAndGetTaskAction();
-        $taskUuid = $this->getTaskIdentifier();
-        $actionUuid = $this->getActionIdentifier();
+        $taskUuid = $this->getTaskStringIdentifier();
+        $actionUuid = $this->getActionStringIdentifier();
 
         $this->restoreTaskAction($taskUuid, $actionUuid, failForActionIdentifier: true);
     }
@@ -544,104 +528,10 @@ class TaskActionTest extends AbstractFeatureTest
     public function testShouldPassIfFailedToRestoreTaskActionWithInvalidActionIdentifierUsingIds(): void
     {
         $this->createAndGetTaskAction();
-        $taskId = $this->getTaskIdentifier(true);
-        $actionId = $this->getActionIdentifier(true);
+        $taskId = $this->getTaskIntegerIdentifier();
+        $actionId = $this->getActionIntegerIdentifier();
 
         $this->restoreTaskAction($taskId, $actionId, failForActionIdentifier: true);
-    }
-
-    /**
-     * Get created task
-     * @return TaskInterface
-     */
-    private function getTask(): TaskInterface
-    {
-        return Task::all()->first();
-    }
-
-    /**
-     * Get created task identifier
-     * @param bool $asInteger
-     * @return string|int
-     */
-    private function getTaskIdentifier(bool $asInteger = false): string|int
-    {
-        $model = $this->getTask();
-        if ($asInteger) {
-            return $model->getID();
-        }
-        return $model->getUuid();
-    }
-
-    /**
-     * Get created action instance
-     * @return ActionInterface
-     */
-    private function getAction(): ActionInterface
-    {
-        return Action::all()->first();
-    }
-
-    /**
-     * Get created action identifier
-     * @param bool $asInteger
-     * @return string|int
-     */
-    private function getActionIdentifier(bool $asInteger = false): string|int
-    {
-        $model = $this->getAction();
-        if ($asInteger) {
-            return $model->getID();
-        }
-        return $model->getUuid();
-    }
-
-    /**
-     * Get created task action
-     * @return TaskActionInterface
-     */
-    private function getTaskAction(): TaskActionInterface
-    {
-        return TaskAction::all()->first();
-    }
-
-    /**
-     * Get created task action identifier
-     * @return string
-     */
-    private function getTaskActionIdentifier(): string
-    {
-        return $this->getTaskAction()->getUuid();
-    }
-
-    /**
-     * Assert that created task action has same task as specified
-     * @param string $task
-     * @return void
-     */
-    private function assertTaskActionHasSameTask(string $task): void
-    {
-        $this->assertSame($task, $this->getTaskAction()->getTaskUuid());
-    }
-
-    /**
-     * Assert that created task action has same action as specified
-     * @param string $action
-     * @return void
-     */
-    private function assertTaskActionHasSameAction(string $action): void
-    {
-        $this->assertSame($action, $this->getTaskAction()->getActionUuid());
-    }
-
-    /**
-     * Assert that created task action has same order as specified
-     * @param int $order
-     * @return void
-     */
-    private function assertTaskActionHasSameOrder(int $order): void
-    {
-        $this->assertSame($order, $this->getTaskAction()->getOrder());
     }
 
     /**
