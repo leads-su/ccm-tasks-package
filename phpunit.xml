@@ -18,7 +18,13 @@
         <include>
             <directory suffix=".php">src/</directory>
         </include>
+        <report>
+            <clover outputFile="coverage-report.xml"/>
+        </report>
     </coverage>
+    <logging>
+        <junit outputFile="tests-report.xml"/>
+    </logging>
     <testsuites>
         <testsuite name="Unit Test Suite">
             <directory suffix="Test.php">./tests/Unit</directory>

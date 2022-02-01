@@ -16,3 +16,5 @@ yarn-error.log
 .vscode
 composer.lock
 .phpunit.result.cache
+coverage-report.xml
+tests-report.xml
