@@ -79,7 +79,7 @@
         ],
         "test:coverage-gitlab": [
             "@putenv XDEBUG_MODE=coverage",
-            "phpunit --color=never --coverage-text"
+            "phpunit --color=never --coverage-text --coverage-clover=\"reports/clover.xml\" --coverage-cobertura=\"reports/cobertura.xml\""
         ],
         "test:coverage-html": [
             "@putenv XDEBUG_MODE=coverage",

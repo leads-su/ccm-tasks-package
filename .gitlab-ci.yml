@@ -31,6 +31,14 @@ qa:
   script:
     - composer install
     - composer test:coverage-gitlab
+  artifacts:
+    name: "$CI_JOB_NAME"
+    paths:
+      - reports/
+    reports:
+      junit: reports/junit.xml
+      cobertura: reports/cobertura.xml
+    expire_in: 30 minutes
 
 sonarqube-check:
   image: 
@@ -51,6 +59,8 @@ sonarqube-check:
   script: 
     - sonar-scanner
   allow_failure: true
+  dependencies:
+    - qa
 
 test_8.0:
   image: docker.leads.su:443/ccm/application-image:8.0
