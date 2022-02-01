@@ -19,41 +19,67 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
     /**
      * @inheritDoc
      */
-    public function all(array $columns = ['*'], bool $withDeleted = false): Collection
+    public function all(array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection
     {
-        return PipelineExecution::withTrashed($withDeleted)->get($columns);
+        return PipelineExecution::withTrashed($withDeleted)
+            ->with($with)
+            ->get($columns)
+            ->each
+            ->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface|null
+    public function find(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null
     {
-        return $this->findBy('id', $id, $columns, $withDeleted);
+        return $this->findBy(
+            field: 'id',
+            value: $id,
+            columns: $columns,
+            with: $with,
+            append: $append,
+            withDeleted: $withDeleted,
+        );
     }
 
     /**
      * @inheritDoc
      */
-    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface
+    public function findOrFail(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface
     {
-        return $this->findByOrFail('id', $id, $columns, $withDeleted);
+        return $this->findByOrFail(
+            field: 'id',
+            value: $id,
+            columns: $columns,
+            with: $with,
+            append: $append,
+            withDeleted: $withDeleted,
+        );
     }
 
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, mixed $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface|null
+    public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null
     {
-        return PipelineExecution::withTrashed($withDeleted)->where($field, '=', $value)->first($columns);
+        return PipelineExecution::withTrashed($withDeleted)
+            ->with($with)
+            ->where($field, '=', $value)
+            ->first($columns)
+            ?->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface
+    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface
     {
-        return PipelineExecution::withTrashed($withDeleted)->where($field, '=', $value)->firstOrFail($columns);
+        return PipelineExecution::withTrashed($withDeleted)
+            ->with($with)
+            ->where($field, '=', $value)
+            ->firstOrFail($columns)
+            ->setAppends($append);
     }
 
     /**

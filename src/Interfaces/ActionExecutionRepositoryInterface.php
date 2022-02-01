@@ -54,6 +54,17 @@ interface ActionExecutionRepositoryInterface
     public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface|null;
 
     /**
+     * Find many entities by specified field
+     * @param string $field
+     * @param mixed $value
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @return Collection
+     */
+    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): Collection;
+
+    /**
      * Find entity by specified field or throw exception
      * @param string $field
      * @param string $value
@@ -75,6 +86,37 @@ interface ActionExecutionRepositoryInterface
      * @return ActionExecutionInterface|null
      */
     public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface|null;
+
+    /**
+     * Find entity while using mappings to perform search
+     * @param array $mappings
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @return ActionExecutionInterface|null
+     */
+    public function findByManyFromMappings(array $mappings, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface|null;
+
+    /**
+     * Find entity while using mappings to perform search and fail if none found
+     * @param array $mappings
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @throws ModelNotFoundException
+     * @return ActionExecutionInterface
+     */
+    public function findByManyFromMappingsOrFail(array $mappings, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface;
+
+    /**
+     * Find many entities by many parameters
+     * @param array $mappings
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @return Collection
+     */
+    public function findManyByMany(array $mappings, array $columns = ['*'], array $with = [], array $append = []): Collection;
 
     /**
      * Find entity while using multiple fields to perform search or throw exception

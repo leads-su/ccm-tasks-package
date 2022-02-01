@@ -62,6 +62,13 @@ class TaskExecutionRepository implements TaskExecutionRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): Collection {
+        return TaskExecution::with($with)->where($field, '=', $value)->get()->each->setAppends($append);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface
     {
         return TaskExecution::with($with)->where($field, '=', $value)->firstOrFail()->setAppends($append);

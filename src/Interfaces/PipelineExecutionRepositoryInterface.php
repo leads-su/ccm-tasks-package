@@ -14,50 +14,60 @@ interface PipelineExecutionRepositoryInterface
     /**
      * Get list of all entries from database
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return Collection
      */
-    public function all(array $columns = ['*'], bool $withDeleted = false): Collection;
+    public function all(array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection;
 
     /**
      * Find pipeline execution
      * @param int $id
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return PipelineExecutionInterface|null
      */
-    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface|null;
+    public function find(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null;
 
     /**
      * Find pipeline execution or fail and throw exception
      * @param int $id
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return PipelineExecutionInterface
      * @throws ModelNotFoundException
      */
-    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface;
+    public function findOrFail(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface;
 
     /**
      * Find pipeline execution by specified field
      * @param string $field
      * @param string $value
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return PipelineExecutionInterface|null
      */
-    public function findBy(string $field, mixed $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface|null;
+    public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null;
 
     /**
      * Find pipeline execution by specified field or throw exception
      * @param string $field
      * @param string $value
      * @param array|string[] $columns
+     * @param array $with
+     * @param array $append
      * @param bool $withDeleted
      * @return PipelineExecutionInterface
      * @throws ModelNotFoundException
      */
-    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface;
+    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface;
 
     /**
      * Find entity while using multiple fields to perform search

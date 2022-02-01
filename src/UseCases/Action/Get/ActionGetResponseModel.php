@@ -12,25 +12,30 @@ class ActionGetResponseModel
 {
     /**
      * Get of entities
-     * @var ActionInterface|null
+     * @var ActionInterface|array|null
      */
-    private ?ActionInterface $entity;
+    private ActionInterface|array|null $entity;
 
     /**
      * ActionGetResponseModel constructor.
-     * @param ActionInterface|null $entity
+     * @param ActionInterface|array|null $entity
      */
-    public function __construct(?ActionInterface $entity = null)
+    public function __construct(ActionInterface|array|null $entity = null)
     {
         $this->entity = $entity;
     }
 
     /**
      * Get entity
-     * @return ActionInterface|null
+     * @return array
      */
-    public function getEntity(): ?ActionInterface
+    public function getEntity(): array
     {
-        return $this->entity;
+        if (is_null($this->entity)) {
+            return [];
+        } else if (is_array($this->entity)) {
+            return $this->entity;
+        }
+        return $this->entity->toArray();
     }
 }

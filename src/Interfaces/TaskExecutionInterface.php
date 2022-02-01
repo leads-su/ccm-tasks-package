@@ -2,13 +2,18 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Interface TaskExecutionInterface
  * @package ConsulConfigManager\Tasks\Interfaces
+ *
+ * @property TaskInterface $task
+ * @property PipelineInterface $pipeline
+ * @property PipelineExecutionInterface $pipelineExecution
  */
-interface TaskExecutionInterface
+interface TaskExecutionInterface extends Arrayable
 {
     /**
      * Get action execution id

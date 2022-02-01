@@ -21,7 +21,7 @@ class ActionGetHttpPresenter implements ActionGetOutputPort
     public function get(ActionGetResponseModel $responseModel): ViewModel
     {
         return new HttpResponseViewModel(response_success(
-            $responseModel->getEntity()->toArray(),
+            $responseModel->getEntity(),
             'Successfully fetched action information',
             Response::HTTP_OK,
         ));
