@@ -17,7 +17,6 @@ cache:
 
 stages:
   - qa
-  - sonarqube-check
   - test
   - publish
 
@@ -37,6 +36,9 @@ sonarqube-check:
   image: 
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]
+  stage: qa
+  tags:
+    - shared-docker-runner
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
     GIT_DEPTH: "0"
