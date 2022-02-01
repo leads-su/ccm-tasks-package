@@ -16,14 +16,15 @@ cache:
     - vendor/
 
 stages:
-  - qa
+  - phpunit
+  - sonarqube
   - test
   - publish
 
-qa:
+phpunit:
   image: docker.leads.su:443/ccm/application-image:8.0_debug
   extends: .before_script_template
-  stage: qa
+  stage: phpunit
   tags:
     - shared-docker-runner
   only:
@@ -44,7 +45,7 @@ sonarqube-check:
   image: 
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]
-  stage: qa
+  stage: sonarqube
   tags:
     - shared-docker-runner
   variables:
@@ -60,7 +61,7 @@ sonarqube-check:
     - sonar-scanner
   allow_failure: true
   dependencies:
-    - qa
+    - phpunit
 
 test_8.0:
   image: docker.leads.su:443/ccm/application-image:8.0
