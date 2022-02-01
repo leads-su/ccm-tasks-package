@@ -17,6 +17,7 @@ cache:
 
 stages:
   - qa
+  - sonarqube-check
   - test
   - publish
 
