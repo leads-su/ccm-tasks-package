@@ -47,6 +47,13 @@ class ActionExecutionGetInteractor implements ActionExecutionGetInputPort {
                     'id'                =>  $requestModel->getExecution(),
                     'action_uuid'       =>  $requestModel->getIdentifier(),
                 ],
+                columns: [
+                    'id',
+                    'state',
+                    'server_uuid',
+                    'created_at',
+                    'updated_at',
+                ],
                 with: [
                     'server'       =>  function ($query) {
                         $query->select(

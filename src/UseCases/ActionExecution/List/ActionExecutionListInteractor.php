@@ -47,6 +47,7 @@ class ActionExecutionListInteractor implements ActionExecutionListInputPort {
                 columns: [
                     'id',
                     'state',
+                    'server_uuid',
                     'created_at',
                     'updated_at',
                 ],
@@ -62,7 +63,7 @@ class ActionExecutionListInteractor implements ActionExecutionListInputPort {
                 ]
             );
             return $this->output->list(new ActionExecutionListResponseModel(
-                $executions
+                $executions->sortByDesc('id')->values()
             ));
         } catch (Throwable $exception) {
             if ($exception instanceof ModelNotFoundException) {

@@ -412,6 +412,13 @@ class TasksServiceProvider extends DomainServiceProvider
             Http\Controllers\PipelineExecution\PipelineExecutionListController::class,
             Presenters\PipelineExecution\PipelineExecutionListHttpPresenter::class,
         );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineExecution\Get\PipelineExecutionGetInputPort::class,
+            UseCases\PipelineExecution\Get\PipelineExecutionGetInteractor::class,
+            Http\Controllers\PipelineExecution\PipelineExecutionGetController::class,
+            Presenters\PipelineExecution\PipelineExecutionGetHttpPresenter::class,
+        );
     }
 
     /**

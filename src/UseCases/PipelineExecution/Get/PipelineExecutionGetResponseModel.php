@@ -2,9 +2,6 @@
 
 namespace ConsulConfigManager\Tasks\UseCases\PipelineExecution\Get;
 
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-
 
 /**
  * Class PipelineExecutionGetResponseModel
@@ -14,28 +11,24 @@ class PipelineExecutionGetResponseModel {
 
     /**
      * List of entities
-     * @var Collection|EloquentCollection
+     * @var array
      */
-    private Collection|EloquentCollection $entities;
+    private array $entity;
 
     /**
      * PipelineExecutionListResponseModel constructor.
-     * @param EloquentCollection|Collection|array $entities
-     * @return void
+     * @param array $entity
      */
-    public function __construct(EloquentCollection|Collection|array $entities = []) {
-        if (is_array($entities)) {
-            $entities = collect($entities);
-        }
-        $this->entities = $entities;
+    public function __construct(array $entity = []) {
+        $this->entity = $entity;
     }
 
     /**
      * Get list of entities
-     * @return EloquentCollection|Collection
+     * @return array
      */
-    public function getEntities(): EloquentCollection|Collection {
-        return $this->entities;
+    public function getEntity(): array {
+        return $this->entity;
     }
 
 }

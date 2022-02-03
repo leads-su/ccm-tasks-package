@@ -12,11 +12,11 @@ use ConsulConfigManager\Domain\Interfaces\ViewModel;
 interface PipelineExecutionGetOutputPort {
 
     /**
-     * Output port for "list"
+     * Output port for "get"
      * @param PipelineExecutionGetResponseModel $responseModel
      * @return ViewModel
      */
-    public function list(PipelineExecutionGetResponseModel $responseModel): ViewModel;
+    public function get(PipelineExecutionGetResponseModel $responseModel): ViewModel;
 
     /**
      * Output port for "not found"
