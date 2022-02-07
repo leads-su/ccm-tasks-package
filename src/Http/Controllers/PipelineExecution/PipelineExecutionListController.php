@@ -13,8 +13,8 @@ use ConsulConfigManager\Tasks\UseCases\PipelineExecution\List\PipelineExecutionL
  * Class PipelineExecutionListController
  * @package ConsulConfigManager\Tasks\Http\Controllers\PipelineExecution
  */
-class PipelineExecutionListController extends Controller {
-
+class PipelineExecutionListController extends Controller
+{
     /**
      * Input port interactor instance
      * @var PipelineExecutionListInputPort
@@ -26,7 +26,8 @@ class PipelineExecutionListController extends Controller {
      * @param PipelineExecutionListInputPort $interactor
      * @return void
      */
-    public function __construct(PipelineExecutionListInputPort $interactor) {
+    public function __construct(PipelineExecutionListInputPort $interactor)
+    {
         $this->interactor = $interactor;
     }
 
@@ -37,7 +38,8 @@ class PipelineExecutionListController extends Controller {
      * @param Request $request
      * @return Response|null
      */
-    public function __invoke(Request $request): ?Response {
+    public function __invoke(Request $request): ?Response
+    {
         $viewModel = $this->interactor->list(
             new PipelineExecutionListRequestModel($request)
         );
@@ -50,5 +52,4 @@ class PipelineExecutionListController extends Controller {
     }
 
     // @codeCoverageIgnoreEnd
-
 }

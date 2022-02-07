@@ -13,14 +13,19 @@ use ConsulConfigManager\Tasks\Interfaces\TaskExecutionRepositoryInterface;
  * Class TaskExecutionRepository
  * @package ConsulConfigManager\Tasks\Repositories
  */
-class TaskExecutionRepository implements TaskExecutionRepositoryInterface
+class TaskExecutionRepository extends AbstractRepository implements TaskExecutionRepositoryInterface
 {
+    /**
+     * @inheritDoc
+     */
+    protected string $modelClass = TaskExecution::class;
+
     /**
      * @inheritDoc
      */
     public function all(array $columns = ['*'], array $with = [], array $append = []): Collection
     {
-        return TaskExecution::with($with)->get($columns)->each->setAppends($append);
+        return $this->getModelQuery()->with($with)->get($columns)->each->setAppends($append);
     }
 
     /**
@@ -56,14 +61,15 @@ class TaskExecutionRepository implements TaskExecutionRepositoryInterface
      */
     public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface|null
     {
-        return TaskExecution::with($with)->where($field, '=', $value)->first()?->setAppends($append);
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->first()?->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): Collection {
-        return TaskExecution::with($with)->where($field, '=', $value)->get()->each->setAppends($append);
+    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): Collection
+    {
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->get()->each->setAppends($append);
     }
 
     /**
@@ -71,7 +77,7 @@ class TaskExecutionRepository implements TaskExecutionRepositoryInterface
      */
     public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface
     {
-        return TaskExecution::with($with)->where($field, '=', $value)->firstOrFail()->setAppends($append);
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->firstOrFail()->setAppends($append);
     }
 
     /**
@@ -79,14 +85,11 @@ class TaskExecutionRepository implements TaskExecutionRepositoryInterface
      */
     public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface|null
     {
-        $query = TaskExecution::with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+        );
         $result = $query->first($columns);
         if (!$result) {
             return $result;
@@ -99,14 +102,11 @@ class TaskExecutionRepository implements TaskExecutionRepositoryInterface
      */
     public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface
     {
-        $query = TaskExecution::with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+        );
         return $query->firstOrFail($columns)->setAppends($append);
     }
 

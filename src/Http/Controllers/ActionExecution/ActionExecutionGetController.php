@@ -13,8 +13,8 @@ use ConsulConfigManager\Tasks\UseCases\ActionExecution\Get\ActionExecutionGetReq
  * Class ActionExecutionGetController
  * @package ConsulConfigManager\Tasks\Http\Controllers\ActionExecution
  */
-class ActionExecutionGetController extends Controller {
-
+class ActionExecutionGetController extends Controller
+{
     /**
      * Input port interactor instance
      * @var ActionExecutionGetInputPort
@@ -26,7 +26,8 @@ class ActionExecutionGetController extends Controller {
      * @param ActionExecutionGetInputPort $interactor
      * @return void
      */
-    public function __construct(ActionExecutionGetInputPort $interactor) {
+    public function __construct(ActionExecutionGetInputPort $interactor)
+    {
         $this->interactor = $interactor;
     }
 
@@ -39,7 +40,8 @@ class ActionExecutionGetController extends Controller {
      * @param int $execution
      * @return Response|null
      */
-    public function __invoke(Request $request, string $identifier, int $execution): ?Response {
+    public function __invoke(Request $request, string $identifier, int $execution): ?Response
+    {
         $viewModel = $this->interactor->get(
             new ActionExecutionGetRequestModel($request, $identifier, $execution)
         );
@@ -52,5 +54,4 @@ class ActionExecutionGetController extends Controller {
     }
 
     // @codeCoverageIgnoreEnd
-
 }

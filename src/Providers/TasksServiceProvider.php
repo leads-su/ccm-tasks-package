@@ -252,6 +252,13 @@ class TasksServiceProvider extends DomainServiceProvider
             Http\Controllers\Pipeline\PipelineRestoreController::class,
             Presenters\Pipeline\PipelineRestoreHttpPresenter::class,
         );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Pipeline\Run\PipelineRunInputPort::class,
+            UseCases\Pipeline\Run\PipelineRunInteractor::class,
+            Http\Controllers\Pipeline\PipelineRunController::class,
+            Presenters\Pipeline\PipelineRunHttpPresenter::class,
+        );
     }
 
     /**
@@ -405,7 +412,8 @@ class TasksServiceProvider extends DomainServiceProvider
      * Register pipeline execution specific interceptors
      * @return void
      */
-    private function registerPipelineExecutionInterceptors(): void {
+    private function registerPipelineExecutionInterceptors(): void
+    {
         $this->registerInterceptorFromParameters(
             UseCases\PipelineExecution\List\PipelineExecutionListInputPort::class,
             UseCases\PipelineExecution\List\PipelineExecutionListInteractor::class,
@@ -425,7 +433,8 @@ class TasksServiceProvider extends DomainServiceProvider
      * Register pipeline execution specific interceptors
      * @return void
      */
-    private function registerActionExecutionInterceptors(): void {
+    private function registerActionExecutionInterceptors(): void
+    {
         $this->registerInterceptorFromParameters(
             UseCases\ActionExecution\List\ActionExecutionListInputPort::class,
             UseCases\ActionExecution\List\ActionExecutionListInteractor::class,

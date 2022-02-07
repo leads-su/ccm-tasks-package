@@ -13,8 +13,8 @@ use ConsulConfigManager\Tasks\UseCases\ActionExecution\List\ActionExecutionListR
  * Class ActionExecutionListHttpPresenter
  * @package ConsulConfigManager\Tasks\Presenters\ActionExecution
  */
-class ActionExecutionListHttpPresenter implements ActionExecutionListOutputPort {
-
+class ActionExecutionListHttpPresenter implements ActionExecutionListOutputPort
+{
     /**
      * @inheritDoc
      */

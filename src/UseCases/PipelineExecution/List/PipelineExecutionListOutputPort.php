@@ -9,8 +9,8 @@ use ConsulConfigManager\Domain\Interfaces\ViewModel;
  * Interface PipelineExecutionListOutputPort
  * @package ConsulConfigManager\Tasks\UseCases\PipelineExecution\List
  */
-interface PipelineExecutionListOutputPort {
-
+interface PipelineExecutionListOutputPort
+{
     /**
      * Output port for "list"
      * @param PipelineExecutionListResponseModel $responseModel
@@ -25,5 +25,4 @@ interface PipelineExecutionListOutputPort {
      * @return ViewModel
      */
     public function internalServerError(PipelineExecutionListResponseModel $responseModel, Throwable $throwable): ViewModel;
-
 }

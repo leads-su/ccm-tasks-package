@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
  * Class ActionExecutionListRequestModel
  * @package ConsulConfigManager\Tasks\UseCases\ActionExecution\List
  */
-class ActionExecutionListRequestModel {
-
+class ActionExecutionListRequestModel
+{
     /**
      * Request instance
      * @var Request
@@ -28,7 +28,8 @@ class ActionExecutionListRequestModel {
      * @param string $identifier
      * @return void
      */
-    public function __construct(Request $request, string $identifier) {
+    public function __construct(Request $request, string $identifier)
+    {
         $this->request = $request;
         $this->identifier = $identifier;
     }
@@ -37,7 +38,8 @@ class ActionExecutionListRequestModel {
      * Get request instance
      * @return Request
      */
-    public function getRequest(): Request {
+    public function getRequest(): Request
+    {
         return $this->request;
     }
 
@@ -45,8 +47,8 @@ class ActionExecutionListRequestModel {
      * Get entity identifier
      * @return string
      */
-    public function getIdentifier(): string {
+    public function getIdentifier(): string
+    {
         return $this->identifier;
     }
-
 }

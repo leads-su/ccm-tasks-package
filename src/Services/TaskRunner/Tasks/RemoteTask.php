@@ -1,4 +1,6 @@
-<?php namespace ConsulConfigManager\Tasks\Services\TaskRunner\Tasks;
+<?php
+
+namespace ConsulConfigManager\Tasks\Services\TaskRunner\Tasks;
 
 use Exception;
 use React\Http\Browser;
@@ -12,8 +14,8 @@ use Clue\React\EventSource\MessageEvent;
  * Class RemoteTask
  * @package ConsulConfigManager\Tasks\Services\TaskRunner\Tasks
  */
-class RemoteTask extends AbstractTask {
-
+class RemoteTask extends AbstractTask
+{
     /**
      * Host for runner which will process this task
      * @var string
@@ -525,5 +527,4 @@ class RemoteTask extends AbstractTask {
             $promise->resolve();
         }
     }
-
 }

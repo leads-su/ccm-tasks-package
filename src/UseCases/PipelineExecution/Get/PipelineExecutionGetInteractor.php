@@ -21,8 +21,8 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
  * Class PipelineExecutionGetInteractor
  * @package ConsulConfigManager\Tasks\UseCases\PipelineExecution\Get
  */
-class PipelineExecutionGetInteractor implements PipelineExecutionGetInputPort {
-
+class PipelineExecutionGetInteractor implements PipelineExecutionGetInputPort
+{
     /**
      * Output port instance
      * @var PipelineExecutionGetOutputPort
@@ -122,7 +122,6 @@ class PipelineExecutionGetInteractor implements PipelineExecutionGetInputPort {
             // @codeCoverageIgnoreStart
             return $this->output->internalServerError(new PipelineExecutionGetResponseModel(), $throwable);
             // @codeCoverageIgnoreEnd
-
         }
     }
 
@@ -131,7 +130,8 @@ class PipelineExecutionGetInteractor implements PipelineExecutionGetInputPort {
      * @param PipelineExecutionInterface $pipelineExecution
      * @return array
      */
-    private function generatePipelineExecutionInformation(PipelineExecutionInterface $pipelineExecution): array {
+    private function generatePipelineExecutionInformation(PipelineExecutionInterface $pipelineExecution): array
+    {
         $pipelineExecutionIdentifier = $pipelineExecution->getUuid();
         $pipeline = $this->pipelineRepository->findByOrFail('uuid', $pipelineExecution->getPipelineUuid());
 
@@ -174,7 +174,7 @@ class PipelineExecutionGetInteractor implements PipelineExecutionGetInputPort {
                         'uuid', 'identifier',
                         'service', 'address',
                         'port', 'datacenter',
-                        'environment'
+                        'environment',
                     ]);
 
                     $task['servers'][$serverIdentifier] = array_merge(
@@ -188,7 +188,7 @@ class PipelineExecutionGetInteractor implements PipelineExecutionGetInputPort {
                     value: $actionExecution->getActionUuid(),
                     columns: [
                         'id', 'uuid',
-                        'name', 'description'
+                        'name', 'description',
                     ]
                 );
 

@@ -9,8 +9,8 @@ use ConsulConfigManager\Domain\Interfaces\ViewModel;
  * Interface PipelineExecutionGetOutputPort
  * @package ConsulConfigManager\Tasks\UseCases\PipelineExecution\Get
  */
-interface PipelineExecutionGetOutputPort {
-
+interface PipelineExecutionGetOutputPort
+{
     /**
      * Output port for "get"
      * @param PipelineExecutionGetResponseModel $responseModel
@@ -32,5 +32,4 @@ interface PipelineExecutionGetOutputPort {
      * @return ViewModel
      */
     public function internalServerError(PipelineExecutionGetResponseModel $responseModel, Throwable $throwable): ViewModel;
-
 }

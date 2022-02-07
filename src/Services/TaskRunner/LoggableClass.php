@@ -9,8 +9,8 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
  * Class LoggableClass
  * @package ConsulConfigManager\Tasks\Services\TaskRunner
  */
-abstract class LoggableClass {
-
+abstract class LoggableClass
+{
     /**
      * Enable debugging of execution
      * @var bool
@@ -27,7 +27,8 @@ abstract class LoggableClass {
      * Enable debug mode
      * @return $this
      */
-    public function enableDebug(): self {
+    public function enableDebug(): self
+    {
         $this->debug = true;
         return $this;
     }
@@ -36,7 +37,8 @@ abstract class LoggableClass {
      * Disable debug mode
      * @return $this
      */
-    public function disableDebug(): self {
+    public function disableDebug(): self
+    {
         $this->debug = false;
         return $this;
     }
@@ -46,7 +48,8 @@ abstract class LoggableClass {
      * @param bool $debug
      * @return $this
      */
-    public function setDebug(bool $debug = false): self {
+    public function setDebug(bool $debug = false): self
+    {
         $this->debug = $debug;
         return $this;
     }
@@ -55,7 +58,8 @@ abstract class LoggableClass {
      * Check whether debug mode is enabled
      * @return bool
      */
-    public function getDebug(): bool {
+    public function getDebug(): bool
+    {
         return $this->debug;
     }
 
@@ -64,7 +68,8 @@ abstract class LoggableClass {
      * @param OutputInterface|null $output
      * @return $this
      */
-    public function setOutputInterface(?OutputInterface $output = null): self {
+    public function setOutputInterface(?OutputInterface $output = null): self
+    {
         $this->output = $output;
         return $this;
     }
@@ -73,7 +78,8 @@ abstract class LoggableClass {
      * Get output interface used for debugging
      * @return OutputInterface|null
      */
-    public function getOutputInterface(): ?OutputInterface {
+    public function getOutputInterface(): ?OutputInterface
+    {
         return $this->output;
     }
 
@@ -81,7 +87,8 @@ abstract class LoggableClass {
      * Alias for `getDebug()`
      * @return bool
      */
-    public function isDebug(): bool {
+    public function isDebug(): bool
+    {
         return $this->getDebug();
     }
 
@@ -95,7 +102,8 @@ abstract class LoggableClass {
      * Check whether custom output interface is provided
      * @return bool
      */
-    private function hasOutputInterface(): bool {
+    private function hasOutputInterface(): bool
+    {
         return $this->output !== null;
     }
 
@@ -105,7 +113,8 @@ abstract class LoggableClass {
      * @param  int  $count
      * @return void
      */
-    protected function debugNewLine(int $count = 1): void {
+    protected function debugNewLine(int $count = 1): void
+    {
         if ($this->isDebug()) {
             if ($this->hasOutputInterface()) {
                 $this->output->write(str_repeat(PHP_EOL, $count));
@@ -124,7 +133,8 @@ abstract class LoggableClass {
      * @param  int|string|null  $verbosity
      * @return void
      */
-    protected function debugInfo(string $string, int|string|null $verbosity = null): void {
+    protected function debugInfo(string $string, int|string|null $verbosity = null): void
+    {
         $this->debugLine($string, 'info', $verbosity);
     }
 
@@ -135,7 +145,8 @@ abstract class LoggableClass {
      * @param  int|string|null  $verbosity
      * @return void
      */
-    protected function debugComment(string $string, int|string|null $verbosity = null): void {
+    protected function debugComment(string $string, int|string|null $verbosity = null): void
+    {
         $this->debugLine($string, 'comment', $verbosity);
     }
 
@@ -146,7 +157,8 @@ abstract class LoggableClass {
      * @param  int|string|null  $verbosity
      * @return void
      */
-    protected function debugError(string $string, int|string|null $verbosity = null): void {
+    protected function debugError(string $string, int|string|null $verbosity = null): void
+    {
         $this->debugLine($string, 'error', $verbosity);
     }
 
@@ -157,7 +169,8 @@ abstract class LoggableClass {
      * @param  int|string|null  $verbosity
      * @return void
      */
-    protected function debugWarn(string $string, int|string|null $verbosity = null): void {
+    protected function debugWarn(string $string, int|string|null $verbosity = null): void
+    {
         if ($this->hasOutputInterface() && $this->isDebug()) {
             if (! $this->output->getFormatter()->hasStyle('warning')) {
                 $style = new OutputFormatterStyle('yellow');
@@ -176,7 +189,8 @@ abstract class LoggableClass {
      * @param  int|string|null  $verbosity
      * @return void
      */
-    protected function debugLine(string $string, ?string $style = null, int|string|null $verbosity = null): void {
+    protected function debugLine(string $string, ?string $style = null, int|string|null $verbosity = null): void
+    {
         if (!$this->isDebug()) {
             return;
         }
@@ -187,10 +201,10 @@ abstract class LoggableClass {
         } else {
             $style = $style ?? 'info';
             echo sprintf(
-                    '[%s] %s',
-                    strtoupper($style),
-                    $string,
-                ) . PHP_EOL;
+                '[%s] %s',
+                strtoupper($style),
+                $string,
+            ) . PHP_EOL;
         }
     }
 
@@ -200,7 +214,8 @@ abstract class LoggableClass {
      * @param  string|int|null  $level
      * @return int
      */
-    private function parseVerbosity(string|int|null $level = null): int {
+    private function parseVerbosity(string|int|null $level = null): int
+    {
         $verbosityMap = [
             'v' => OutputInterface::VERBOSITY_VERBOSE,
             'vv' => OutputInterface::VERBOSITY_VERY_VERBOSE,
@@ -217,5 +232,4 @@ abstract class LoggableClass {
 
         return $level;
     }
-
 }

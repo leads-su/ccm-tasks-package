@@ -1,4 +1,6 @@
-<?php namespace ConsulConfigManager\Tasks\Services\TaskRunner\Tasks;
+<?php
+
+namespace ConsulConfigManager\Tasks\Services\TaskRunner\Tasks;
 
 use Closure;
 
@@ -6,8 +8,8 @@ use Closure;
  * Class AbstractTask
  * @package ConsulConfigManager\Tasks\Services\TaskRunner\Tasks
  */
-abstract class AbstractTask {
-
+abstract class AbstractTask
+{
     /**
      * Callback with logic for when task is finished
      * @var Closure
@@ -44,5 +46,4 @@ abstract class AbstractTask {
      * @return void
      */
     abstract protected function retrieveOutput(): void;
-
 }

@@ -5,8 +5,8 @@ namespace ConsulConfigManager\Tasks\UseCases\PipelineExecution\List;
 use Throwable;
 use Illuminate\Support\Collection;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
@@ -19,8 +19,8 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
  * Class PipelineExecutionListInteractor
  * @package ConsulConfigManager\Tasks\UseCases\PipelineExecution\List
  */
-class PipelineExecutionListInteractor implements PipelineExecutionListInputPort {
-
+class PipelineExecutionListInteractor implements PipelineExecutionListInputPort
+{
     /**
      * Output port instance
      * @var PipelineExecutionListOutputPort
@@ -103,7 +103,8 @@ class PipelineExecutionListInteractor implements PipelineExecutionListInputPort 
     /**
      * @inheritDoc
      */
-    public function list(PipelineExecutionListRequestModel $requestModel): ViewModel {
+    public function list(PipelineExecutionListRequestModel $requestModel): ViewModel
+    {
         try {
             $executions = $this->pipelineExecutionRepository->all(
                 withDeleted: $requestModel->getRequest()->get('with_deleted', false)
@@ -125,7 +126,8 @@ class PipelineExecutionListInteractor implements PipelineExecutionListInputPort 
      * @param EloquentCollection|PipelineExecutionInterface[] $executions
      * @return Collection
      */
-    private function generatePipelineExecutionInformation(EloquentCollection $executions): Collection {
+    private function generatePipelineExecutionInformation(EloquentCollection $executions): Collection
+    {
         $results = [];
 
         foreach ($executions as $pipelineIndex => $pipelineExecution) {
@@ -176,7 +178,7 @@ class PipelineExecutionListInteractor implements PipelineExecutionListInputPort 
                             'uuid', 'identifier',
                             'service', 'address',
                             'port', 'datacenter',
-                            'environment'
+                            'environment',
                         ]);
                         $executionInformation['tasks'][$taskIndex]['servers'][$serverIdentifier] = array_merge(
                             $service->toArray(),
@@ -205,5 +207,4 @@ class PipelineExecutionListInteractor implements PipelineExecutionListInputPort 
 
         return collect($results);
     }
-
 }

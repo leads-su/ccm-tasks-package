@@ -13,8 +13,8 @@ use ConsulConfigManager\Tasks\UseCases\ActionExecution\List\ActionExecutionListR
  * Class ActionExecutionListController
  * @package ConsulConfigManager\Tasks\Http\Controllers\ActionExecution
  */
-class ActionExecutionListController extends Controller {
-
+class ActionExecutionListController extends Controller
+{
     /**
      * Input port interactor instance
      * @var ActionExecutionListInputPort
@@ -26,7 +26,8 @@ class ActionExecutionListController extends Controller {
      * @param ActionExecutionListInputPort $interactor
      * @return void
      */
-    public function __construct(ActionExecutionListInputPort $interactor) {
+    public function __construct(ActionExecutionListInputPort $interactor)
+    {
         $this->interactor = $interactor;
     }
 
@@ -38,7 +39,8 @@ class ActionExecutionListController extends Controller {
      * @param string $identifier
      * @return Response|null
      */
-    public function __invoke(Request $request, string $identifier): ?Response {
+    public function __invoke(Request $request, string $identifier): ?Response
+    {
         $viewModel = $this->interactor->list(
             new ActionExecutionListRequestModel($request, $identifier)
         );
@@ -51,5 +53,4 @@ class ActionExecutionListController extends Controller {
     }
 
     // @codeCoverageIgnoreEnd
-
 }

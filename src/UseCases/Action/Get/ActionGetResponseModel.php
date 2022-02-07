@@ -33,7 +33,7 @@ class ActionGetResponseModel
     {
         if (is_null($this->entity)) {
             return [];
-        } else if (is_array($this->entity)) {
+        } elseif (is_array($this->entity)) {
             return $this->entity;
         }
         return $this->entity->toArray();

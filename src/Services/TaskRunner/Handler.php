@@ -10,8 +10,8 @@ use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\PipelineEntity;
  * Class Handler
  * @package ConsulConfigManager\Tasks\Services\TaskRunner
  */
-class Handler extends LoggableClass {
-
+class Handler extends LoggableClass
+{
     /**
      * Pipeline entity instance
      * @var PipelineEntity
@@ -29,14 +29,16 @@ class Handler extends LoggableClass {
      * @param PipelineEntity $pipelineEntity
      * @return void
      */
-    public function __construct(PipelineEntity $pipelineEntity) {
+    public function __construct(PipelineEntity $pipelineEntity)
+    {
         $this->pipelineEntity = $pipelineEntity;
     }
 
     /**
      * @inheritDoc
      */
-    public function bootstrap(): void {
+    public function bootstrap(): void
+    {
         $this->loop = Loop::get();
     }
 
@@ -44,9 +46,9 @@ class Handler extends LoggableClass {
      * Start handler
      * @return void
      */
-    public function run(): void {
+    public function run(): void
+    {
         $this->pipelineEntity->runHandler($this->loop);
         $this->loop->run();
     }
-
 }

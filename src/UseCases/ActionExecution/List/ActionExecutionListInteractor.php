@@ -11,8 +11,8 @@ use ConsulConfigManager\Tasks\Interfaces\ActionExecutionRepositoryInterface;
  * Class ActionExecutionListInteractor
  * @package ConsulConfigManager\Tasks\UseCases\ActionExecution\List
  */
-class ActionExecutionListInteractor implements ActionExecutionListInputPort {
-
+class ActionExecutionListInteractor implements ActionExecutionListInputPort
+{
     /**
      * Output port instance
      * @var ActionExecutionListOutputPort
@@ -31,7 +31,8 @@ class ActionExecutionListInteractor implements ActionExecutionListInputPort {
      * @param ActionExecutionRepositoryInterface $repository
      * @return void
      */
-    public function __construct(ActionExecutionListOutputPort $output, ActionExecutionRepositoryInterface $repository) {
+    public function __construct(ActionExecutionListOutputPort $output, ActionExecutionRepositoryInterface $repository)
+    {
         $this->output = $output;
         $this->repository = $repository;
     }
@@ -39,7 +40,8 @@ class ActionExecutionListInteractor implements ActionExecutionListInputPort {
     /**
      * @inheritDoc
      */
-    public function list(ActionExecutionListRequestModel $requestModel): ViewModel {
+    public function list(ActionExecutionListRequestModel $requestModel): ViewModel
+    {
         try {
             $executions = $this->repository->findManyBy(
                 field: 'action_uuid',
@@ -54,12 +56,16 @@ class ActionExecutionListInteractor implements ActionExecutionListInputPort {
                 with: [
                     'server'       =>  function ($query) {
                         $query->select(
-                            'id', 'uuid',
-                            'identifier', 'service',
-                            'address', 'port',
-                            'datacenter', 'environment'
+                            'id',
+                            'uuid',
+                            'identifier',
+                            'service',
+                            'address',
+                            'port',
+                            'datacenter',
+                            'environment'
                         );
-                    }
+                    },
                 ]
             );
             return $this->output->list(new ActionExecutionListResponseModel(

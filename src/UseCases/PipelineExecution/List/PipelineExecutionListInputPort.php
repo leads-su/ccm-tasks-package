@@ -8,13 +8,12 @@ use ConsulConfigManager\Domain\Interfaces\ViewModel;
  * Interface PipelineExecutionListInputPort
  * @package ConsulConfigManager\Tasks\UseCases\PipelineExecution\List
  */
-interface PipelineExecutionListInputPort {
-
+interface PipelineExecutionListInputPort
+{
     /**
      * Input port for "list"
      * @param PipelineExecutionListRequestModel $requestModel
      * @return ViewModel
      */
     public function list(PipelineExecutionListRequestModel $requestModel): ViewModel;
-
 }

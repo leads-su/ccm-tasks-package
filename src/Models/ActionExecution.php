@@ -265,7 +265,8 @@ class ActionExecution extends Model implements ActionExecutionInterface
     /**
      * @inheritDoc
      */
-    public function server(): HasOne {
+    public function server(): HasOne
+    {
         return $this->hasOne(
             Service::class,
             'uuid',

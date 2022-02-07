@@ -15,8 +15,8 @@ use ConsulConfigManager\Consul\Agent\Interfaces\ServiceRepositoryInterface;
  * Class ServerEntity
  * @package ConsulConfigManager\Tasks\Services\TaskRunner\Entities
  */
-class ServerEntity extends LoggableClass implements Arrayable {
-
+class ServerEntity extends LoggableClass implements Arrayable
+{
     /**
      * Server identifier reference
      * @var string
@@ -47,7 +47,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * @param string $identifier
      * @return void
      */
-    public function __construct(string $identifier) {
+    public function __construct(string $identifier)
+    {
         $this->identifier = $identifier;
     }
 
@@ -55,7 +56,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * Get server identifier
      * @return string
      */
-    public function getIdentifier(): string {
+    public function getIdentifier(): string
+    {
         return $this->identifier;
     }
 
@@ -64,7 +66,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * @param string $identifier
      * @return $this
      */
-    public function setIdentifier(string $identifier): ServerEntity {
+    public function setIdentifier(string $identifier): ServerEntity
+    {
         $this->identifier = $identifier;
         return $this;
     }
@@ -73,7 +76,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * Get server instance
      * @return ServiceInterface
      */
-    public function getServer(): ServiceInterface {
+    public function getServer(): ServiceInterface
+    {
         return $this->server;
     }
 
@@ -82,7 +86,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * @param ServiceInterface $server
      * @return $this
      */
-    public function setServer(ServiceInterface $server): ServerEntity {
+    public function setServer(ServiceInterface $server): ServerEntity
+    {
         $this->server = $server;
         return $this;
     }
@@ -91,7 +96,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * Get collection of actions for this server
      * @return Collection|ActionEntity[]|array
      */
-    public function getActions(): Collection {
+    public function getActions(): Collection
+    {
         return $this->actions;
     }
 
@@ -100,7 +106,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * @param ActionEntity $action
      * @return $this
      */
-    public function addAction(ActionEntity $action): ServerEntity {
+    public function addAction(ActionEntity $action): ServerEntity
+    {
         $this->actions->add($action);
         return $this;
     }
@@ -109,7 +116,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * Check whether server has incomplete actions
      * @return bool
      */
-    public function hasIncompleteActions(): bool {
+    public function hasIncompleteActions(): bool
+    {
         $completedStates = [
             ExecutionState::CANCELED,
             ExecutionState::SUCCESS,
@@ -132,7 +140,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * Check if there are any failed actions
      * @return bool
      */
-    public function hasFailedActions(): bool {
+    public function hasFailedActions(): bool
+    {
         $has = false;
 
         foreach ($this->getActions() as $action) {
@@ -149,7 +158,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
     /**
      * @inheritDoc
      */
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return [
             'identifier'        =>  $this->getIdentifier(),
             'server'            =>  $this->getServer()->toArray(),
@@ -160,12 +170,14 @@ class ServerEntity extends LoggableClass implements Arrayable {
     /**
      * @inheritDoc
      */
-    public function bootstrap(): void {
+    public function bootstrap(): void
+    {
         $this->server = $this->resolveServerInstance();
         $this->actions = new Collection();
     }
 
-    public function runHandler(): void {
+    public function runHandler(): void
+    {
         $this->selectNextAction();
         $actionExecutionState = $this->currentAction->getExecutionState();
 
@@ -233,7 +245,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * Start action runner
      * @return void
      */
-    public function startActionRunner(): void {
+    public function startActionRunner(): void
+    {
         $this->currentAction->getRunner()->execute(function (int $exitCode, array $output = []): void {
             $stateCode = $exitCode === 0 ? ExecutionState::SUCCESS : ExecutionState::FAILURE;
 
@@ -253,7 +266,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * Select new action to work on
      * @return void
      */
-    public function selectNextAction(): void {
+    public function selectNextAction(): void
+    {
         if ($this->currentAction === null) {
             $this->currentAction = $this->getActions()->first();
         }
@@ -272,7 +286,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * @param int $state
      * @return $this
      */
-    public function markOtherActionsAs(int $state): ServerEntity {
+    public function markOtherActionsAs(int $state): ServerEntity
+    {
         $this->getActions()->filter(function (ActionEntity $actionEntity): bool {
             return $actionEntity !== $this->currentAction;
         })->each(function (ActionEntity $actionEntity) use ($state): void {
@@ -285,7 +300,8 @@ class ServerEntity extends LoggableClass implements Arrayable {
      * Resolve service instance
      * @return ServiceInterface
      */
-    private function resolveServerInstance(): ServiceInterface {
+    private function resolveServerInstance(): ServiceInterface
+    {
         $identifier = $this->identifier;
 
         try {
@@ -297,5 +313,4 @@ class ServerEntity extends LoggableClass implements Arrayable {
 
         return $instance;
     }
-
 }

@@ -19,8 +19,8 @@ use ConsulConfigManager\Tasks\Interfaces\ActionExecutionRepositoryInterface;
  * Class ActionEntity
  * @package ConsulConfigManager\Tasks\Services\TaskRunner\Entities
  */
-class ActionEntity extends LoggableClass implements Arrayable {
-
+class ActionEntity extends LoggableClass implements Arrayable
+{
     /**
      * Action Execution instance
      * @var ActionExecutionInterface
@@ -45,7 +45,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * @param AbstractTask $runner
      * @return void
      */
-    public function __construct(ActionExecutionInterface $execution, AbstractTask $runner) {
+    public function __construct(ActionExecutionInterface $execution, AbstractTask $runner)
+    {
         $this->execution = $execution;
         $this->runner = $runner;
     }
@@ -54,7 +55,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * Get action execution instance
      * @return ActionExecutionInterface
      */
-    public function getExecution(): ActionExecutionInterface {
+    public function getExecution(): ActionExecutionInterface
+    {
         return $this->execution;
     }
 
@@ -63,7 +65,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * @param ActionExecutionInterface $execution
      * @return $this
      */
-    public function setExecution(ActionExecutionInterface $execution): ActionEntity {
+    public function setExecution(ActionExecutionInterface $execution): ActionEntity
+    {
         $this->execution = $execution;
         return $this;
     }
@@ -72,7 +75,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * Get action execution state
      * @return int
      */
-    public function getExecutionState(): int {
+    public function getExecutionState(): int
+    {
         return $this->getExecution()->refresh()->getState();
     }
 
@@ -82,7 +86,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * @param array $ignoredStates
      * @return $this
      */
-    public function setExecutionState(int $state, array $ignoredStates = []): ActionEntity {
+    public function setExecutionState(int $state, array $ignoredStates = []): ActionEntity
+    {
         $execution = $this->getExecution();
         $executionState = $this->getExecutionState();
 
@@ -124,7 +129,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * @param array $output
      * @return $this
      */
-    public function setExecutionLog(int $exitCode, array $output): ActionEntity {
+    public function setExecutionLog(int $exitCode, array $output): ActionEntity
+    {
         $executionIdentifier = $this->getExecution()->getID();
 
         $log = new ActionExecutionLog();
@@ -140,7 +146,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * Get action instance
      * @return ActionInterface
      */
-    public function getAction(): ActionInterface {
+    public function getAction(): ActionInterface
+    {
         return $this->action;
     }
 
@@ -149,7 +156,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * @param ActionInterface $action
      * @return $this
      */
-    public function setAction(ActionInterface $action): ActionEntity {
+    public function setAction(ActionInterface $action): ActionEntity
+    {
         $this->action = $action;
         return $this;
     }
@@ -158,7 +166,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * Get action runner instance
      * @return AbstractTask
      */
-    public function getRunner(): AbstractTask {
+    public function getRunner(): AbstractTask
+    {
         return $this->runner;
     }
 
@@ -167,7 +176,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * @param AbstractTask $runner
      * @return $this
      */
-    public function setRunner(AbstractTask $runner): ActionEntity {
+    public function setRunner(AbstractTask $runner): ActionEntity
+    {
         $this->runner = $runner;
         return $this;
     }
@@ -176,14 +186,16 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * Indicates whether action should fail on error
      * @return bool
      */
-    public function shouldFailOnError(): bool {
+    public function shouldFailOnError(): bool
+    {
         return $this->getAction()->isFailingOnError();
     }
 
     /**
      * @inheritDoc
      */
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return [
             'execution'         =>  $this->getExecution()->toArray(),
             'action'            =>  $this->getAction()->toArray(),
@@ -194,7 +206,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
     /**
      * @inheritDoc
      */
-    public function bootstrap(): void {
+    public function bootstrap(): void
+    {
         $this->action = $this->resolveActionInstance();
     }
 
@@ -202,7 +215,8 @@ class ActionEntity extends LoggableClass implements Arrayable {
      * Resolve action instance
      * @return ActionInterface
      */
-    private function resolveActionInstance(): ActionInterface {
+    private function resolveActionInstance(): ActionInterface
+    {
         $identifier = $this->execution->getActionUuid();
 
         try {
@@ -214,5 +228,4 @@ class ActionEntity extends LoggableClass implements Arrayable {
 
         return $instance;
     }
-
 }

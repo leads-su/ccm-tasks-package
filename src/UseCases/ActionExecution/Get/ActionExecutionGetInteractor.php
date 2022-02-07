@@ -11,8 +11,8 @@ use ConsulConfigManager\Tasks\Interfaces\ActionExecutionRepositoryInterface;
  * Class ActionExecutionGetInteractor
  * @package ConsulConfigManager\Tasks\UseCases\ActionExecution\Get
  */
-class ActionExecutionGetInteractor implements ActionExecutionGetInputPort {
-
+class ActionExecutionGetInteractor implements ActionExecutionGetInputPort
+{
     /**
      * Output port instance
      * @var ActionExecutionGetOutputPort
@@ -31,7 +31,8 @@ class ActionExecutionGetInteractor implements ActionExecutionGetInputPort {
      * @param ActionExecutionRepositoryInterface $repository
      * @return void
      */
-    public function __construct(ActionExecutionGetOutputPort $output, ActionExecutionRepositoryInterface $repository) {
+    public function __construct(ActionExecutionGetOutputPort $output, ActionExecutionRepositoryInterface $repository)
+    {
         $this->output = $output;
         $this->repository = $repository;
     }
@@ -57,10 +58,14 @@ class ActionExecutionGetInteractor implements ActionExecutionGetInputPort {
                 with: [
                     'server'       =>  function ($query) {
                         $query->select(
-                            'id', 'uuid',
-                            'identifier', 'service',
-                            'address', 'port',
-                            'datacenter', 'environment'
+                            'id',
+                            'uuid',
+                            'identifier',
+                            'service',
+                            'address',
+                            'port',
+                            'datacenter',
+                            'environment'
                         );
                     },
                     'log',
@@ -77,7 +82,6 @@ class ActionExecutionGetInteractor implements ActionExecutionGetInputPort {
             // @codeCoverageIgnoreStart
             return $this->output->internalServerError(new ActionExecutionGetResponseModel(), $throwable);
             // @codeCoverageIgnoreEnd
-
         }
     }
 }

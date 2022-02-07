@@ -13,8 +13,8 @@ use ConsulConfigManager\Tasks\UseCases\ActionExecution\Get\ActionExecutionGetRes
  * Class ActionExecutionGetHttpPresenter
  * @package ConsulConfigManager\Tasks\Presenters\ActionExecution
  */
-class ActionExecutionGetHttpPresenter implements ActionExecutionGetOutputPort {
-
+class ActionExecutionGetHttpPresenter implements ActionExecutionGetOutputPort
+{
     /**
      * @inheritDoc
      */

@@ -14,14 +14,19 @@ use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
  * Class ActionRepository
  * @package ConsulConfigManager\Tasks\Repositories
  */
-class ActionRepository implements ActionRepositoryInterface
+class ActionRepository extends AbstractRepository implements ActionRepositoryInterface
 {
+    /**
+     * @inheritDoc
+     */
+    protected string $modelClass = Action::class;
+
     /**
      * @inheritDoc
      */
     public function all(array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection
     {
-        return Action::withTrashed($withDeleted)->with($with)->get($columns)->each->setAppends($append);
+        return $this->getModelQueryWithTrashed($withDeleted)->with($with)->get($columns)->each->setAppends($append);
     }
 
     /**
@@ -59,7 +64,7 @@ class ActionRepository implements ActionRepositoryInterface
      */
     public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null
     {
-        return Action::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
+        return $this->getModelQueryWithTrashed($withDeleted)->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
     }
 
     /**
@@ -67,7 +72,7 @@ class ActionRepository implements ActionRepositoryInterface
      */
     public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface
     {
-        return Action::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
+        return $this->getModelQueryWithTrashed($withDeleted)->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
     }
 
     /**
@@ -75,14 +80,12 @@ class ActionRepository implements ActionRepositoryInterface
      */
     public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface|null
     {
-        $query = Action::withTrashed($withDeleted)->with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+            withDeleted: $withDeleted,
+        );
         $result = $query->first($columns);
         if (!$result) {
             return $result;
@@ -95,14 +98,13 @@ class ActionRepository implements ActionRepositoryInterface
      */
     public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): ActionInterface
     {
-        $query = Action::withTrashed($withDeleted)->with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+            withDeleted: $withDeleted,
+        );
+
         return $query->firstOrFail($columns)->setAppends($append);
     }
 

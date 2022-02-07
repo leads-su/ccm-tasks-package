@@ -11,8 +11,8 @@ use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
-use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
+use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Tasks\RemoteTask;
@@ -32,8 +32,8 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
  * Class Resolver
  * @package ConsulConfigManager\Tasks\Services\TaskRunner
  */
-class Resolver extends LoggableClass {
-
+class Resolver extends LoggableClass
+{
     /**
      * Pipeline identifier
      * @var string|int
@@ -109,7 +109,8 @@ class Resolver extends LoggableClass {
      * Get configured pipeline entity
      * @return PipelineEntity
      */
-    public function getPipelineEntity(): PipelineEntity {
+    public function getPipelineEntity(): PipelineEntity
+    {
         return $this->pipelineEntity;
     }
 
@@ -357,5 +358,4 @@ class Resolver extends LoggableClass {
         $remoteTask->setWorkingDirectory($action->getWorkingDirectory());
         return $remoteTask;
     }
-
 }

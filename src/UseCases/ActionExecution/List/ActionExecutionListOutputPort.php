@@ -9,8 +9,8 @@ use ConsulConfigManager\Domain\Interfaces\ViewModel;
  * Interface ActionExecutionListOutputPort
  * @package ConsulConfigManager\Tasks\UseCases\ActionExecution\List
  */
-interface ActionExecutionListOutputPort {
-
+interface ActionExecutionListOutputPort
+{
     /**
      * Output port for "list"
      * @param ActionExecutionListResponseModel $responseModel
@@ -32,5 +32,4 @@ interface ActionExecutionListOutputPort {
      * @return ViewModel
      */
     public function internalServerError(ActionExecutionListResponseModel $responseModel, Throwable $exception): ViewModel;
-
 }

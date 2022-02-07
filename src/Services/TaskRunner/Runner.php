@@ -14,8 +14,8 @@ use Illuminate\Contracts\Container\BindingResolutionException;
  * Class Runner
  * @package ConsulConfigManager\Tasks\Services\TaskRunner
  */
-class Runner extends LoggableClass {
-
+class Runner extends LoggableClass
+{
     /**
      * Pipeline identifier reference
      * @var string|int
@@ -28,7 +28,8 @@ class Runner extends LoggableClass {
      * @param bool $truncate
      * @return void
      */
-    public function __construct(string|int $pipelineIdentifier, bool $truncate = false) {
+    public function __construct(string|int $pipelineIdentifier, bool $truncate = false)
+    {
         $this->truncate($truncate);
         $this->pipelineIdentifier = $pipelineIdentifier;
     }
@@ -36,7 +37,8 @@ class Runner extends LoggableClass {
     /**
      * @inheritDoc
      */
-    public function bootstrap(): void {
+    public function bootstrap(): void
+    {
         $this->setDebug(env('TASK_RUNNER_ENABLE_DEBUG', false));
     }
 
@@ -45,7 +47,8 @@ class Runner extends LoggableClass {
      * @return void
      * @throws BindingResolutionException
      */
-    public function run(): void {
+    public function run(): void
+    {
         $resolver = new Resolver($this->pipelineIdentifier);
         $resolver->setDebug($this->getDebug())
             ->setOutputInterface($this->getOutputInterface())
@@ -65,23 +68,23 @@ class Runner extends LoggableClass {
      * @param bool $truncate
      * @return void
      */
-    private function truncate(bool $truncate = false): void {
+    private function truncate(bool $truncate = false): void
+    {
         if ($truncate) {
             $models = [
                 ActionExecutionLog::class,
                 ActionExecution::class,
                 TaskExecution::class,
-                PipelineExecution::class
+                PipelineExecution::class,
             ];
 
             foreach ($models as $modelClass) {
                 /**
                  * @var Model $model
                  */
-                $model = new $modelClass;
+                $model = new $modelClass();
                 DB::table($model->getTable())->truncate();
             }
         }
     }
-
 }

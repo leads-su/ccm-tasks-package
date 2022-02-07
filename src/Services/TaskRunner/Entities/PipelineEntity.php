@@ -3,25 +3,29 @@
 namespace ConsulConfigManager\Tasks\Services\TaskRunner\Entities;
 
 use Throwable;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\TimerInterface;
 use Illuminate\Contracts\Support\Arrayable;
 use ConsulConfigManager\Tasks\Models\Pipeline;
 use ConsulConfigManager\Tasks\Enums\ExecutionState;
+use ConsulConfigManager\Tasks\Models\TaskExecution;
 use ConsulConfigManager\Tasks\Models\PipelineExecution;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
+use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
 use ConsulConfigManager\Tasks\Services\TaskRunner\LoggableClass;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
+use ConsulConfigManager\Tasks\Interfaces\TaskExecutionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
 
 /**
  * Class PipelineEntity
  * @package ConsulConfigManager\Tasks\Services\TaskRunner\Entities
  */
-class PipelineEntity extends LoggableClass implements Arrayable {
-
+class PipelineEntity extends LoggableClass implements Arrayable
+{
     /**
      * Pipeline Execution instance
      * @var PipelineExecutionInterface
@@ -63,7 +67,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * @param PipelineExecutionInterface $execution
      * @return void
      */
-    public function __construct(PipelineExecutionInterface $execution) {
+    public function __construct(PipelineExecutionInterface $execution)
+    {
         $this->execution = $execution;
     }
 
@@ -71,7 +76,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * Get pipeline execution instance
      * @return PipelineExecutionInterface
      */
-    public function getExecution(): PipelineExecutionInterface {
+    public function getExecution(): PipelineExecutionInterface
+    {
         return $this->execution;
     }
 
@@ -80,7 +86,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * @param PipelineExecutionInterface $execution
      * @return $this
      */
-    public function setExecution(PipelineExecutionInterface $execution): PipelineEntity {
+    public function setExecution(PipelineExecutionInterface $execution): PipelineEntity
+    {
         $this->execution = $execution;
         return $this;
     }
@@ -89,7 +96,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * Get pipeline execution state
      * @return int
      */
-    public function getExecutionState(): int {
+    public function getExecutionState(): int
+    {
         return $this->getExecution()->refresh()->getState();
     }
 
@@ -98,7 +106,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * @param int $state
      * @return $this
      */
-    public function setExecutionState(int $state): PipelineEntity {
+    public function setExecutionState(int $state): PipelineEntity
+    {
         $identifier = $this->getExecution()->getUuid();
 
         try {
@@ -117,7 +126,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * Get pipeline instance
      * @return PipelineInterface
      */
-    public function getPipeline(): PipelineInterface {
+    public function getPipeline(): PipelineInterface
+    {
         return $this->pipeline;
     }
 
@@ -126,7 +136,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * @param PipelineInterface $pipeline
      * @return $this
      */
-    public function setPipeline(PipelineInterface $pipeline): PipelineEntity {
+    public function setPipeline(PipelineInterface $pipeline): PipelineEntity
+    {
         $this->pipeline = $pipeline;
         return $this;
     }
@@ -136,7 +147,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * @param TaskEntity $task
      * @return $this
      */
-    public function addTask(TaskEntity $task): PipelineEntity {
+    public function addTask(TaskEntity $task): PipelineEntity
+    {
         $this->tasks->add($task);
         return $this;
     }
@@ -145,7 +157,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * Get collection of tasks
      * @return Collection|TaskEntity[]|array
      */
-    public function getTasks(): Collection {
+    public function getTasks(): Collection
+    {
         return $this->tasks;
     }
 
@@ -153,7 +166,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * Check whether pipeline has incomplete tasks
      * @return bool
      */
-    public function hasIncompleteTasks(): bool {
+    public function hasIncompleteTasks(): bool
+    {
         $completedStates = [
             ExecutionState::CANCELED,
             ExecutionState::SUCCESS,
@@ -176,7 +190,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
     /**
      * @inheritDoc
      */
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return [
             'execution'     =>  $this->getExecution()->toArray(),
             'pipeline'      =>  $this->getPipeline()->toArray(),
@@ -187,7 +202,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
     /**
      * @inheritDoc
      */
-    public function bootstrap(): void {
+    public function bootstrap(): void
+    {
         $this->pipeline = $this->resolvePipelineInstance();
         $this->tasks = new Collection();
     }
@@ -197,7 +213,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * @param LoopInterface $loop
      * @return void
      */
-    public function runHandler(LoopInterface $loop): void {
+    public function runHandler(LoopInterface $loop): void
+    {
         $this->debugWarn(sprintf(
             'Pipeline Identifier: %s | Pipeline Name: %s | Task Count: %d | Starting Execution',
             $this->execution->getPipelineUuid(),
@@ -206,7 +223,11 @@ class PipelineEntity extends LoggableClass implements Arrayable {
         ));
 
         $this->loop = $loop;
-        $this->loopTimer = $this->loop->addPeriodicTimer(1.0, function(): void {
+        $this->setExecutionState(ExecutionState::EXECUTING);
+        $this->loopTimer = $this->loop->addPeriodicTimer(1.0, function (): void {
+            if (!$this->hasIncompleteTasks()) {
+                $this->markPipelineFinished();
+            }
             $this->selectNextTask();
 
             if ($this->currentTask !== null) {
@@ -250,7 +271,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * Select next task in chain
      * @return void
      */
-    public function selectNextTask(): void {
+    public function selectNextTask(): void
+    {
         if ($this->tasks->count() === 0) {
             $this->currentTask = null;
         }
@@ -286,7 +308,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * @param bool $applySameToActions
      * @return $this
      */
-    public function markOtherTasksAs(int $state, bool $applySameToActions = false): PipelineEntity {
+    public function markOtherTasksAs(int $state, bool $applySameToActions = false): PipelineEntity
+    {
         $this->getTasks()->filter(function (TaskEntity $taskEntity): bool {
             return $taskEntity !== $this->currentTask;
         })->each(function (TaskEntity $taskEntity) use ($state, $applySameToActions): void {
@@ -306,7 +329,8 @@ class PipelineEntity extends LoggableClass implements Arrayable {
      * Resolve pipeline instance
      * @return PipelineInterface
      */
-    private function resolvePipelineInstance(): PipelineInterface {
+    private function resolvePipelineInstance(): PipelineInterface
+    {
         $identifier = $this->execution->getPipelineUuid();
 
         try {
@@ -319,4 +343,39 @@ class PipelineEntity extends LoggableClass implements Arrayable {
         return $instance;
     }
 
+    /**
+     * Mark pipeline finished once ready
+     * @return void
+     */
+    private function markPipelineFinished(): void
+    {
+        $executionIdentifier = $this->getExecution()->getUuid();
+        $states = [];
+
+        try {
+            $repository = app()->make(TaskExecutionRepositoryInterface::class);
+            $tasks = $repository->findManyBy('pipeline_execution_uuid', $executionIdentifier);
+            /**
+             * @var TaskExecutionInterface $task
+             */
+            foreach ($tasks as $task) {
+                $states[] = $task->getState();
+            }
+        } catch (Throwable) {
+            $tasks = TaskExecution::where('pipeline_execution_uuid', '=', $executionIdentifier)->get();
+            /**
+             * @var TaskExecutionInterface $task
+             */
+            foreach ($tasks as $task) {
+                $states[] = $task->getState();
+            }
+        }
+        $flippedStates = array_flip($states);
+        if (count($flippedStates) === 1) {
+            $pipelineState = Arr::first(array_keys($flippedStates));
+        } else {
+            $pipelineState = ExecutionState::PARTIALLY_COMPLETED;
+        }
+        $this->setExecutionState($pipelineState);
+    }
 }

@@ -8,8 +8,8 @@ use ConsulConfigManager\Tasks\Models\Task;
 use Illuminate\Contracts\Support\Arrayable;
 use ConsulConfigManager\Tasks\Models\TaskExecution;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
-use ConsulConfigManager\Tasks\Services\TaskRunner\LoggableClass;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
+use ConsulConfigManager\Tasks\Services\TaskRunner\LoggableClass;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionRepositoryInterface;
 
@@ -17,8 +17,8 @@ use ConsulConfigManager\Tasks\Interfaces\TaskExecutionRepositoryInterface;
  * Class TaskEntity
  * @package ConsulConfigManager\Tasks\Services\TaskRunner\Entities
  */
-class TaskEntity extends LoggableClass implements Arrayable {
-
+class TaskEntity extends LoggableClass implements Arrayable
+{
     /**
      * Task Execution instance
      * @var TaskExecutionInterface
@@ -42,7 +42,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * @param TaskExecutionInterface $execution
      * @return void
      */
-    public function __construct(TaskExecutionInterface $execution) {
+    public function __construct(TaskExecutionInterface $execution)
+    {
         $this->execution = $execution;
     }
 
@@ -50,7 +51,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * Get task execution instance
      * @return TaskExecutionInterface
      */
-    public function getExecution(): TaskExecutionInterface {
+    public function getExecution(): TaskExecutionInterface
+    {
         return $this->execution;
     }
 
@@ -59,7 +61,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * @param TaskExecutionInterface $execution
      * @return $this
      */
-    public function setExecution(TaskExecutionInterface $execution): TaskEntity {
+    public function setExecution(TaskExecutionInterface $execution): TaskEntity
+    {
         $this->execution = $execution;
         return $this;
     }
@@ -68,7 +71,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * Get task execution state
      * @return int
      */
-    public function getExecutionState(): int {
+    public function getExecutionState(): int
+    {
         return $this->getExecution()->refresh()->getState();
     }
 
@@ -77,7 +81,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * @param int $state
      * @return $this
      */
-    public function setExecutionState(int $state): TaskEntity {
+    public function setExecutionState(int $state): TaskEntity
+    {
         $execution = $this->getExecution();
         $taskIdentifier = $execution->getTaskUuid();
         $pipelineIdentifier = $execution->getPipelineUuid();
@@ -102,7 +107,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * Get task instance
      * @return TaskInterface
      */
-    public function getTask(): TaskInterface {
+    public function getTask(): TaskInterface
+    {
         return $this->task;
     }
 
@@ -110,7 +116,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * Indicates whether task should fail on error
      * @return bool
      */
-    public function shouldFailOnError(): bool {
+    public function shouldFailOnError(): bool
+    {
         return $this->getTask()->isFailingOnError();
     }
 
@@ -119,7 +126,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * @param TaskInterface $task
      * @return $this
      */
-    public function setTask(TaskInterface $task): TaskEntity {
+    public function setTask(TaskInterface $task): TaskEntity
+    {
         $this->task = $task;
         return $this;
     }
@@ -129,7 +137,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * @param ServerEntity $server
      * @return $this
      */
-    public function addServer(ServerEntity $server): TaskEntity {
+    public function addServer(ServerEntity $server): TaskEntity
+    {
         $this->servers->add($server);
         return $this;
     }
@@ -139,7 +148,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * @param string $identifier
      * @return ServerEntity
      */
-    public function findServer(string $identifier): ServerEntity {
+    public function findServer(string $identifier): ServerEntity
+    {
         return $this->getServers()->filter(function (ServerEntity $server) use ($identifier): bool {
             return $server->getIdentifier() === $identifier;
         })->first();
@@ -150,7 +160,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * @param string $identifier
      * @return bool
      */
-    public function hasServer(string $identifier): bool {
+    public function hasServer(string $identifier): bool
+    {
         return $this->getServers()->filter(function (ServerEntity $server) use ($identifier): bool {
             return $server->getIdentifier() === $identifier;
         })->count() > 0;
@@ -160,7 +171,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * Get list of servers for this task
      * @return Collection|ServerEntity[]|array
      */
-    public function getServers(): Collection {
+    public function getServers(): Collection
+    {
         return $this->servers;
     }
 
@@ -168,7 +180,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * Check whether task has incomplete actions
      * @return bool
      */
-    public function hasIncompleteActions(): bool {
+    public function hasIncompleteActions(): bool
+    {
         $has = false;
 
         foreach ($this->getServers() as $server) {
@@ -185,7 +198,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * Check whether task has failed tasks
      * @return bool
      */
-    public function hasFailedActions(): bool {
+    public function hasFailedActions(): bool
+    {
         $has = false;
 
         foreach ($this->getServers() as $server) {
@@ -201,7 +215,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
     /**
      * @inheritDoc
      */
-    public function toArray(): array {
+    public function toArray(): array
+    {
         return [
             'execution'     =>  $this->getExecution()->toArray(),
             'task'          =>  $this->getTask()->toArray(),
@@ -212,12 +227,14 @@ class TaskEntity extends LoggableClass implements Arrayable {
     /**
      * @inheritDoc
      */
-    public function bootstrap(): void {
+    public function bootstrap(): void
+    {
         $this->task = $this->resolveTaskInstance();
         $this->servers = new Collection();
     }
 
-    public function runHandler(): void {
+    public function runHandler(): void
+    {
         foreach ($this->getServers() as $server) {
             $server->runHandler();
         }
@@ -227,7 +244,8 @@ class TaskEntity extends LoggableClass implements Arrayable {
      * Resolve task instance
      * @return TaskInterface
      */
-    private function resolveTaskInstance(): TaskInterface {
+    private function resolveTaskInstance(): TaskInterface
+    {
         $identifier = $this->execution->getTaskUuid();
 
         try {
@@ -239,5 +257,4 @@ class TaskEntity extends LoggableClass implements Arrayable {
 
         return $instance;
     }
-
 }

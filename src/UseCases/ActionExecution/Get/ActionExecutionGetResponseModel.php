@@ -6,8 +6,8 @@ namespace ConsulConfigManager\Tasks\UseCases\ActionExecution\Get;
  * Class ActionExecutionGetResponseModel
  * @package ConsulConfigManager\Tasks\UseCases\ActionExecution\Get
  */
-class ActionExecutionGetResponseModel {
-
+class ActionExecutionGetResponseModel
+{
     /**
      * Entity array
      * @var array
@@ -19,7 +19,8 @@ class ActionExecutionGetResponseModel {
      * @param array $entity
      * @return void
      */
-    public function __construct(array $entity = []) {
+    public function __construct(array $entity = [])
+    {
         $this->entity = $entity;
     }
 
@@ -27,8 +28,8 @@ class ActionExecutionGetResponseModel {
      * Get entity array
      * @return array
      */
-    public function getEntity(): array {
+    public function getEntity(): array
+    {
         return $this->entity;
     }
-
 }

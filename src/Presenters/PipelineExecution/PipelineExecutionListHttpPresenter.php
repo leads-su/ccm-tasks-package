@@ -13,8 +13,8 @@ use ConsulConfigManager\Tasks\UseCases\PipelineExecution\List\PipelineExecutionL
  * Class PipelineExecutionListHttpPresenter
  * @package ConsulConfigManager\Tasks\Presenters\PipelineExecution
  */
-class PipelineExecutionListHttpPresenter implements PipelineExecutionListOutputPort {
-
+class PipelineExecutionListHttpPresenter implements PipelineExecutionListOutputPort
+{
     /**
      * @inheritDoc
      */

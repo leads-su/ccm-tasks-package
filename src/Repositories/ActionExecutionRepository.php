@@ -13,14 +13,19 @@ use ConsulConfigManager\Tasks\Interfaces\ActionExecutionRepositoryInterface;
  * Class ActionExecutionRepository
  * @package ConsulConfigManager\Tasks\Repositories
  */
-class ActionExecutionRepository implements ActionExecutionRepositoryInterface
+class ActionExecutionRepository extends AbstractRepository implements ActionExecutionRepositoryInterface
 {
+    /**
+     * @inheritDoc
+     */
+    protected string $modelClass = ActionExecution::class;
+
     /**
      * @inheritDoc
      */
     public function all(array $columns = ['*'], array $with = [], array $append = []): Collection
     {
-        return ActionExecution::with($with)->get($columns)->each->setAppends($append);
+        return $this->getModelQuery()->with($with)->get($columns)->each->setAppends($append);
     }
 
     /**
@@ -56,14 +61,15 @@ class ActionExecutionRepository implements ActionExecutionRepositoryInterface
      */
     public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface|null
     {
-        return ActionExecution::with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): Collection {
-        return ActionExecution::with($with)->where($field, '=', $value)->get($columns)->each->setAppends($append);
+    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): Collection
+    {
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->get($columns)->each->setAppends($append);
     }
 
     /**
@@ -71,7 +77,7 @@ class ActionExecutionRepository implements ActionExecutionRepositoryInterface
      */
     public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface
     {
-        return ActionExecution::with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
     }
 
     /**
@@ -79,14 +85,11 @@ class ActionExecutionRepository implements ActionExecutionRepositoryInterface
      */
     public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface|null
     {
-        $query = ActionExecution::with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+        );
         $result = $query->first($columns);
         if (!$result) {
             return $result;
@@ -97,7 +100,8 @@ class ActionExecutionRepository implements ActionExecutionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByManyFromMappings(array $mappings, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface|null {
+    public function findByManyFromMappings(array $mappings, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface|null
+    {
         $query = ActionExecution::with($with);
         foreach ($mappings as $key => $value) {
             $query = $query->where($key, '=', $value);
@@ -108,7 +112,8 @@ class ActionExecutionRepository implements ActionExecutionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findByManyFromMappingsOrFail(array $mappings, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface {
+    public function findByManyFromMappingsOrFail(array $mappings, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface
+    {
         $query = ActionExecution::with($with);
         foreach ($mappings as $key => $value) {
             $query = $query->where($key, '=', $value);
@@ -119,7 +124,8 @@ class ActionExecutionRepository implements ActionExecutionRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function findManyByMany(array $mappings, array $columns = ['*'], array $with = [], array $append = []): Collection {
+    public function findManyByMany(array $mappings, array $columns = ['*'], array $with = [], array $append = []): Collection
+    {
         $query = ActionExecution::with($with);
         foreach ($mappings as $key => $value) {
             $query = $query->where($key, '=', $value);
@@ -133,14 +139,11 @@ class ActionExecutionRepository implements ActionExecutionRepositoryInterface
      */
     public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = []): ActionExecutionInterface
     {
-        $query = ActionExecution::with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+        );
         return $query->firstOrFail($columns)->setAppends($append);
     }
 
