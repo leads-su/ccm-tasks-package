@@ -166,13 +166,58 @@ class TaskTest extends AbstractModelTest
     }
 
     /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
      * @return void
      */
-    public function testShouldPassIfValidDataReturnedFromTasksRelation(): void
+    public function testShouldPassIfValidDataReturnedFromFailOnErrorMethod(array $data): void
+    {
+        $response = $this->model($data)->isFailingOnError();
+        $this->assertEquals(Arr::get($data, 'fail_on_error'), $response);
+    }
+
+    /**
+     * @param array $data
+     *
+     * @dataProvider modelDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromIsFailingOnErrorMethod(array $data): void
+    {
+        $model = $this->model($data);
+        $model->failOnError(true);
+        $this->assertEquals(true, $model->isFailingOnError());
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromActionsRelation(): void
     {
         $this->createCompletePipeline();
-        $action = $this->repository()->findBy('uuid', self::$taskUUID);
-        $this->assertCount(1, $action->actions->toArray());
+        $task = $this->repository()->findBy('uuid', self::$taskUUID);
+        $this->assertCount(1, $task->actions->toArray());
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromActionsListAttribute(): void
+    {
+        $this->createCompletePipeline();
+        $task = $this->repository()->findBy('uuid', self::$taskUUID);
+        $this->assertCount(1, $task->actionsList);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromActionsListExtendedAttribute(): void
+    {
+        $this->createCompletePipeline();
+        $task = $this->repository()->findBy('uuid', self::$taskUUID);
+        $this->assertCount(1, $task->actionsListExtended);
     }
 
     /**

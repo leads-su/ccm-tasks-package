@@ -197,13 +197,21 @@ class Pipeline extends AbstractSourcedModel implements PipelineInterface
      */
     public function getTasksListExtendedAttribute(): array
     {
-        return $this->tasks()->getResults()->map(function (TaskInterface $task): array {
-            return [
+        $tasks = $this->tasks()->getResults();
+        $tasksArray = [];
+
+        /**
+         * @var TaskInterface $task
+         */
+        foreach ($tasks as $task) {
+            $tasksArray[] = [
                 'uuid'          =>  $task->getUuid(),
                 'name'          =>  $task->getName(),
                 'description'   =>  $task->getDescription(),
                 'actions'       =>  $task->getActionsListExtendedAttribute(),
             ];
-        })->toArray();
+        }
+
+        return $tasksArray;
     }
 }

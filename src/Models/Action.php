@@ -330,15 +330,23 @@ class Action extends AbstractSourcedModel implements ActionInterface
      */
     public function getServersExtendedAttribute(): array
     {
-        return $this->hosts()->getResults()->map(function (ServiceInterface $service): array {
-            return [
-                'uuid'          =>  $service->getUuid(),
-                'identifier'    =>  $service->getIdentifier(),
-                'service'       =>  $service->getService(),
-                'address'       =>  $service->getAddress(),
-                'port'          =>  $service->getPort(),
-                'environment'   =>  $service->getEnvironment(),
+        $servers = $this->hosts()->getResults();
+        $serversArray = [];
+
+        /**
+         * @var ServiceInterface $server
+         */
+        foreach ($servers as $server) {
+            $serversArray[] = [
+                'uuid'          =>  $server->getUuid(),
+                'identifier'    =>  $server->getIdentifier(),
+                'service'       =>  $server->getService(),
+                'address'       =>  $server->getAddress(),
+                'port'          =>  $server->getPort(),
+                'environment'   =>  $server->getEnvironment(),
             ];
-        })->toArray();
+        }
+
+        return $serversArray;
     }
 }

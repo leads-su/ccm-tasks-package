@@ -236,13 +236,21 @@ class Task extends AbstractSourcedModel implements TaskInterface
      */
     public function getActionsListExtendedAttribute(): array
     {
-        return $this->actions()->getResults()->map(function (ActionInterface $action): array {
-            return [
+        $actions = $this->actions()->getResults();
+        $actionsArray = [];
+
+        /**
+         * @var ActionInterface $action
+         */
+        foreach ($actions as $action) {
+            $actionsArray[] = [
                 'uuid'          =>  $action->getUuid(),
                 'name'          =>  $action->getName(),
                 'description'   =>  $action->getDescription(),
                 'servers'       =>  $action->getServersExtendedAttribute(),
             ];
-        })->toArray();
+        }
+
+        return $actionsArray;
     }
 }

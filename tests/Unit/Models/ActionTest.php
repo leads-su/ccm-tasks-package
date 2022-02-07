@@ -338,6 +338,26 @@ class ActionTest extends AbstractModelTest
     }
 
     /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromServersAttribute(): void
+    {
+        $this->createCompletePipeline();
+        $action = $this->repository()->findBy('uuid', self::$actionUUID);
+        $this->assertCount(1, $action->servers);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromServersExtendedAttribute(): void
+    {
+        $this->createCompletePipeline();
+        $action = $this->repository()->findBy('uuid', self::$actionUUID);
+        $this->assertCount(1, $action->serversExtended);
+    }
+
+    /**
      * Model data provider
      * @return \string[][][]
      */

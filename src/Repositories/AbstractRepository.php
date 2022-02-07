@@ -69,24 +69,11 @@ abstract class AbstractRepository
      * @param mixed $value
      * @param array $with
      * @param bool $withDeleted
-     * @param Model|EloquentBuilder|QueryBuilder|null $query
      * @return EloquentBuilder|QueryBuilder
      */
-    protected function mapModelMultipleQuery(array $fields, mixed $value, array $with = [], bool $withDeleted = false, Model|EloquentBuilder|QueryBuilder|null $query = null): EloquentBuilder|QueryBuilder
+    protected function mapModelMultipleQuery(array $fields, mixed $value, array $with = [], bool $withDeleted = false): EloquentBuilder|QueryBuilder
     {
-        if (!$query) {
-            $query = $this->getModelQueryWithTrashed($withDeleted);
-        }
-        if ($query instanceof Model) {
-            $query = $query->newModelQuery();
-            if ($withDeleted) {
-                /**
-                 * @var EloquentBuilder|QueryBuilder|SoftDeletes $query
-                 */
-                $query = $query->withTrashed($withDeleted);
-            }
-        }
-
+        $query = $this->getModelQueryWithTrashed($withDeleted);
         $query = $query->with($with);
 
         $casts = $this->getModelCasts();
@@ -119,6 +106,7 @@ abstract class AbstractRepository
             return true;
         }
 
+        // @codeCoverageIgnoreStart
         if (
             is_numeric($value) &&
             in_array($expected, ['integer', 'float', 'double'])
@@ -132,6 +120,7 @@ abstract class AbstractRepository
         ) {
             return true;
         }
+        // @codeCoverageIgnoreEnd
 
         return false;
     }
