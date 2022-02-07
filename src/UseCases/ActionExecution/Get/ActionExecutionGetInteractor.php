@@ -5,6 +5,7 @@ namespace ConsulConfigManager\Tasks\UseCases\ActionExecution\Get;
 use Throwable;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionRepositoryInterface;
 
 /**
@@ -26,15 +27,25 @@ class ActionExecutionGetInteractor implements ActionExecutionGetInputPort
     private ActionExecutionRepositoryInterface $repository;
 
     /**
+     * Action repository instance
+     * @var ActionRepositoryInterface
+     */
+    private ActionRepositoryInterface $actionRepository;
+
+    /**
      * ActionExecutionGetInteractor constructor.
      * @param ActionExecutionGetOutputPort $output
      * @param ActionExecutionRepositoryInterface $repository
-     * @return void
+     * @param ActionRepositoryInterface $actionRepository
      */
-    public function __construct(ActionExecutionGetOutputPort $output, ActionExecutionRepositoryInterface $repository)
-    {
+    public function __construct(
+        ActionExecutionGetOutputPort $output,
+        ActionExecutionRepositoryInterface $repository,
+        ActionRepositoryInterface $actionRepository,
+    ) {
         $this->output = $output;
         $this->repository = $repository;
+        $this->actionRepository = $actionRepository;
     }
 
     /**
@@ -43,10 +54,18 @@ class ActionExecutionGetInteractor implements ActionExecutionGetInputPort
     public function get(ActionExecutionGetRequestModel $requestModel): ViewModel
     {
         try {
+            $action = $this->actionRepository->findByManyOrFail(
+                fields: [
+                    'id',
+                    'uuid',
+                ],
+                value: $requestModel->getIdentifier()
+            );
+
             $execution = $this->repository->findByManyFromMappingsOrFail(
                 mappings: [
                     'id'                =>  $requestModel->getExecution(),
-                    'action_uuid'       =>  $requestModel->getIdentifier(),
+                    'action_uuid'       =>  $action->getUuid(),
                 ],
                 columns: [
                     'id',

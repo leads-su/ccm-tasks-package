@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a36806b1ea7a695e9f0bc121c2df77a1",
+    "content-hash": "60e6743b98b5b15902813232b263bb84",
     "packages": [
         {
             "name": "brick/math",
@@ -68,16 +68,16 @@
         },
         {
             "name": "ccm/consul-agent",
-            "version": "1.0.4",
+            "version": "1.0.5",
             "source": {
                 "type": "git",
                 "url": "git@gitlab.leads.local:ccm/ccm-consul-agent-package.git",
-                "reference": "db8731c4a80c700e12f615e0bc7e8def2b35e953"
+                "reference": "2dfe7fd711063a5455d2d6844d15f188084f5dc0"
             },
             "require": {
+                "ccm/consul-laravel-sdk": "^1.0",
                 "ccm/domain": "^1.0",
                 "ccm/users": "^1.0",
-                "darki73/consul-laravel-sdk": "^1.0",
                 "ext-json": "*",
                 "php": "^8.0",
                 "spatie/laravel-event-sourcing": "^5.0"
@@ -113,13 +113,13 @@
                     "phpunit --color=always"
                 ],
                 "test:feature": [
-                    "phpunit --color=always --testsuite \"Consul Feature Test Suite\""
+                    "phpunit --color=always --testsuite \"Feature Test Suite\""
                 ],
                 "test:integration": [
-                    "phpunit --color=always --testsuite \"Consul Integration Test Suite\""
+                    "phpunit --color=always --testsuite \"Integration Test Suite\""
                 ],
                 "test:unit": [
-                    "phpunit --color=always --testsuite \"Consul Unit Test Suite\""
+                    "phpunit --color=always --testsuite \"Unit Test Suite\""
                 ],
                 "test:coverage": [
                     "@putenv XDEBUG_MODE=coverage",
@@ -131,7 +131,7 @@
                 ],
                 "test:coverage-gitlab": [
                     "@putenv XDEBUG_MODE=coverage",
-                    "phpunit --color=never --coverage-text"
+                    "phpunit --color=never --coverage-text --coverage-clover=\"reports/clover.xml\" --coverage-cobertura=\"reports/cobertura.xml\""
                 ],
                 "test:coverage-html": [
                     "@putenv XDEBUG_MODE=coverage",
@@ -156,20 +156,20 @@
                 "consul",
                 "leads"
             ],
-            "time": "2022-02-07T10:51:27+00:00"
+            "time": "2022-02-07T13:10:05+00:00"
         },
         {
             "name": "ccm/consul-kv",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "git@gitlab.leads.local:ccm/ccm-consul-kv-package.git",
-                "reference": "ad1a5544a1ed30627c90baaffbdae4959556cf7a"
+                "reference": "c8c388040795a72f9c99e36ff3cf9e6e920b8d8c"
             },
             "require": {
+                "ccm/consul-laravel-sdk": "^1.0",
                 "ccm/domain": "^1.0",
                 "ccm/users": "^1.0",
-                "darki73/consul-laravel-sdk": "^1.0",
                 "ext-json": "*",
                 "php": "^8.0",
                 "spatie/laravel-event-sourcing": "^5.0"
@@ -205,13 +205,13 @@
                     "phpunit --color=always"
                 ],
                 "test:feature": [
-                    "phpunit --color=always --testsuite \"Consul Feature Test Suite\""
+                    "phpunit --color=always --testsuite \"Feature Test Suite\""
                 ],
                 "test:integration": [
-                    "phpunit --color=always --testsuite \"Consul Integration Test Suite\""
+                    "phpunit --color=always --testsuite \"Integration Test Suite\""
                 ],
                 "test:unit": [
-                    "phpunit --color=always --testsuite \"Consul Unit Test Suite\""
+                    "phpunit --color=always --testsuite \"Unit Test Suite\""
                 ],
                 "test:coverage": [
                     "@putenv XDEBUG_MODE=coverage",
@@ -223,7 +223,7 @@
                 ],
                 "test:coverage-gitlab": [
                     "@putenv XDEBUG_MODE=coverage",
-                    "phpunit --color=never --coverage-text"
+                    "phpunit --color=never --coverage-text --coverage-clover=\"reports/clover.xml\" --coverage-cobertura=\"reports/cobertura.xml\""
                 ],
                 "test:coverage-html": [
                     "@putenv XDEBUG_MODE=coverage",
@@ -248,7 +248,87 @@
                 "consul",
                 "leads"
             ],
-            "time": "2022-02-07T10:52:04+00:00"
+            "time": "2022-02-07T13:09:41+00:00"
+        },
+        {
+            "name": "ccm/consul-laravel-sdk",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "git@gitlab.leads.local:ccm/ccm-consul-laravel-sdk.git",
+                "reference": "0c7d5f0ebe8cb8195b29cba74869e146fdda5e00"
+            },
+            "require": {
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.3",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "ccm/testing": "^1.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Consul\\Providers\\ConsulServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Consul\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Consul\\Test\\": "tests/"
+                }
+            },
+            "scripts": {
+                "psr": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
+                "sa": [
+                    "vendor/bin/phpstan"
+                ],
+                "test": [
+                    "phpunit --color=always"
+                ],
+                "test:coverage": [
+                    "@putenv XDEBUG_MODE=coverage",
+                    "phpunit --color=always --coverage-clover=\"output/code-coverage/clover.xml\""
+                ],
+                "test:coverage-text": [
+                    "@putenv XDEBUG_MODE=coverage",
+                    "phpunit --color=always --coverage-text"
+                ],
+                "test:coverage-gitlab": [
+                    "@putenv XDEBUG_MODE=coverage",
+                    "phpunit --color=never --coverage-text --coverage-clover=\"reports/clover.xml\" --coverage-cobertura=\"reports/cobertura.xml\""
+                ],
+                "test:coverage-html": [
+                    "@putenv XDEBUG_MODE=coverage",
+                    "phpunit --color=always --coverage-html=\"output/code-coverage\""
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Zhivolupov Ivan",
+                    "email": "iz@leads.su",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP SDK to communicate with Consul API for Laravel",
+            "homepage": "http://gitlab.leads.local/ccm/ccm-consul-laravel-sdk",
+            "keywords": [
+                "consul",
+                "laravel",
+                "sdk"
+            ],
+            "time": "2022-02-07T12:38:22+00:00"
         },
         {
             "name": "ccm/domain",
@@ -309,11 +389,11 @@
         },
         {
             "name": "ccm/users",
-            "version": "1.0.13",
+            "version": "1.0.14",
             "source": {
                 "type": "git",
                 "url": "git@gitlab.leads.local:ccm/ccm-users-package.git",
-                "reference": "63179daaab58f96eb67bf4d108fe6e135712ddf1"
+                "reference": "5f0c990fc80b8ec6be12784f0474d9deb956480c"
             },
             "require": {
                 "ccm/domain": "^1.0",
@@ -400,7 +480,7 @@
                 "leads",
                 "users"
             ],
-            "time": "2022-02-07T10:49:34+00:00"
+            "time": "2022-02-07T11:38:46+00:00"
         },
         {
             "name": "clue/reactphp-eventsource",
@@ -467,77 +547,6 @@
                 }
             ],
             "time": "2022-02-01T08:38:08+00:00"
-        },
-        {
-            "name": "darki73/consul-laravel-sdk",
-            "version": "1.0.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/darki73/consul-laravel-sdk.git",
-                "reference": "025f395293f42bdd1f3b0d8c6fc02d7316a9c0a1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/darki73/consul-laravel-sdk/zipball/025f395293f42bdd1f3b0d8c6fc02d7316a9c0a1",
-                "reference": "025f395293f42bdd1f3b0d8c6fc02d7316a9c0a1",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "guzzlehttp/guzzle": "^7.3",
-                "illuminate/http": "^8.55",
-                "php": "^8.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.0",
-                "mockery/mockery": "^1.4",
-                "orchestra/testbench": "^6.0",
-                "phpstan/phpstan": "^0.12.96",
-                "phpunit/phpunit": "^9.0",
-                "sempro/phpunit-pretty-print": "^1.4"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Consul\\Providers\\ConsulServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Consul\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Zhivolupov Ivan",
-                    "email": "ivan.zhivolupov@freedomcore.ru",
-                    "role": "Developer"
-                }
-            ],
-            "description": "PHP SDK to communicate with Consul API for Laravel",
-            "homepage": "https://github.com/darki73/consul-laravel-sdk",
-            "keywords": [
-                "consul",
-                "laravel",
-                "sdk"
-            ],
-            "support": {
-                "issues": "https://github.com/darki73/consul-laravel-sdk/issues",
-                "source": "https://github.com/darki73/consul-laravel-sdk/tree/1.0.6"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/darki73",
-                    "type": "github"
-                }
-            ],
-            "time": "2021-09-27T10:15:33+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -7728,11 +7737,11 @@
     "packages-dev": [
         {
             "name": "ccm/testing",
-            "version": "1.0.6",
+            "version": "1.0.7",
             "source": {
                 "type": "git",
                 "url": "git@gitlab.leads.local:ccm/ccm-testing-package.git",
-                "reference": "02d6f47dd48ce74be434d58bc07bfe0f8bacb2a2"
+                "reference": "1effb6b38647e5bbd1668d628724dee17163d0cf"
             },
             "require": {
                 "ext-json": "*",
@@ -7771,7 +7780,7 @@
                 "leads",
                 "testing"
             ],
-            "time": "2022-01-26T13:53:17+00:00"
+            "time": "2022-02-07T11:36:20+00:00"
         },
         {
             "name": "composer/pcre",

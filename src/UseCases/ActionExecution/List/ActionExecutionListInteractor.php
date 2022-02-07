@@ -5,6 +5,7 @@ namespace ConsulConfigManager\Tasks\UseCases\ActionExecution\List;
 use Throwable;
 use ConsulConfigManager\Domain\Interfaces\ViewModel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionRepositoryInterface;
 
 /**
@@ -26,15 +27,25 @@ class ActionExecutionListInteractor implements ActionExecutionListInputPort
     private ActionExecutionRepositoryInterface $repository;
 
     /**
+     * Action repository instance
+     * @var ActionRepositoryInterface
+     */
+    private ActionRepositoryInterface $actionRepository;
+
+    /**
      * ActionExecutionListInteractor constructor.
      * @param ActionExecutionListOutputPort $output
      * @param ActionExecutionRepositoryInterface $repository
-     * @return void
+     * @param ActionRepositoryInterface $actionRepository
      */
-    public function __construct(ActionExecutionListOutputPort $output, ActionExecutionRepositoryInterface $repository)
-    {
+    public function __construct(
+        ActionExecutionListOutputPort $output,
+        ActionExecutionRepositoryInterface $repository,
+        ActionRepositoryInterface $actionRepository,
+    ) {
         $this->output = $output;
         $this->repository = $repository;
+        $this->actionRepository = $actionRepository;
     }
 
     /**
@@ -43,9 +54,16 @@ class ActionExecutionListInteractor implements ActionExecutionListInputPort
     public function list(ActionExecutionListRequestModel $requestModel): ViewModel
     {
         try {
+            $action = $this->actionRepository->findByManyOrFail(
+                fields: [
+                    'id',
+                    'uuid',
+                ],
+                value: $requestModel->getIdentifier()
+            );
             $executions = $this->repository->findManyBy(
                 field: 'action_uuid',
-                value: $requestModel->getIdentifier(),
+                value: $action->getUuid(),
                 columns: [
                     'id',
                     'state',

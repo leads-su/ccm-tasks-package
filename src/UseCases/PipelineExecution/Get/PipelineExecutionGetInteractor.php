@@ -108,7 +108,10 @@ class PipelineExecutionGetInteractor implements PipelineExecutionGetInputPort
     public function get(PipelineExecutionGetRequestModel $requestModel): ViewModel
     {
         try {
-            $execution = $this->pipelineExecutionRepository->findByOrFail('uuid', $requestModel->getIdentifier());
+            $execution = $this->pipelineExecutionRepository->findByManyOrFail(
+                fields: ['id', 'uuid'],
+                value: $requestModel->getIdentifier()
+            );
 
             return $this->output->get(new PipelineExecutionGetResponseModel(
                 $this->generatePipelineExecutionInformation(
@@ -202,7 +205,7 @@ class PipelineExecutionGetInteractor implements PipelineExecutionGetInputPort
                 if (!in_array($executionState, [ ExecutionState::CREATED, ExecutionState::WAITING, ExecutionState::EXECUTING ])) {
                     $action['log'] = $actionExecution->log;
                 } else {
-                    if ($executionState !== ExecutionState::CANCELED) {
+                    if (!in_array($executionState, [ ExecutionState::CREATED, ExecutionState::CANCELED ])) {
                         $identifier = hash('sha256', sprintf(
                             '%s_%s_%s_%s_%s',
                             $actionExecution->getPipelineExecutionUuid(),
