@@ -2,6 +2,8 @@
 
 namespace ConsulConfigManager\Tasks\Test;
 
+use ReflectionClass;
+use ReflectionException;
 use Illuminate\Foundation\Application;
 use ConsulConfigManager\Tasks\TaskDomain;
 use ConsulConfigManager\Testing\Concerns;
@@ -118,5 +120,21 @@ abstract class TestCase extends \ConsulConfigManager\Testing\TestCase
             \Spatie\EventSourcing\StoredEvents\Repositories\EloquentStoredEventRepository::class,
             $app
         );
+    }
+
+    /**
+     * Call protected/private method from specified class
+     * @param object|string $instance
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     * @throws ReflectionException
+     */
+    protected static function callMethod(object|string $instance, string $name, array $arguments = []): mixed
+    {
+        $class = new ReflectionClass($instance);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method->invokeArgs($instance, $arguments);
     }
 }

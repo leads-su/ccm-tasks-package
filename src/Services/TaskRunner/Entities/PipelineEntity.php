@@ -113,11 +113,13 @@ class PipelineEntity extends LoggableClass implements Arrayable
         try {
             $repository = app()->make(PipelineExecutionRepositoryInterface::class);
             $repository->update($identifier, $state);
+            // @codeCoverageIgnoreStart
         } catch (Throwable) {
             $model = PipelineExecution::uuid($identifier);
             $model->setState($state);
             $model->save();
         }
+        // @codeCoverageIgnoreEnd
 
         return $this;
     }
@@ -176,8 +178,8 @@ class PipelineEntity extends LoggableClass implements Arrayable
         ];
         $has = false;
 
-        foreach ($this->getTasks() as $action) {
-            $executionState = $action->getExecution()->getState();
+        foreach ($this->getTasks() as $task) {
+            $executionState = $task->getExecution()->getState();
             if (!in_array($executionState, $completedStates)) {
                 $has = true;
                 break;
@@ -336,9 +338,11 @@ class PipelineEntity extends LoggableClass implements Arrayable
         try {
             $repository = app()->make(PipelineRepositoryInterface::class);
             $instance = $repository->findBy('uuid', $identifier);
+            // @codeCoverageIgnoreStart
         } catch (Throwable) {
             $instance = Pipeline::uuid($identifier);
         }
+        // @codeCoverageIgnoreEnd
 
         return $instance;
     }

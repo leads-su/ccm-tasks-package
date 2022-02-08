@@ -30,7 +30,9 @@ class Runner extends LoggableClass
      */
     public function __construct(string|int $pipelineIdentifier, bool $truncate = false)
     {
+        // @codeCoverageIgnoreStart
         $this->truncate($truncate);
+        // @codeCoverageIgnoreEnd
         $this->pipelineIdentifier = $pipelineIdentifier;
     }
 
@@ -62,6 +64,7 @@ class Runner extends LoggableClass
         $handler->run();
     }
 
+    // @codeCoverageIgnoreStart
     /**
      * Clean database tables related to runner.
      * This should only be used for development/testing.
@@ -87,4 +90,5 @@ class Runner extends LoggableClass
             }
         }
     }
+    // @codeCoverageIgnoreEnd
 }

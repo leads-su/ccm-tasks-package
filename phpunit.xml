@@ -27,6 +27,9 @@
         <junit outputFile="reports/junit.xml"/>
     </logging>
     <testsuites>
+        <testsuite name="Playground Test Suite">
+
+        </testsuite>
         <testsuite name="Unit Test Suite">
             <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>

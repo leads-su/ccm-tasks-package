@@ -307,9 +307,11 @@ class ServerEntity extends LoggableClass implements Arrayable
         try {
             $repository = app()->make(ServiceRepositoryInterface::class);
             $instance = $repository->findBy('uuid', $identifier);
+            // @codeCoverageIgnoreStart
         } catch (Throwable) {
             $instance = Service::uuid($identifier);
         }
+        // @codeCoverageIgnoreEnd
 
         return $instance;
     }

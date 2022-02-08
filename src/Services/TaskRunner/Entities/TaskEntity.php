@@ -91,6 +91,7 @@ class TaskEntity extends LoggableClass implements Arrayable
         try {
             $repository = app()->make(TaskExecutionRepositoryInterface::class);
             $repository->update($taskIdentifier, $pipelineIdentifier, $executionIdentifier, $state);
+            // @codeCoverageIgnoreStart
         } catch (Throwable) {
             $model = TaskExecution::where('task_uuid', '=', $taskIdentifier)
                 ->where('pipeline_uuid', '=', $pipelineIdentifier)
@@ -99,6 +100,7 @@ class TaskEntity extends LoggableClass implements Arrayable
             $model->setState($state);
             $model->save();
         }
+        // @codeCoverageIgnoreEnd
 
         return $this;
     }
@@ -251,9 +253,11 @@ class TaskEntity extends LoggableClass implements Arrayable
         try {
             $repository = app()->make(TaskRepositoryInterface::class);
             $instance = $repository->findBy('uuid', $identifier);
+            // @codeCoverageIgnoreStart
         } catch (Throwable) {
             $instance = Task::uuid($identifier);
         }
+        // @codeCoverageIgnoreEnd
 
         return $instance;
     }

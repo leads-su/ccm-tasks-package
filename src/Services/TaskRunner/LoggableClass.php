@@ -118,11 +118,13 @@ abstract class LoggableClass
         if ($this->isDebug()) {
             if ($this->hasOutputInterface()) {
                 $this->output->write(str_repeat(PHP_EOL, $count));
+            // @codeCoverageIgnoreStart
             } else {
                 for ($index = 0; $index < $count; $index++) {
                     echo PHP_EOL;
                 }
             }
+            // @codeCoverageIgnoreEnd
         }
     }
 
@@ -198,6 +200,7 @@ abstract class LoggableClass
         if ($this->hasOutputInterface()) {
             $styled = $style ? "<$style>$string</$style>" : $string;
             $this->output->writeln($styled, $this->parseVerbosity($verbosity));
+        // @codeCoverageIgnoreStart
         } else {
             $style = $style ?? 'info';
             echo sprintf(
@@ -206,6 +209,7 @@ abstract class LoggableClass
                 $string,
             ) . PHP_EOL;
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -225,7 +229,9 @@ abstract class LoggableClass
         ];
 
         if (isset($verbosityMap[$level])) {
+            // @codeCoverageIgnoreStart
             $level = $verbosityMap[$level];
+        // @codeCoverageIgnoreEnd
         } elseif (! is_int($level)) {
             $level = OutputInterface::VERBOSITY_NORMAL;
         }

@@ -109,6 +109,7 @@ class ActionEntity extends LoggableClass implements Arrayable
         try {
             $repository = app()->make(ActionExecutionRepositoryInterface::class);
             $repository->update($serverIdentifier, $actionIdentifier, $taskIdentifier, $pipelineIdentifier, $executionIdentifier, $state);
+            // @codeCoverageIgnoreStart
         } catch (Throwable) {
             $model = TaskExecution::where('server_uuid', '=', $serverIdentifier)
                 ->where('action_uuid', '=', $actionIdentifier)
@@ -119,6 +120,7 @@ class ActionEntity extends LoggableClass implements Arrayable
             $model->setState($state);
             $model->save();
         }
+        // @codeCoverageIgnoreEnd
 
         return $this;
     }
@@ -222,9 +224,11 @@ class ActionEntity extends LoggableClass implements Arrayable
         try {
             $repository = app()->make(ActionRepositoryInterface::class);
             $instance = $repository->findBy('uuid', $identifier);
+            // @codeCoverageIgnoreStart
         } catch (Throwable) {
             $instance = Action::uuid($identifier);
         }
+        // @codeCoverageIgnoreEnd
 
         return $instance;
     }

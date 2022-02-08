@@ -69,6 +69,9 @@
         "test:unit": [
             "phpunit --color=always --testsuite \"Unit Test Suite\""
         ],
+        "test:playground": [
+            "phpunit --color=always --testsuite \"Playground Test Suite\""
+        ],
         "test:coverage": [
             "@putenv XDEBUG_MODE=coverage",
             "phpunit --color=always --coverage-clover=\"output/code-coverage/clover.xml\""
@@ -96,6 +99,10 @@
         "test:unit:coverage": [
             "@putenv XDEBUG_MODE=coverage",
             "phpunit --color=always --testsuite \"Unit Test Suite\" --coverage-html=\"output/code-coverage\""
+        ],
+        "test:playground:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --testsuite \"Playground Test Suite\" --coverage-html=\"output/code-coverage\""
         ]
     },
     "config": {
