@@ -3,6 +3,7 @@
 namespace ConsulConfigManager\Tasks\Test\Unit\Repositories;
 
 use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Collection;
 use ConsulConfigManager\Tasks\Models\ActionExecution;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
@@ -116,6 +117,91 @@ class ActionExecutionRepositoryTest extends AbstractRepositoryTest
      * @dataProvider entityDataProvider
      * @return void
      */
+    public function testShouldPassIfEmptyCollectionIsReturnedFromFindManyByRequest(array $data): void
+    {
+        $result = $this->repository()->findManyBy('pipeline_execution_uuid', Arr::get($data, 'pipeline_execution_uuid'));
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertCount(0, $result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfNonEmptyCollectionIsReturnedFromFindManyByRequest(array $data): void
+    {
+        $this->createEntity($data);
+        $result = $this->repository()->findManyBy('pipeline_execution_uuid', Arr::get($data, 'pipeline_execution_uuid'));
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertCount(1, $result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfNullReturnedFromFindByManyFromMappingsRequest(array $data): void
+    {
+        $result = $this->repository()->findByManyFromMappings([
+            'id'                    =>  Arr::get($data, 'id'),
+            'pipeline_execution'    =>  Arr::get($data, 'pipeline_execution_uuid'),
+        ]);
+        $this->assertNull($result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValueReturnedFromFindByManyFromMappingsRequest(array $data): void
+    {
+        $this->createEntity($data);
+        $result = $this->repository()->findByManyFromMappings([
+            'id'                        =>  Arr::get($data, 'id'),
+            'pipeline_execution_uuid'   =>  Arr::get($data, 'pipeline_execution_uuid'),
+        ]);
+        $this->assertNotNull($result);
+        $this->assertInstanceOf(ActionExecutionInterface::class, $result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfExceptionThrownFromFindByManyFromMappingsOrFailRequest(array $data): void
+    {
+        $this->expectException(ModelNotFoundException::class);
+        $this->repository()->findByManyFromMappingsOrFail([
+            'id'                        =>  Arr::get($data, 'id'),
+            'pipeline_execution_uuid'   =>  Arr::get($data, 'pipeline_execution_uuid'),
+        ]);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfValueReturnedFromFindByManyFromMappingsOrFailRequest(array $data): void
+    {
+        $this->createEntity($data);
+        $result = $this->repository()->findByManyFromMappingsOrFail([
+            'id'                        =>  Arr::get($data, 'id'),
+            'pipeline_execution_uuid'   =>  Arr::get($data, 'pipeline_execution_uuid'),
+        ]);
+        $this->assertNotNull($result);
+        $this->assertInstanceOf(ActionExecutionInterface::class, $result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
     public function testShouldPassIfNullIsReturnedFromFindByManyRequest(array $data): void
     {
         $result = $this->repository()->findByMany(fields: ['id', 'action_uuid'], value: Arr::get($data, 'id'));
@@ -145,6 +231,37 @@ class ActionExecutionRepositoryTest extends AbstractRepositoryTest
 
         $response = $this->repository()->findByMany(['id', 'uuid'], Arr::get($data, 'id'));
         $this->assertSameReturned($response, $data);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfEmptyCollectionReturnedFromFindManyByManyRequest(array $data): void
+    {
+        $response = $this->repository()->findManyByMany([
+            'id'                        =>  Arr::get($data, 'id'),
+            'pipeline_execution_uuid'   =>  Arr::get($data, 'pipeline_execution_uuid'),
+        ]);
+        $this->assertInstanceOf(Collection::class, $response);
+        $this->assertCount(0, $response);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfNonEmptyCollectionReturnedFromFindManyByManyRequest(array $data): void
+    {
+        $this->createEntity($data);
+        $response = $this->repository()->findManyByMany([
+            'id'                        =>  Arr::get($data, 'id'),
+            'pipeline_execution_uuid'   =>  Arr::get($data, 'pipeline_execution_uuid'),
+        ]);
+        $this->assertInstanceOf(Collection::class, $response);
+        $this->assertCount(1, $response);
     }
 
     /**

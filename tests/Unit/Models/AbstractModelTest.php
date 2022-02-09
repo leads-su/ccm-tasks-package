@@ -524,6 +524,7 @@ abstract class AbstractModelTest extends TestCase
         ], true);
 
         $this->actionExecutionModel([
+            'server_uuid'               =>  $serviceUUID,
             'action_uuid'               =>  $actionUUID,
             'task_uuid'                 =>  $taskUUID,
             'pipeline_uuid'             =>  $pipelineUUID,

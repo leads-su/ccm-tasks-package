@@ -2,11 +2,14 @@
 
 namespace ConsulConfigManager\Tasks\Test\Integration;
 
+use Exception;
+use Illuminate\Support\Str;
 use ConsulConfigManager\Tasks\Models\Task;
 use ConsulConfigManager\Tasks\Models\Action;
 use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\Enums\TaskType;
 use ConsulConfigManager\Tasks\Models\Pipeline;
+use ConsulConfigManager\Tasks\Enums\ActionType;
 use ConsulConfigManager\Consul\Agent\Models\Service;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
@@ -34,797 +37,452 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
 abstract class AbstractRunnerIntegrationTest extends TestCase
 {
     /**
-     * Identifier for pipeline
+     * Pipeline identifier
      * @var string
      */
-    protected string $pipelineIdentifier = 'f9989546-8e8d-4497-8951-dc839cf6f4d4';
+    protected string $pipelineIdentifier = '';
 
     /**
-     * Identifier for first successful task
-     * @var string
+     * List of servers to use for executions
+     * @var array|string[]
      */
-    protected string $firstSuccessfulTaskIdentifier = '05993127-d3a8-4c4c-9be5-537f0bac9bfc';
+    protected array $serverAddresses = [
+        '172.18.0.235',
+    ];
 
     /**
-     * Identifier for second successful task
-     * @var string
+     * List of servers identifiers
+     * @var array
      */
-    protected string $secondSuccessfulTaskIdentifier = '63460123-5cb1-450f-b196-90eb0bfb196f';
+    protected array $serverIdentifiers = [];
 
     /**
-     * Identifier for failing task
-     * @var string
+     * List of actions identifiers
+     * @var array
      */
-    protected string $failingTaskIdentifier = '11f25cdb-b82f-4c45-ab6b-f72fe52a3462';
+    protected array $actionIdentifiers = [];
 
     /**
-     * Identifier for first successful action
-     * @var string
+     * List of Action => Server relation
+     * @var array
      */
-    protected string $firstSuccessfulActionIdentifier = '14bced49-d292-4d8c-856d-8027b630d8c3';
+    protected array $actionServerReference = [];
 
     /**
-     * Identifier for second successful action
-     * @var string
+     * List of identifiers for failing actions
+     * @var array
      */
-    protected string $secondSuccessfulActionIdentifier = 'ffd273f9-ccec-43ab-84a6-9b0125dca97d';
+    protected array $failingActionIdentifiers = [];
 
     /**
-     * Identifier for failing action
-     * @var string
+     * List of servers containing failing action
+     * @var array
      */
-    protected string $failingActionIdentifier = 'a7b18f1e-8c0b-433c-9be7-1a7966411dfb';
+    protected array $failingActionServers = [];
 
     /**
-     * Identifier for first server
-     * @var string
+     * List of tasks identifiers
+     * @var array
      */
-    protected string $firstServerIdentifier = '29845927-1544-4c7f-afa5-2b597a71c76d';
+    protected array $taskIdentifiers = [];
 
     /**
-     * Identifier for second server
-     * @var string
+     * List of identifiers for failing tasks
+     * @var array
      */
-    protected string $secondServerIdentifier = '18a6f634-8d2c-469c-96e5-c640cc21e0a0';
+    protected array $failingTaskIdentifiers = [];
 
     /**
-     * User used for testing
-     * @var string|null
+     * List of Task => Action relation
+     * @var array
      */
-    private ?string $runAs = null;
+    protected array $taskActionReference = [];
 
     /**
-     * Working directory for runner
-     * @var string|null
+     * List of Pipeline => Task relation
+     * @var array
      */
-    private ?string $workingDirectory = '/home/scripts';
+    protected array $pipelineTaskReference = [];
 
     /**
-     * Whether we want to use sudo
-     * @var bool
+     * Create new server
+     * @param bool $useSameAddress
+     * @param bool $useRepository
+     * @return ServiceInterface
+     * @throws Exception
      */
-    private bool $useSudo = false;
-
-    /**
-     * Host address for testing
-     * @var string
-     */
-    protected string $hostAddress = '172.18.0.235';
-
-    /**
-     * Create new pipeline
-     * @param bool $repository
-     * @return PipelineInterface
-     */
-    protected function createPipeline(bool $repository = false): PipelineInterface
+    protected function createNewServer(bool $useSameAddress = false, bool $useRepository = false): ServiceInterface
     {
-        $instance = $repository ?
-            $this->createPipelineThroughRepository() :
-            $this->createPipelineThroughModel();
+        $serverIndex = count($this->serverIdentifiers) + 1;
+        $serversCount = count($this->serverAddresses);
 
-        $this->assertNotNull($this->pipelineRepository()->find($instance->getID()));
-        return $instance;
+        if ($serverIndex < $serversCount) {
+            $serverAddress = $this->serverAddresses[$serverIndex - 1];
+        } else {
+            if ($useSameAddress) {
+                if ($serversCount === 1) {
+                    $serverAddress = $this->serverAddresses[0];
+                } else {
+                    $serverAddress = rand(0, $serversCount - 1);
+                }
+            } else {
+                throw new Exception('Servers limit reached');
+            }
+        }
+
+        if ($useRepository) {
+            $server = $this->createNewServerThroughRepository(
+                serverIndex: $serverIndex,
+                serverAddress: $serverAddress,
+            );
+        } else {
+            $server = $this->createNewServerThroughModel(
+                serverIndex: $serverIndex,
+                serverAddress: $serverAddress,
+            );
+        }
+
+        $this->serverIdentifiers[] = $server->getUuid();
+        return $server;
     }
 
     /**
-     * Create first successful task
-     * @param bool $repository
-     * @return TaskInterface
-     */
-    protected function createFirstSuccessfulTask(bool $repository = false): TaskInterface
-    {
-        $instance = $repository ?
-            $this->createFirstSuccessfulTaskThroughRepository() :
-            $this->createFirstSuccessfulTaskThroughModel();
-
-        $this->assertNotNull($this->taskRepository()->find($instance->getID()));
-        return $instance;
-    }
-
-    /**
-     * Create second successful task
-     * @param bool $repository
-     * @return TaskInterface
-     */
-    protected function createSecondSuccessfulTask(bool $repository = false): TaskInterface
-    {
-        $instance = $repository ?
-            $this->createSecondSuccessfulTaskThroughRepository() :
-            $this->createSecondSuccessfulTaskThroughModel();
-
-        $this->assertNotNull($this->taskRepository()->find($instance->getID()));
-        return $instance;
-    }
-
-    /**
-     * Create failing task
-     * @param bool $repository
-     * @return TaskInterface
-     */
-    protected function createFailingTask(bool $repository = false): TaskInterface
-    {
-        $instance = $repository ?
-            $this->createFailingTaskThroughRepository() :
-            $this->createFailingTaskThroughModel();
-
-        $this->assertNotNull($this->taskRepository()->find($instance->getID()));
-        return $instance;
-    }
-
-    /**
-     * Create first successful action
-     * @param bool $repository
-     * @return ActionInterface
-     */
-    protected function createFirstSuccessfulAction(bool $repository = false): ActionInterface
-    {
-        $instance = $repository ?
-            $this->createFirstSuccessfulActionThroughRepository() :
-            $this->createFirstSuccessfulActionThroughModel();
-
-        $this->assertNotNull($this->actionRepository()->find($instance->getID()));
-        return $instance;
-    }
-
-    /**
-     * Create second successful action
-     * @param bool $repository
-     * @return ActionInterface
-     */
-    protected function createSecondSuccessfulAction(bool $repository = false): ActionInterface
-    {
-        $instance = $repository ?
-            $this->createSecondSuccessfulActionThroughRepository() :
-            $this->createSecondSuccessfulActionThroughModel();
-
-        $this->assertNotNull($this->actionRepository()->find($instance->getID()));
-        return $instance;
-    }
-
-    /**
-     * Create failing action
-     * @param bool $repository
-     * @return ActionInterface
-     */
-    protected function createFailingAction(bool $repository = false): ActionInterface
-    {
-        $instance = $repository ?
-            $this->createFailingActionThroughRepository() :
-            $this->createFailingActionThroughModel();
-
-        $this->assertNotNull($this->actionRepository()->find($instance->getID()));
-        return $instance;
-    }
-
-    /**
-     * Create first server
-     * @param bool $repository
+     * @param int $serverIndex
+     * @param string $serverAddress
      * @return ServiceInterface
      */
-    protected function createFirstServer(bool $repository = false): ServiceInterface
+    protected function createNewServerThroughModel(int $serverIndex, string $serverAddress): ServiceInterface
     {
-        $instance = $repository ?
-            $this->createFirstServerThroughRepository() :
-            $this->createFirstServerThroughModel();
+        $instance = new Service();
+        $instance->setUuid(Str::uuid()->toString());
+        $instance->setIdentifier(sprintf('ccm-example%d.local-%s', $serverIndex, $serverAddress));
+        $instance->setService('ccm');
+        $instance->setTags([]);
+        $instance->setMeta([]);
+        $instance->setPort(32175);
+        $instance->setAddress($serverAddress);
+        $instance->setOnline(true);
+        $instance->setDatacenter('leads');
+        $instance->setEnvironment('testing');
+        $instance->save();
 
-        $this->assertNotNull($this->serverRepository()->find('ccm-first-server.local-' . $this->hostAddress));
         return $instance;
     }
 
     /**
-     * Create second server
-     * @param bool $repository
+     * Create new server through repository
+     * @param int $serverIndex
+     * @param string $serverAddress
      * @return ServiceInterface
      */
-    protected function createSecondServer(bool $repository = false): ServiceInterface
+    protected function createNewServerThroughRepository(int $serverIndex, string $serverAddress): ServiceInterface
     {
-        $instance = $repository ?
-            $this->createSecondServerThroughRepository() :
-            $this->createSecondServerThroughModel();
-
-        $this->assertNotNull($this->serverRepository()->find('ccm-second-server.local-' . $this->hostAddress));
-        return $instance;
+        return $this->serverRepository()->create([
+            'id'                =>  sprintf('ccm-example%d.local-%s', $serverIndex, $serverAddress),
+            'service'           =>  'ccm',
+            'tags'              =>  [],
+            'meta'              =>  [
+                'environment'   =>  'testing',
+            ],
+            'port'              =>  32175,
+            'address'           =>  $serverAddress,
+            'online'            =>  true,
+            'datacenter'        =>  'leads',
+        ]);
     }
 
     /**
-     * Bind pipeline and task
-     * @param PipelineInterface $pipeline
-     * @param TaskInterface $task
-     * @param int $order
-     * @return PipelineTaskInterface
-     * @throws BindingResolutionException
+     * Create new action
+     * @param bool $failOnError
+     * @param bool $isFailing
+     * @param bool $useRepository
+     * @return ActionInterface
      */
-    protected function bindPipelineAndTask(PipelineInterface $pipeline, TaskInterface $task, int $order): PipelineTaskInterface
-    {
-        $result = $this->pipelineTaskRepository()->create(
-            $pipeline->getUuid(),
-            $task->getUuid(),
-            $order
-        );
+    protected function createNewAction(
+        bool $failOnError = false,
+        bool $isFailing = false,
+        bool $useRepository = false,
+    ): ActionInterface {
+        $actionIndex = count($this->actionIdentifiers) + 1;
+        if ($useRepository) {
+            $action = $this->createNewActionThroughRepository(
+                actionIndex: $actionIndex,
+                isFailing: $isFailing,
+                failOnError: $failOnError,
+            );
+        } else {
+            $action = $this->createNewActionThroughModel(
+                actionIndex: $actionIndex,
+                isFailing: $isFailing,
+                failOnError: $failOnError,
+            );
+        }
 
-        $this->assertTrue($result);
+        $this->actionIdentifiers[] = $action->getUuid();
+        if ($isFailing) {
+            $this->failingActionIdentifiers[] = $action->getUuid();
+        }
 
-        $instance = $this->pipelineTaskRepository()->get(
-            $pipeline->getUuid(),
-            $task->getUuid(),
-        );
-
-        $this->assertInstanceOf(
-            PipelineTaskInterface::class,
-            $instance
-        );
-
-        return $instance;
+        return $action;
     }
 
     /**
-     * Bind task and action
-     * @param TaskInterface $task
-     * @param ActionInterface $action
-     * @param int $order
-     * @return TaskActionInterface
-     * @throws BindingResolutionException
+     * Create new action through model
+     * @param int $actionIndex
+     * @param bool $isFailing
+     * @param bool $failOnError
+     * @return ActionInterface
      */
-    protected function bindTaskAndAction(TaskInterface $task, ActionInterface $action, int $order): TaskActionInterface
-    {
-        $result = $this->taskActionRepository()->create(
-            $task->getUuid(),
-            $action->getUuid(),
-            $order,
-        );
+    protected function createNewActionThroughModel(
+        int $actionIndex,
+        bool $isFailing,
+        bool $failOnError,
+    ): ActionInterface {
+        $instance = new Action();
+        $instance->setUuid(Str::uuid()->toString());
+        $instance->setName(sprintf('Example Action #%d', $actionIndex));
+        $instance->setDescription(sprintf('Description for Example Action #%d', $actionIndex));
+        $instance->setType(ActionType::REMOTE);
+        $instance->setCommand('php');
+        $instance->setArguments(!$isFailing ? [ 'success.php' ] : [ 'failure.php' ]);
+        $instance->setWorkingDirectory('/home/scripts');
+        $instance->setRunAs(null);
+        $instance->useSudo(false);
+        $instance->failOnError($failOnError);
+        $instance->save();
 
-        $this->assertTrue($result);
-
-        $instance = $this->taskActionRepository()->get(
-            $task->getUuid(),
-            $action->getUuid(),
-        );
-
-        $this->assertInstanceOf(
-            TaskActionInterface::class,
-            $instance
-        );
         return $instance;
     }
 
     /**
-     * Bind action and server
+     * Create new action through repository
+     * @param int $actionIndex
+     * @param bool $isFailing
+     * @param bool $failOnError
+     * @return ActionInterface
+     */
+    protected function createNewActionThroughRepository(
+        int $actionIndex,
+        bool $isFailing,
+        bool $failOnError,
+    ): ActionInterface {
+        return $this->actionRepository()->create(
+            name: sprintf('Example Action #%d', $actionIndex),
+            description: sprintf('Description for Example Action #%d', $actionIndex),
+            type: ActionType::REMOTE,
+            command: 'php',
+            arguments: !$isFailing ? [ 'success.php' ] : [ 'failure.php' ],
+            workingDirectory: '/home/scripts',
+            runAs: null,
+            useSudo: false,
+            failOnError: $failOnError,
+        );
+    }
+
+    /**
+     * Attach server to action
      * @param ActionInterface $action
      * @param ServiceInterface $server
      * @return ActionHostInterface
      */
-    protected function bindActionAndServer(ActionInterface $action, ServiceInterface $server): ActionHostInterface
+    protected function attachServerToAction(ActionInterface $action, ServiceInterface $server): ActionHostInterface
     {
-        return $this->actionHostRepository()->create(
-            $action->getUuid(),
-            $server->getUuid(),
+        $actionIdentifier = $action->getUuid();
+        $serverIdentifier = $server->getUuid();
+
+        if (!isset($this->actionServerReference[$serverIdentifier])) {
+            $this->actionServerReference[$serverIdentifier] = [];
+        }
+
+        $this->actionServerReference[$serverIdentifier][] = $actionIdentifier;
+
+        if (in_array($actionIdentifier, $this->failingActionIdentifiers)) {
+            $this->failingActionServers[$actionIdentifier] = $serverIdentifier;
+        }
+
+        $this->actionHostRepository()->create(
+            actionIdentifier: $action->getUuid(),
+            serverIdentifier: $server->getUuid(),
+        );
+
+        return $this->actionHostRepository()->findExactOrFail(
+            actionIdentifier: $action->getUuid(),
+            serverIdentifier: $server->getUuid(),
         );
     }
 
     /**
-     * Create first successful task through repository
+     * Create new task
+     * @param bool $failOnError
+     * @param bool $useRepository
      * @return TaskInterface
      */
-    protected function createFirstSuccessfulTaskThroughRepository(): TaskInterface
+    protected function createNewTask(
+        bool $failOnError = false,
+        bool $useRepository = false,
+    ): TaskInterface {
+        $taskIndex = count($this->taskIdentifiers) + 1;
+
+        if ($useRepository) {
+            $task = $this->createNewTaskThroughRepository(
+                taskIndex: $taskIndex,
+                failOnError: $failOnError
+            );
+        } else {
+            $task = $this->createNewTaskThroughModel(
+                taskIndex: $taskIndex,
+                failOnError: $failOnError
+            );
+        }
+
+        if ($failOnError) {
+            $this->failingTaskIdentifiers[] = $task->getUuid();
+        }
+
+        $this->taskIdentifiers[] = $task->getUuid();
+
+        return $task;
+    }
+
+    /**
+     * Create new task through model
+     * @param int $taskIndex
+     * @param bool $failOnError
+     * @return TaskInterface
+     */
+    protected function createNewTaskThroughModel(int $taskIndex, bool $failOnError = false): TaskInterface
     {
-        $instance = $this->createNewTaskThroughRepository(
-            'Example Successful Task 1',
-            'Example Successful Task 1 Description'
-        );
-        $this->firstSuccessfulTaskIdentifier = $instance->getUuid();
+        $instance = new Task();
+        $instance->setUuid(Str::uuid()->toString());
+        $instance->setName(sprintf('Example Task #%d', $taskIndex));
+        $instance->setDescription(sprintf('Description for Example Task #%d', $taskIndex));
+        $instance->setType(TaskType::REMOTE);
+        $instance->failOnError($failOnError);
+        $instance->save();
+
         return $instance;
     }
 
     /**
-     * Create first successful task through model
+     * Create new task through repository
+     * @param int $taskIndex
+     * @param bool $failOnError
      * @return TaskInterface
      */
-    protected function createFirstSuccessfulTaskThroughModel(): TaskInterface
+    protected function createNewTaskThroughRepository(int $taskIndex, bool $failOnError = false): TaskInterface
     {
-        return $this->createNewTaskThroughModel(
-            $this->firstSuccessfulTaskIdentifier,
-            'Example Successful Task 1',
-            'Example Successful Task 1 Description'
+        return $this->taskRepository()->create(
+            name: sprintf('Example Task #%d', $taskIndex),
+            description: sprintf('Description for Example Task #%d', $taskIndex),
+            type: TaskType::REMOTE,
+            failOnError: $failOnError,
         );
     }
 
     /**
-     * Create second successful task through repository
-     * @return TaskInterface
+     * Attach action to task
+     * @param TaskInterface $task
+     * @param ActionInterface $action
+     * @return TaskActionInterface
+     * @throws BindingResolutionException
      */
-    protected function createSecondSuccessfulTaskThroughRepository(): TaskInterface
+    protected function attachActionToTask(TaskInterface $task, ActionInterface $action): TaskActionInterface
     {
-        $instance = $this->createNewTaskThroughRepository(
-            'Example Successful Task 2',
-            'Example Successful Task 2 Description'
-        );
-        $this->secondSuccessfulTaskIdentifier = $instance->getUuid();
-        return $instance;
-    }
+        $taskIdentifier = $task->getUuid();
+        $actionIdentifier = $action->getUuid();
 
-    /**
-     * Create second successful task through model
-     * @return TaskInterface
-     */
-    protected function createSecondSuccessfulTaskThroughModel(): TaskInterface
-    {
-        return $this->createNewTaskThroughModel(
-            $this->secondSuccessfulTaskIdentifier,
-            'Example Successful Task 2',
-            'Example Successful Task 2 Description'
-        );
-    }
+        if (!isset($this->taskActionReference[$taskIdentifier])) {
+            $this->taskActionReference[$taskIdentifier] = [];
+        }
+        $order = count($this->taskActionReference[$taskIdentifier]) + 1;
 
-    /**
-     * Create failing task through repository
-     * @return TaskInterface
-     */
-    protected function createFailingTaskThroughRepository(): TaskInterface
-    {
-        $instance = $this->createNewTaskThroughRepository(
-            'Example Failing Task',
-            'Example Failing Task Description'
-        );
-        $this->failingTaskIdentifier = $instance->getUuid();
-        return $instance;
-    }
+        $this->taskActionReference[$taskIdentifier][] = $actionIdentifier;
 
-    /**
-     * Create failing task through model
-     * @return TaskInterface
-     */
-    protected function createFailingTaskThroughModel(): TaskInterface
-    {
-        return $this->createNewTaskThroughModel(
-            $this->failingTaskIdentifier,
-            'Example Failing Task',
-            'Example Failing Task Description'
+        $this->taskActionRepository()->create(
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier,
+            order: $order,
+        );
+
+        return $this->taskActionRepository()->get(
+            taskIdentifier: $taskIdentifier,
+            actionIdentifier: $actionIdentifier,
         );
     }
 
     /**
-     * Create first successful action through repository
-     * @return ActionInterface
-     */
-    protected function createFirstSuccessfulActionThroughRepository(): ActionInterface
-    {
-        $instance = $this->createNewActionThroughRepository(
-            'Example Successful Action 1',
-            'Example Successful Action 1 Description',
-            TaskType::REMOTE,
-            'php',
-            [ 'success.php' ],
-            $this->workingDirectory,
-            $this->runAs,
-            $this->useSudo,
-            true,
-        );
-        $this->firstSuccessfulActionIdentifier = $instance->getUuid();
-        return $instance;
-    }
-
-    /**
-     * Create first successful action through model
-     * @return ActionInterface
-     */
-    protected function createFirstSuccessfulActionThroughModel(): ActionInterface
-    {
-        return $this->createNewActionThroughModel(
-            $this->firstSuccessfulActionIdentifier,
-            'Example Successful Action 1',
-            'Example Successful Action 1 Description',
-            TaskType::REMOTE,
-            'php',
-            [ 'success.php' ],
-            $this->workingDirectory,
-            $this->runAs,
-            $this->useSudo,
-            true,
-        );
-    }
-
-    /**
-     * Create second successful action through repository
-     * @return ActionInterface
-     */
-    protected function createSecondSuccessfulActionThroughRepository(): ActionInterface
-    {
-        $instance = $this->createNewActionThroughRepository(
-            'Example Successful Action 2',
-            'Example Successful Action 2 Description',
-            TaskType::REMOTE,
-            'php',
-            [ 'success.php' ],
-            $this->workingDirectory,
-            $this->runAs,
-            $this->useSudo,
-            true,
-        );
-        $this->secondSuccessfulActionIdentifier = $instance->getUuid();
-        return $instance;
-    }
-
-    /**
-     * Create second successful action through model
-     * @return ActionInterface
-     */
-    protected function createSecondSuccessfulActionThroughModel(): ActionInterface
-    {
-        return $this->createNewActionThroughModel(
-            $this->secondSuccessfulActionIdentifier,
-            'Example Successful Action 2',
-            'Example Successful Action 2 Description',
-            TaskType::REMOTE,
-            'php',
-            [ 'success.php' ],
-            $this->workingDirectory,
-            $this->runAs,
-            $this->useSudo,
-            true,
-        );
-    }
-
-    /**
-     * Create failing action through repository
-     * @return ActionInterface
-     */
-    protected function createFailingActionThroughRepository(): ActionInterface
-    {
-        $instance = $this->createNewActionThroughRepository(
-            'Example Failing Action',
-            'Example Failing Action Description',
-            TaskType::REMOTE,
-            'php',
-            [ 'failure.php' ],
-            $this->workingDirectory,
-            $this->runAs,
-            $this->useSudo,
-            true,
-        );
-        $this->failingActionIdentifier = $instance->getUuid();
-        return $instance;
-    }
-
-    /**
-     * Create failing action through model
-     * @return ActionInterface
-     */
-    protected function createFailingActionThroughModel(): ActionInterface
-    {
-        return $this->createNewActionThroughModel(
-            $this->failingActionIdentifier,
-            'Example Failing Action',
-            'Example Failing Action Description',
-            TaskType::REMOTE,
-            'php',
-            [ 'failure.php' ],
-            $this->workingDirectory,
-            $this->runAs,
-            $this->useSudo,
-            true,
-        );
-    }
-
-    /**
-     * Create new pipeline through repository
+     * Create new pipeline
+     * @param bool $useRepository
      * @return PipelineInterface
      */
-    protected function createPipelineThroughRepository(): PipelineInterface
+    protected function createNewPipeline(bool $useRepository = false): PipelineInterface
     {
-        $instance = $this->pipelineRepository()->create(
-            'Example Pipeline',
-            'Example Pipeline Description'
-        );
-        $this->pipelineIdentifier = $instance->getUuid();
-        return $instance;
+        if ($useRepository) {
+            $pipeline = $this->createNewPipelineThroughRepository();
+        } else {
+            $pipeline = $this->createNewPipelineThroughModel();
+        }
+        $this->pipelineIdentifier = $pipeline->getUuid();
+
+        return $pipeline;
     }
 
     /**
      * Create new pipeline through model
      * @return PipelineInterface
      */
-    protected function createPipelineThroughModel(): PipelineInterface
+    protected function createNewPipelineThroughModel(): PipelineInterface
     {
-        $model = new Pipeline();
-        $model->setUuid($this->pipelineIdentifier);
-        $model->setName('Example Pipeline');
-        $model->setDescription('Example Pipeline Description');
-        $model->save();
-        return $model;
-    }
+        $instance = new Pipeline();
+        $instance->setUuid(Str::uuid()->toString());
+        $instance->setName('Example Pipeline');
+        $instance->setDescription('Description for Example Pipeline');
+        $instance->save();
 
-    /**
-     * Create first server through repository
-     * @return ServiceInterface
-     */
-    protected function createFirstServerThroughRepository(): ServiceInterface
-    {
-        $instance = $this->createNewServerThroughRepository(
-            'ccm-first-server.local-' . $this->hostAddress,
-            'ccm',
-            $this->hostAddress,
-            32175,
-            'leads',
-            [],
-            [],
-            1,
-            'testing',
-        );
-        $this->firstServerIdentifier = $instance->getUuid();
         return $instance;
     }
 
     /**
-     * Create first server through model
-     * @return ServiceInterface
+     * Create new pipeline through repository
+     * @return PipelineInterface
      */
-    protected function createFirstServerThroughModel(): ServiceInterface
+    protected function createNewPipelineThroughRepository(): PipelineInterface
     {
-        return $this->createNewServerThroughModel(
-            $this->firstServerIdentifier,
-            'ccm-first-server.local-' . $this->hostAddress,
-            'ccm',
-            $this->hostAddress,
-            32175,
-            'leads',
-            [],
-            [],
-            1,
-            'testing',
+        return $this->pipelineRepository()->create(
+            name: 'Example Pipeline',
+            description: 'Description for Example Pipeline',
         );
     }
 
     /**
-     * Create second server through repository
-     * @return ServiceInterface
+     * Attach task to pipeline
+     * @param PipelineInterface $pipeline
+     * @param TaskInterface $task
+     * @return PipelineTaskInterface
+     * @throws BindingResolutionException
      */
-    protected function createSecondServerThroughRepository(): ServiceInterface
+    protected function attachTaskToPipeline(PipelineInterface $pipeline, TaskInterface $task): PipelineTaskInterface
     {
-        $instance = $this->createNewServerThroughRepository(
-            'ccm-second-server.local-' . $this->hostAddress,
-            'ccm',
-            $this->hostAddress,
-            32175,
-            'leads',
-            [],
-            [],
-            1,
-            'testing',
+        $pipelineIdentifier = $pipeline->getUuid();
+        $taskIdentifier = $task->getUuid();
+
+        if (!isset($this->pipelineTaskReference[$pipelineIdentifier])) {
+            $this->pipelineTaskReference[$pipelineIdentifier] = [];
+        }
+        $order = count($this->pipelineTaskReference[$pipelineIdentifier]) + 1;
+
+        $this->pipelineTaskReference[$pipelineIdentifier][] = $taskIdentifier;
+
+        $this->pipelineTaskRepository()->create(
+            pipelineIdentifier: $pipelineIdentifier,
+            taskIdentifier: $taskIdentifier,
+            order: $order,
         );
-        $this->secondServerIdentifier = $instance->getUuid();
-        return $instance;
-    }
 
-    /**
-     * Create second server through model
-     * @return ServiceInterface
-     */
-    protected function createSecondServerThroughModel(): ServiceInterface
-    {
-        return $this->createNewServerThroughModel(
-            $this->secondServerIdentifier,
-            'ccm-second-server.local-' . $this->hostAddress,
-            'ccm',
-            $this->hostAddress,
-            32175,
-            'leads',
-            [],
-            [],
-            1,
-            'testing',
+        return $this->pipelineTaskRepository()->get(
+            pipelineIdentifier: $pipelineIdentifier,
+            taskIdentifier: $taskIdentifier,
         );
-    }
-
-    /**
-     * Create new task through repository
-     * @param string $name
-     * @param string $description
-     * @param int $type
-     * @return TaskInterface
-     */
-    protected function createNewTaskThroughRepository(string $name, string $description, int $type = TaskType::REMOTE): TaskInterface
-    {
-        return $this->taskRepository()->create(
-            $name,
-            $description,
-            $type,
-        );
-    }
-
-    /**
-     * Create new task through model
-     * @param string $identifier
-     * @param string $name
-     * @param string $description
-     * @param int $type
-     * @return TaskInterface
-     */
-    protected function createNewTaskThroughModel(string $identifier, string $name, string $description, int $type = TaskType::REMOTE): TaskInterface
-    {
-        $model = new Task();
-        $model->setUuid($identifier);
-        $model->setName($name);
-        $model->setDescription($description);
-        $model->setType($type);
-        $model->save();
-        return $model;
-    }
-
-    /**
-     * Create new action through repository
-     * @param string $name
-     * @param string $description
-     * @param int $type
-     * @param string $command
-     * @param array $arguments
-     * @param string|null $workingDirectory
-     * @param string|null $runAs
-     * @param bool $useSudo
-     * @param bool $failOnError
-     * @return ActionInterface
-     */
-    protected function createNewActionThroughRepository(
-        string $name,
-        string $description,
-        int $type,
-        string $command,
-        array $arguments,
-        ?string $workingDirectory = null,
-        ?string $runAs = null,
-        bool $useSudo = false,
-        bool $failOnError = true,
-    ): ActionInterface {
-        return $this->actionRepository()->create(
-            $name,
-            $description,
-            $type,
-            $command,
-            $arguments,
-            $workingDirectory,
-            $runAs,
-            $useSudo,
-            $failOnError,
-        );
-    }
-
-    /**
-     * Create new action through model
-     * @param string $identifier
-     * @param string $name
-     * @param string $description
-     * @param int $type
-     * @param string $command
-     * @param array $arguments
-     * @param string|null $workingDirectory
-     * @param string|null $runAs
-     * @param bool $useSudo
-     * @param bool $failOnError
-     * @return ActionInterface
-     */
-    protected function createNewActionThroughModel(
-        string $identifier,
-        string $name,
-        string $description,
-        int $type,
-        string $command,
-        array $arguments,
-        ?string $workingDirectory = null,
-        ?string $runAs = null,
-        bool $useSudo = false,
-        bool $failOnError = true,
-    ): ActionInterface {
-        $model = new Action();
-        $model->setUuid($identifier);
-        $model->setName($name);
-        $model->setDescription($description);
-        $model->setType($type);
-        $model->setCommand($command);
-        $model->setArguments($arguments);
-        $model->setWorkingDirectory($workingDirectory);
-        $model->setRunAs($runAs);
-        $model->useSudo($useSudo);
-        $model->failOnError($failOnError);
-        $model->save();
-        return $model;
-    }
-
-    /**
-     * Create new server through repository
-     * @param string $name
-     * @param string $service
-     * @param string $address
-     * @param int $port
-     * @param string $datacenter
-     * @param array $tags
-     * @param array $meta
-     * @param int $online
-     * @param string $environment
-     * @return ServiceInterface
-     */
-    protected function createNewServerThroughRepository(
-        string $name,
-        string $service,
-        string $address,
-        int $port,
-        string $datacenter,
-        array $tags,
-        array $meta,
-        int $online,
-        string $environment,
-    ): ServiceInterface {
-        return $this->serverRepository()->create([
-            'id'                =>  $name,
-            'service'           =>  $service,
-            'tags'              =>  $tags,
-            'meta'              =>  array_merge($meta, [
-                'environment'   =>  $environment,
-            ]),
-            'port'              =>  $port,
-            'address'           =>  $address,
-            'online'            =>  $online,
-            'datacenter'        =>  $datacenter,
-        ]);
-    }
-
-    /**
-     * Create new server through model
-     * @param string $identifier
-     * @param string $name
-     * @param string $service
-     * @param string $address
-     * @param int $port
-     * @param string $datacenter
-     * @param array $tags
-     * @param array $meta
-     * @param int $online
-     * @param string $environment
-     * @return ServiceInterface
-     */
-    protected function createNewServerThroughModel(
-        string $identifier,
-        string $name,
-        string $service,
-        string $address,
-        int $port,
-        string $datacenter,
-        array $tags,
-        array $meta,
-        int $online,
-        string $environment,
-    ): ServiceInterface {
-        $model = new Service();
-        $model->setUuid($identifier);
-        $model->setIdentifier($name);
-        $model->setService($service);
-        $model->setAddress($address);
-        $model->setPort($port);
-        $model->setDatacenter($datacenter);
-        $model->setTags($tags);
-        $model->setMeta($meta);
-        $model->setOnline($online);
-        $model->setEnvironment($environment);
-        $model->save();
-        return $model;
     }
 
     /**

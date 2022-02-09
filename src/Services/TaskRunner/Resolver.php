@@ -1,6 +1,6 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Services\TaskRunner\Manager;
+namespace ConsulConfigManager\Tasks\Services\TaskRunner;
 
 use Illuminate\Database\Eloquent\Collection;
 use ConsulConfigManager\Tasks\Enums\ExecutionState;
@@ -15,19 +15,24 @@ use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Tasks\RemoteTask;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\TaskEntity;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionRepositoryInterface;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\ActionEntity;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\ServerEntity;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionRepositoryInterface;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\PipelineEntity;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
 
 /**
  * Class Resolver
- * @package ConsulConfigManager\Tasks\Services\TaskRunner\Manager
+ * @package ConsulConfigManager\Tasks\Services\TaskRunner
  */
-class Resolver
+class Resolver extends LoggableClass
 {
     /**
      * Pipeline identifier
@@ -84,10 +89,10 @@ class Resolver
     private ActionExecutionRepositoryInterface $actionExecutionRepository;
 
     /**
-     * List of tasks and actions in the required order
-     * @var array
+     * Configured pipeline entity
+     * @var PipelineEntity
      */
-    private array $pipelineSequence = [];
+    private PipelineEntity $pipelineEntity;
 
     /**
      * Resolver constructor.
@@ -98,24 +103,22 @@ class Resolver
     public function __construct(string|int $pipelineIdentifier)
     {
         $this->pipelineIdentifier = $pipelineIdentifier;
-        $this->boot();
     }
 
     /**
-     * Get pipeline sequence
-     * @return array
+     * Get configured pipeline entity
+     * @return PipelineEntity
      */
-    public function getSequence(): array
+    public function getPipelineEntity(): PipelineEntity
     {
-        return $this->pipelineSequence;
+        return $this->pipelineEntity;
     }
 
     /**
-     * Boot class
-     * @return void
+     * @inheritDoc
      * @throws BindingResolutionException
      */
-    protected function boot(): void
+    public function bootstrap(): void
     {
         $this->pipelineRepository = app()->make(PipelineRepositoryInterface::class);
         $this->pipelineTaskRepository = app()->make(PipelineTaskRepositoryInterface::class);
@@ -125,7 +128,7 @@ class Resolver
         $this->taskExecutionRepository = app()->make(TaskExecutionRepositoryInterface::class);
         $this->actionRepository = app()->make(ActionRepositoryInterface::class);
         $this->actionExecutionRepository = app()->make(ActionExecutionRepositoryInterface::class);
-        $this->generatePipelineSequence();
+        $this->generatePipelineEntity();
     }
 
     /**
@@ -252,14 +255,12 @@ class Resolver
     }
 
     /**
-     * Generate pipeline sequence for later use
+     * Generate pipeline entity for later use
      * @return void
      * @throws BindingResolutionException
      */
-    private function generatePipelineSequence(): void
+    private function generatePipelineEntity(): void
     {
-        $sequence = [];
-
         $pipeline = $this->resolvePipeline();
         $pipelineIdentifier = $pipeline->getUuid();
 
@@ -268,11 +269,17 @@ class Resolver
 
         $pipelineTasks = $this->resolvePipelineTasks($pipeline);
 
+        $pipelineEntity = new PipelineEntity($execution);
+        $pipelineEntity->setDebug($this->getDebug())->setOutputInterface($this->getOutputInterface())->bootstrap();
+
         foreach ($pipelineTasks as $pipelineTask) {
             $taskIdentifier = $pipelineTask->getUuid();
             $taskExecution = $this->createNewTaskExecution($taskIdentifier, $pipelineIdentifier, $executionIdentifier);
 
             $taskActions = $this->resolveTaskActions($pipelineTask);
+
+            $taskEntity = new TaskEntity($taskExecution);
+            $taskEntity->setDebug($this->getDebug())->setOutputInterface($this->getOutputInterface())->bootstrap();
 
             foreach ($taskActions as $taskAction) {
                 $actionIdentifier = $taskAction->getUuid();
@@ -281,48 +288,44 @@ class Resolver
                 foreach ($actionServers as $server) {
                     $serverIdentifier = $server->getUuid();
 
-                    if (empty($sequence)) {
-                        $sequence = [
-                            'execution'         =>  $execution,
-                            'servers'           =>  [],
-                        ];
+                    if (!$taskEntity->hasServer($serverIdentifier)) {
+                        $serverEntity = new ServerEntity($serverIdentifier);
+
+                        $serverEntity->setDebug($this->getDebug())->setOutputInterface($this->getOutputInterface())
+                            ->bootstrap();
+
+                        $taskEntity->addServer($serverEntity);
                     }
 
-                    if (!isset($sequence['servers'][$serverIdentifier])) {
-                        $sequence['servers'][$serverIdentifier] = [
-                            'execution'         =>  $execution,
-                            'tasks'             =>  [],
-                        ];
-                    }
+                    $actionExecution = $this->createNewActionExecution(
+                        $serverIdentifier,
+                        $actionIdentifier,
+                        $taskIdentifier,
+                        $pipelineIdentifier,
+                        $executionIdentifier,
+                    );
 
-                    if (!isset($sequence['servers'][$serverIdentifier]['tasks'][$taskIdentifier])) {
-                        $sequence['servers'][$serverIdentifier]['tasks'][$taskIdentifier] = [
-                            'execution'     =>  $taskExecution,
-                            'actions'       =>  [],
-                        ];
-                    }
+                    $actionRunner = $this->createRunner(
+                        $execution,
+                        $pipeline,
+                        $pipelineTask,
+                        $taskAction,
+                        $server,
+                    );
 
-                    $sequence['servers'][$serverIdentifier]['tasks'][$taskIdentifier]['actions'][$actionIdentifier] = [
-                        'execution'             =>  $this->createNewActionExecution(
-                            $serverIdentifier,
-                            $actionIdentifier,
-                            $taskIdentifier,
-                            $pipelineIdentifier,
-                            $executionIdentifier,
-                        ),
-                        'runner'                =>  $this->createRunner(
-                            $execution,
-                            $pipeline,
-                            $pipelineTask,
-                            $taskAction,
-                            $server,
-                        ),
-                    ];
+                    $actionEntity = new ActionEntity($actionExecution, $actionRunner);
+
+                    $actionEntity->setDebug($this->getDebug())->setOutputInterface($this->getOutputInterface())
+                        ->bootstrap();
+
+                    $taskEntity->findServer($serverIdentifier)->addAction($actionEntity);
                 }
             }
+
+            $pipelineEntity->addTask($taskEntity);
         }
 
-        $this->pipelineSequence = $sequence;
+        $this->pipelineEntity = $pipelineEntity;
     }
 
     /**

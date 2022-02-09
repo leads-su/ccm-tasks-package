@@ -2,11 +2,11 @@
 
 namespace ConsulConfigManager\Tasks\Test\Integration;
 
+use Exception;
 use ConsulConfigManager\Tasks\Enums\ExecutionState;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Runner;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
-use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 
 /**
  * Class RunnerIntegrationTest
@@ -14,69 +14,97 @@ use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
  */
 class RunnerIntegrationTest extends AbstractRunnerIntegrationTest
 {
-//    /**
-//     * @return void
-//     * @throws BindingResolutionException
-//     */
-//    public function testShouldPassIfCanCreateBasePipelineItemsThroughModels(): void
-//    {
-//        $this->createCompletePipeline(false, false);
-//        $this->startRunner();
-//        $this->assertMatchesForCompletedPipeline();
-//    }
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     */
+    public function testShouldPassWithModelsAndNoFailingActions(): void
+    {
+        $this->createCompletePipeline(false, false);
+        $this->startRunner();
+        $this->assertMatchesForCompletedPipeline();
+    }
 
-//    /**
-//     * @return void
-//     * @throws BindingResolutionException
-//     */
-//    public function testShouldPassIfCanCreateBasePipelineItemsThroughRepositories(): void
-//    {
-//        $this->createCompletePipeline(true, false);
-//        $this->startRunner();
-//        $this->assertMatchesForCompletedPipeline();
-//    }
-//
-//    /**
-//     * @return void
-//     * @throws BindingResolutionException
-//     */
-//    public function testShouldPassIfCanCreateBasePipelineItemsThroughModelsWithFailing(): void
-//    {
-//        $this->createCompletePipeline(false, true);
-//        $this->startRunner();
-//        $this->assertMatchesForPartiallyCompletedPipeline();
-//
-//        $data = [];
-//
-//        foreach (PipelineExecution::all() as $pipeline) {
-//            $data[$pipeline->getUuid()] = [
-//                'pipeline'      =>  $pipeline->toArray(),
-//                'tasks'         =>  [],
-//            ];
-//        }
-//
-//        foreach (TaskExecution::all() as $task) {
-//            $data[$task->getPipelineExecutionUuid()]['tasks'][$task->getTaskUuid()] = [
-//                'task'      =>  $task->toArray(),
-//                'actions'   =>  [],
-//            ];
-//        }
-//
-//        foreach (ActionExecution::all() as $action) {
-//            $data[$action->getPipelineExecutionUuid()]['tasks'][$action->getTaskUuid()]['actions'][$action->getActionUuid()] = $action->toArray();
-//        }
-//
-//    }
-//
-//    /**
-//     * @return void
-//     * @throws BindingResolutionException
-//     */
-//    public function testShouldPassIfCanCreateBasePipelineItemsThroughRepositoriesWithFailing(): void
-//    {
-//        $this->createCompletePipeline(true, true);
-//        $this->startRunner();
-//    }
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     */
+    public function testShouldPassWithModelsAndFailingActions(): void
+    {
+        $this->createCompletePipeline(false, true);
+        $this->startRunner();
+        $this->assertMatchesForPartiallyCompletedPipeline();
+    }
+
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     */
+    public function testShouldPassWithRepositoriesAndNoFailingActions(): void
+    {
+        $this->createCompletePipeline(true, false);
+        $this->startRunner();
+        $this->assertMatchesForCompletedPipeline();
+    }
+
+    /**
+     * @return void
+     * @throws BindingResolutionException
+     */
+    public function testShouldPassWithRepositoriesAndFailingActions(): void
+    {
+        $this->createCompletePipeline(true, true);
+        $this->startRunner();
+        $this->assertMatchesForPartiallyCompletedPipeline();
+    }
+
+    /**
+     * Create complete pipeline
+     * @param bool $useRepository
+     * @param bool $hasFailingAction
+     * @return void
+     * @throws BindingResolutionException|Exception
+     */
+    private function createCompletePipeline(bool $useRepository = false, bool $hasFailingAction = false): void
+    {
+        $firstServer = $this->createNewServer(true, $useRepository);
+        $secondServer = $this->createNewServer(true, $useRepository);
+
+        $firstAction = $this->createNewAction(false, false, $useRepository);
+        $secondAction = $this->createNewAction(false, false, $useRepository);
+        $thirdAction = $this->createNewAction(false, false, $useRepository);
+
+        $this->attachServerToAction($firstAction, $firstServer);
+        $this->attachServerToAction($firstAction, $secondServer);
+
+        $this->attachServerToAction($secondAction, $firstServer);
+        $this->attachServerToAction($secondAction, $secondServer);
+
+        $this->attachServerToAction($thirdAction, $firstServer);
+        $this->attachServerToAction($thirdAction, $secondServer);
+
+        $firstTask = $this->createNewTask(false, $useRepository);
+        $secondTask = $this->createNewTask(true, $useRepository);
+        $thirdTask = $this->createNewTask(false, $useRepository);
+
+        $this->attachActionToTask($firstTask, $firstAction);
+        $this->attachActionToTask($firstTask, $secondAction);
+
+        $this->attachActionToTask($secondTask, $firstAction);
+        if ($hasFailingAction) {
+            $failingAction = $this->createNewAction(true, true, $useRepository);
+            $this->attachServerToAction($failingAction, $firstServer);
+            $this->attachActionToTask($secondTask, $failingAction);
+        }
+        $this->attachActionToTask($secondTask, $secondAction);
+
+        $this->attachActionToTask($thirdTask, $thirdAction);
+
+        $pipeline = $this->createNewPipeline($useRepository);
+        $this->attachTaskToPipeline($pipeline, $firstTask);
+        $this->attachTaskToPipeline($pipeline, $secondTask);
+        $this->attachTaskToPipeline($pipeline, $thirdTask);
+    }
 
     /**
      * Start runner
@@ -85,10 +113,14 @@ class RunnerIntegrationTest extends AbstractRunnerIntegrationTest
      */
     private function startRunner(): void
     {
-        $runner = new Runner($this->pipelineIdentifier);
+        $runner = new Runner($this->pipelineIdentifier, false);
         $runner->run();
     }
 
+    /**
+     * Assert that pipeline with no failing actions is actually completed
+     * @return void
+     */
     private function assertMatchesForCompletedPipeline(): void
     {
         $pipelineExecutions = $this->pipelineExecutionRepository()->all();
@@ -98,18 +130,22 @@ class RunnerIntegrationTest extends AbstractRunnerIntegrationTest
         }
 
         $taskExecutions = $this->taskExecutionRepository()->all();
-        $this->assertCount(2, $taskExecutions);
+        $this->assertCount(3, $taskExecutions);
         foreach ($taskExecutions as $taskExecution) {
             $this->assertSame(ExecutionState::SUCCESS, $taskExecution->getState());
         }
 
         $actionExecutions = $this->actionExecutionRepository()->all();
-        $this->assertCount(6, $actionExecutions);
+        $this->assertCount(10, $actionExecutions);
         foreach ($actionExecutions as $actionExecution) {
             $this->assertSame(ExecutionState::SUCCESS, $actionExecution->getState());
         }
     }
 
+    /**
+     * Assert that pipeline with failing actions is actually completed
+     * @return void
+     */
     private function assertMatchesForPartiallyCompletedPipeline(): void
     {
         $pipelineExecutions = $this->pipelineExecutionRepository()->all();
@@ -118,106 +154,63 @@ class RunnerIntegrationTest extends AbstractRunnerIntegrationTest
         }
 
         $taskExecutions = $this->taskExecutionRepository()->all();
+        $this->assertCount(count($this->taskActionReference), $taskExecutions);
+
         /**
          * @var TaskExecutionInterface $taskExecution
          */
         foreach ($taskExecutions as $taskExecution) {
-            $identifier = $taskExecution->getTaskUuid();
-            switch ($identifier) {
-                case $this->firstSuccessfulTaskIdentifier:
-                    $this->assertSame(ExecutionState::SUCCESS, $taskExecution->getState());
-                    break;
-                case $this->secondSuccessfulTaskIdentifier:
-                    $this->assertSame(ExecutionState::CANCELED, $taskExecution->getState());
-                    break;
-                case $this->failingTaskIdentifier:
-                    $this->assertSame(ExecutionState::PARTIALLY_COMPLETED, $taskExecution->getState());
-                    break;
-            }
-        }
+            $taskIdentifier = $taskExecution->getTaskUuid();
 
-        $actionExecutions = $this->actionExecutionRepository()->all();
+            $taskActions = $this->taskActionReference[$taskIdentifier];
+            $taskActionsCount = count($taskActions);
+            $serversCount = count($this->serverIdentifiers);
 
-        $index = 0;
-        /**
-         * @var ActionExecutionInterface $actionExecution
-         */
-        foreach ($actionExecutions as $actionExecution) {
-            if ($actionExecution->getTaskUuid() === $this->failingTaskIdentifier) {
-                $state = 0;
-                switch ($index) {
-                    case 0:
-                        $state = ExecutionState::SUCCESS;
-                        break;
-                    case 1:
-                        $state = ExecutionState::FAILURE;
-                        break;
-                    case 2:
-                        $state = ExecutionState::CANCELED;
-                        break;
+            $failingTask = false;
+            foreach ($this->failingActionIdentifiers as $identifier) {
+                if (in_array($identifier, $taskActions)) {
+                    $failingTask = true;
+                    break;
                 }
-                $this->assertSame($state, $taskExecution->getState());
-                $index++;
+            }
+
+            if ($failingTask) {
+                $actionExecutionsCount = ($taskActionsCount * $serversCount) - 1;
             } else {
-                $index = 0;
-
-                if ($actionExecution->getTaskUuid() === $this->secondSuccessfulTaskIdentifier) {
-                    $this->assertSame(ExecutionState::CANCELED, $actionExecution->getState());
-                } else {
-                    $this->assertSame(ExecutionState::SUCCESS, $taskExecution->getState());
-                }
+                $actionExecutionsCount = $taskActionsCount * $serversCount;
             }
+
+            $actionExecutions = $this->actionExecutionRepository()
+                ->findManyBy('task_uuid', $taskIdentifier);
+            $this->assertCount($actionExecutionsCount, $actionExecutions);
         }
     }
 
     /**
-     * @param bool $repository
-     * @param bool $withFailing
+     * Method used to display created pipeline in more readable fashion
      * @return void
-     * @throws BindingResolutionException
      */
-    private function createCompletePipeline(bool $repository = false, bool $withFailing = false): void
+    private function debug(): void
     {
-        $pipeline = $this->createPipeline($repository);
-
-        $firstTask = $this->createFirstSuccessfulTask($repository);
-        $secondTask = $this->createSecondSuccessfulTask($repository);
-        $failingTask = $this->createFailingTask($repository);
-
-
-        if ($withFailing) {
-            $this->bindPipelineAndTask($pipeline, $firstTask, 1);
-            $this->bindPipelineAndTask($pipeline, $failingTask, 2);
-            $this->bindPipelineAndTask($pipeline, $secondTask, 3);
-        } else {
-            $this->bindPipelineAndTask($pipeline, $firstTask, 1);
-            $this->bindPipelineAndTask($pipeline, $secondTask, 2);
-        }
-
-        $firstAction = $this->createFirstSuccessfulAction($repository);
-        $secondAction = $this->createSecondSuccessfulAction($repository);
-        $failingAction = $this->createFailingAction($repository);
-
-        $this->bindTaskAndAction($firstTask, $firstAction, 1);
-        $this->bindTaskAndAction($firstTask, $secondAction, 2);
-        $this->bindTaskAndAction($secondTask, $firstAction, 1);
-
-        if ($withFailing) {
-            $this->bindTaskAndAction($failingTask, $firstAction, 1);
-            $this->bindTaskAndAction($failingTask, $failingAction, 2);
-            $this->bindTaskAndAction($failingTask, $secondAction, 3);
-        }
-
-        $firstServer = $this->createFirstServer($repository);
-//        $secondServer = $this->createSecondServer($repository);
-
-        $this->bindActionAndServer($firstAction, $firstServer);
-//        $this->bindActionAndServer($firstAction, $secondServer);
-        $this->bindActionAndServer($secondAction, $firstServer);
-//        $this->bindActionAndServer($secondAction, $secondServer);
-
-        if ($withFailing) {
-            $this->bindActionAndServer($failingAction, $firstServer);
-        }
+        dd([
+            'pipeline_identifier'           =>  $this->pipelineRepository()->findBy('uuid', $this->pipelineIdentifier)->toArray(),
+            'server_addresses'              =>  $this->serverAddresses,
+            'server_identifiers'            =>  array_map(function (string $uuid): array {
+                return $this->serverRepository()->findBy('uuid', $uuid)->toArray();
+            }, $this->serverIdentifiers),
+            'action_identifiers'            =>  array_map(function (string $uuid): array {
+                return $this->actionRepository()->findBy('uuid', $uuid)->toArray();
+            }, $this->actionIdentifiers),
+            'task_identifiers'              =>  array_map(function (string $uuid): array {
+                return $this->taskRepository()->findBy('uuid', $uuid)->toArray();
+            }, $this->taskIdentifiers),
+            'action_server_reference'       =>  $this->actionServerReference,
+            'failing_action_identifiers'    =>  array_map(function (string $uuid): array {
+                return $this->actionRepository()->findBy('uuid', $uuid)->toArray();
+            }, $this->failingActionIdentifiers),
+            'failing_action_servers'        =>  $this->failingActionServers,
+            'task_action_reference'         =>  $this->taskActionReference,
+            'pipeline_task_reference'       =>  $this->pipelineTaskReference,
+        ]);
     }
 }

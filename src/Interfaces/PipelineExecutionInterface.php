@@ -2,13 +2,17 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Contracts\Support\Arrayable;
+use ConsulConfigManager\Tasks\Models\Pipeline;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Interface PipelineExecutionInterface
  * @package ConsulConfigManager\Tasks\Interfaces
+ *
+ * @property Pipeline $pipeline
  */
-interface PipelineExecutionInterface
+interface PipelineExecutionInterface extends Arrayable
 {
     /**
      * Get pipeline execution instance by UUID

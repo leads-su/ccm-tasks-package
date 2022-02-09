@@ -70,7 +70,7 @@ class ActionTest extends AbstractFeatureTest
      */
     public function testShouldPassIfNotFoundResponseReturnedFromGetWithUuid(): void
     {
-        $response = $this->get('/task-manager/actions/ced57182-a253-44f4-9d76-b6e04e5b2890');
+        $response = $this->get('/task-manager/actions/11111111-1111-1111-1111-111111111111');
         $response->assertStatus(404);
     }
 
@@ -98,7 +98,7 @@ class ActionTest extends AbstractFeatureTest
      */
     public function testShouldPassIfNotFoundResponseReturnedFromUpdateWithUuid(): void
     {
-        $response = $this->patch('/task-manager/actions/ced57182-a253-44f4-9d76-b6e04e5b2890', [
+        $response = $this->patch('/task-manager/actions/11111111-1111-1111-1111-111111111111', [
             'name'              =>  'Example Action',
             'description'       =>  'This is description for Example Action',
             'type'              =>  ActionType::LOCAL,
@@ -265,7 +265,7 @@ class ActionTest extends AbstractFeatureTest
      */
     public function testShouldPassIfNotFoundResponseReturnedFromRestoreWithUuid(): void
     {
-        $response = $this->patch('/task-manager/actions/ced57182-a253-44f4-9d76-b6e04e5b2890/restore');
+        $response = $this->patch('/task-manager/actions/11111111-1111-1111-1111-111111111111/restore');
         $response->assertStatus(404);
     }
 
@@ -290,7 +290,157 @@ class ActionTest extends AbstractFeatureTest
      */
     public function testShouldPassIfNotFoundResponseReturnedFromDeleteWithUuid(): void
     {
-        $response = $this->delete('/task-manager/actions/ced57182-a253-44f4-9d76-b6e04e5b2890');
+        $response = $this->delete('/task-manager/actions/11111111-1111-1111-1111-111111111111');
         $response->assertStatus(404);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfNotFoundResponseReturnedFromListExecutionsWithUuid(): void
+    {
+        $response = $this->get('/task-manager/actions/11111111-1111-1111-1111-111111111111/executions');
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfNotFoundResponseReturnedFromListExecutionsWithId(): void
+    {
+        $response = $this->get('/task-manager/actions/100/executions');
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfDataResponseReturnedFromListExecutionsWithUuid(): void
+    {
+        $actionResponse = $this->createAndGetAction();
+        $actionResponse->assertStatus(201);
+        $actionData = $actionResponse->json('data');
+        $executionData = $this->createAndGetActionExecution();
+
+        $response = $this->get('/task-manager/actions/' . Arr::get($actionData, 'uuid') . '/executions');
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success'           =>  true,
+            'code'              =>  200,
+            'data'              =>  [
+                0               =>  [
+                    'id'            =>  $executionData->getID(),
+                    'state'         =>  $executionData->getState(),
+                    'server_uuid'   =>  $executionData->getServerUuid(),
+                    'server'        =>  null,
+                ],
+            ],
+            'message'           =>  'Successfully fetched list of action executions',
+        ]);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfDataResponseReturnedFromListExecutionsWithId(): void
+    {
+        $actionResponse = $this->createAndGetAction();
+        $actionResponse->assertStatus(201);
+        $actionData = $actionResponse->json('data');
+        $executionData = $this->createAndGetActionExecution();
+
+        $response = $this->get('/task-manager/actions/' . Arr::get($actionData, 'id') . '/executions');
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success'           =>  true,
+            'code'              =>  200,
+            'data'              =>  [
+                0               =>  [
+                    'id'            =>  $executionData->getID(),
+                    'state'         =>  $executionData->getState(),
+                    'server_uuid'   =>  $executionData->getServerUuid(),
+                    'server'        =>  null,
+                ],
+            ],
+            'message'           =>  'Successfully fetched list of action executions',
+        ]);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfNotFoundResponseReturnedFromGetExecutionWithUuid(): void
+    {
+        $actionResponse = $this->createAndGetAction();
+        $actionResponse->assertStatus(201);
+        $actionData = $actionResponse->json('data');
+
+        $response = $this->get('/task-manager/actions/' . Arr::get($actionData, 'uuid') . '/executions/1');
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfNotFoundResponseReturnedFromGetExecutionWithId(): void
+    {
+        $actionResponse = $this->createAndGetAction();
+        $actionResponse->assertStatus(201);
+        $actionData = $actionResponse->json('data');
+
+        $response = $this->get('/task-manager/actions/' . Arr::get($actionData, 'id') . '/executions/1');
+        $response->assertStatus(404);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfDataResponseReturnedFromGetExecutionWithUuid(): void
+    {
+        $actionResponse = $this->createAndGetAction();
+        $actionResponse->assertStatus(201);
+        $actionData = $actionResponse->json('data');
+        $executionData = $this->createAndGetActionExecution();
+
+        $response = $this->get('/task-manager/actions/' . Arr::get($actionData, 'uuid') . '/executions/' . $executionData->getID());
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success'           =>  true,
+            'code'              =>  200,
+            'data'              =>  [
+                'id'            =>  $executionData->getID(),
+                'state'         =>  $executionData->getState(),
+                'server_uuid'   =>  $executionData->getServerUuid(),
+                'server'        =>  null,
+                'log'           =>  null,
+            ],
+            'message'           =>  'Successfully fetched action execution information',
+        ]);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfDataResponseReturnedFromGetExecutionWithId(): void
+    {
+        $actionResponse = $this->createAndGetAction();
+        $actionResponse->assertStatus(201);
+        $actionData = $actionResponse->json('data');
+        $executionData = $this->createAndGetActionExecution();
+
+        $response = $this->get('/task-manager/actions/' . Arr::get($actionData, 'id') . '/executions/' . $executionData->getID());
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success'           =>  true,
+            'code'              =>  200,
+            'data'              =>  [
+                'id'            =>  $executionData->getID(),
+                'state'         =>  $executionData->getState(),
+                'server_uuid'   =>  $executionData->getServerUuid(),
+                'server'        =>  null,
+                'log'           =>  null,
+            ],
+            'message'           =>  'Successfully fetched action execution information',
+        ]);
     }
 }

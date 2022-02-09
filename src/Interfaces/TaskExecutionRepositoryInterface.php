@@ -53,6 +53,17 @@ interface TaskExecutionRepositoryInterface
     public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface|null;
 
     /**
+     * Find many entities by specified field
+     * @param string $field
+     * @param mixed $value
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @return Collection
+     */
+    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): Collection;
+
+    /**
      * Find entity by specified field or throw exception
      * @param string $field
      * @param string $value

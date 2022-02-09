@@ -1,17 +1,47 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Test\Unit\Services\TaskRunner\Manager;
+namespace ConsulConfigManager\Tasks\Test\Unit\Services\TaskRunner\Tasks;
 
 use Illuminate\Support\Arr;
 use ConsulConfigManager\Tasks\Test\TestCase;
-use ConsulConfigManager\Tasks\Services\TaskRunner\Manager\RemoteTask;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Tasks\RemoteTask;
 
 /**
  * Class RemoteTaskTest
- * @package ConsulConfigManager\Tasks\Test\Unit\Services\TaskRunner\Manager
+ * @package ConsulConfigManager\Tasks\Test\Unit\Services\TaskRunner\Tasks
  */
 class RemoteTaskTest extends TestCase
 {
+    /**
+     * Server identifier for execution
+     * @var string
+     */
+    protected string $serverIdentifier = "a2ec83ed-2a05-437a-b438-58559eaa7ffe";
+
+    /**
+     * Action identifier for execution
+     * @var string
+     */
+    protected string $actionIdentifier = "ba6addfc-c524-415e-8f68-b60dd1146840";
+
+    /**
+     * Task identifier for execution
+     * @var string
+     */
+    protected string $taskIdentifier = "55dfebdd-a386-482c-a16b-cd2afa4e50cb";
+
+    /**
+     * Pipeline identifier for execution
+     * @var string
+     */
+    protected string $pipelineIdentifier = "ec019e70-ec3d-4ecd-b744-7870b4fbc7a6";
+
+    /**
+     * Execution identifier for execution
+     * @var string
+     */
+    protected string $executionIdentifier = "c4f935d8-f539-4207-9824-1e6e2da6a211";
+
     /**
      * @dataProvider dataProvider
      * @param array $data
@@ -184,17 +214,10 @@ class RemoteTaskTest extends TestCase
     public function testShouldPassIfValidDataReturnedFromGenerateStringIdentifierMethod(array $data): void
     {
         $instance = $this->createCompleteInstance($data);
-
-        $generatedKey = hash('sha256', sprintf(
-            '%s_%s_%s_%s_%s',
-            Arr::get($data, 'execution_id'),
-            Arr::get($data, 'pipeline_id'),
-            Arr::get($data, 'task_id'),
-            Arr::get($data, 'action_id'),
-            Arr::get($data, 'server_id'),
-        ));
-
-        $this->assertSame($generatedKey, $instance->generateStreamIdentifier());
+        $this->assertSame(
+            $this->generateStreamIdentifier($data),
+            $instance->generateStreamIdentifier()
+        );
     }
 
     /**
@@ -229,13 +252,10 @@ class RemoteTaskTest extends TestCase
     public function testShouldPassIfValidDataReturnedFromGetTaskCreationUrlMethod(array $data): void
     {
         $instance = $this->createCompleteInstance($data);
-
-        $value = sprintf(
-            'http://%s:%d/tasks/create',
-            Arr::get($data, 'host'),
-            Arr::get($data, 'port'),
+        $this->assertSame(
+            $this->generateTaskCreationUrl($data),
+            $instance->getTaskCreationUrl()
         );
-        $this->assertSame($value, $instance->getTaskCreationUrl());
     }
 
     /**
@@ -246,24 +266,10 @@ class RemoteTaskTest extends TestCase
     public function testShouldPassIfValidDataReturnedFromGetTaskStreamUrlMethod(array $data): void
     {
         $instance = $this->createCompleteInstance($data);
-
-        $generatedKey = hash('sha256', sprintf(
-            '%s_%s_%s_%s_%s',
-            Arr::get($data, 'execution_id'),
-            Arr::get($data, 'pipeline_id'),
-            Arr::get($data, 'task_id'),
-            Arr::get($data, 'action_id'),
-            Arr::get($data, 'server_id'),
-        ));
-
-        $value = sprintf(
-            'http://%s:%d/events/watch?stream=%s',
-            Arr::get($data, 'host'),
-            Arr::get($data, 'port'),
-            $generatedKey,
+        $this->assertSame(
+            $this->generateStreamWatchUrl($data),
+            $instance->getTaskStreamUrl()
         );
-
-        $this->assertSame($value, $instance->getTaskStreamUrl());
     }
 
     /**
@@ -274,8 +280,64 @@ class RemoteTaskTest extends TestCase
     public function testShouldPassIfValidDataReturnedFromGetTaskLogUrlMethod(array $data): void
     {
         $instance = $this->createCompleteInstance($data);
+        $this->assertSame(
+            $this->generateStreamLoadUrl($data),
+            $instance->getTaskLogUrl()
+        );
+    }
 
-        $generatedKey = hash('sha256', sprintf(
+    /**
+     * Generate URL for task creation
+     * @param array $data
+     * @return string
+     */
+    private function generateTaskCreationUrl(array $data): string
+    {
+        return sprintf(
+            'http://%s:%d/tasks/create',
+            Arr::get($data, 'host'),
+            Arr::get($data, 'port'),
+        );
+    }
+
+    /**
+     * Generate URL for ongoing stream
+     * @param array $data
+     * @return string
+     */
+    private function generateStreamWatchUrl(array $data): string
+    {
+        return sprintf(
+            'http://%s:%d/events/watch?stream=%s',
+            Arr::get($data, 'host'),
+            Arr::get($data, 'port'),
+            $this->generateStreamIdentifier($data)
+        );
+    }
+
+    /**
+     * Generate URL for complete stream logs
+     * @param array $data
+     * @return string
+     */
+    private function generateStreamLoadUrl(array $data): string
+    {
+        return sprintf(
+            'http://%s:%d/events/load?stream=%s',
+            Arr::get($data, 'host'),
+            Arr::get($data, 'port'),
+            $this->generateStreamIdentifier($data)
+        );
+    }
+
+    /**
+     * Generate stream identifier
+     * @param array $data
+     * @return string
+     */
+    private function generateStreamIdentifier(array $data): string
+    {
+        return hash('sha256', sprintf(
             '%s_%s_%s_%s_%s',
             Arr::get($data, 'execution_id'),
             Arr::get($data, 'pipeline_id'),
@@ -283,15 +345,6 @@ class RemoteTaskTest extends TestCase
             Arr::get($data, 'action_id'),
             Arr::get($data, 'server_id'),
         ));
-
-        $value = sprintf(
-            'http://%s:%d/events/load?stream=%s',
-            Arr::get($data, 'host'),
-            Arr::get($data, 'port'),
-            $generatedKey,
-        );
-
-        $this->assertSame($value, $instance->getTaskLogUrl());
     }
 
     /**
@@ -299,10 +352,10 @@ class RemoteTaskTest extends TestCase
      * @param array $data
      * @return RemoteTask
      */
-    protected function createBaseInstance(array $data): RemoteTask
+    private function createBaseInstance(array $data): RemoteTask
     {
-        $host = Arr::get($data, 'host');
-        $port = Arr::get($data, 'port');
+        $host = (string) Arr::get($data, 'host');
+        $port = (int) Arr::get($data, 'port');
 
         $instance = new RemoteTask($host, $port);
         $this->assertSame($host, $instance->getRunnerHost());
@@ -312,11 +365,11 @@ class RemoteTaskTest extends TestCase
     }
 
     /**
-     * Create complete instance with all parameters initialized
+     * Create complete instance of remote task with all parameters initialized
      * @param array $data
      * @return RemoteTask
      */
-    protected function createCompleteInstance(array $data): RemoteTask
+    private function createCompleteInstance(array $data): RemoteTask
     {
         $instance = $this->createBaseInstance($data);
         $instance
@@ -336,28 +389,28 @@ class RemoteTaskTest extends TestCase
 
     /**
      * Data provider
-     * @return array[]
+     * @return \array[][]
      */
     public function dataProvider(): array
     {
         return [
-            'example_remote_task_entity'            =>  [
-                'data'                              =>  [
-                    'host'                          =>  '172.18.0.235',
-                    'port'                          =>  32175,
-                    'execution_id'                  =>  '',
-                    'pipeline_id'                   =>  '',
-                    'task_id'                       =>  '',
-                    'action_id'                     =>  '',
-                    'server_id'                     =>  '',
-                    'working_dir'                   =>  '',
-                    'command'                       =>  '',
-                    'arguments'                     =>  [
+            'example_remote_task_entity'        =>  [
+                'data'                          =>  [
+                    'host'                      =>  '127.0.0.1',
+                    'port'                      =>  32175,
+                    'execution_id'              =>  $this->executionIdentifier,
+                    'pipeline_id'               =>  $this->pipelineIdentifier,
+                    'task_id'                   =>  $this->taskIdentifier,
+                    'action_id'                 =>  $this->actionIdentifier,
+                    'server_id'                 =>  $this->serverIdentifier,
+                    'working_dir'               =>  '/home/scripts',
+                    'command'                   =>  'php',
+                    'arguments'                 =>  [
                         'test.php',
                     ],
-                    'run_as'                        =>  'cabinet',
-                    'use_sudo'                      =>  false,
-                    'fail_on_error'                 =>  true,
+                    'run_as'                    =>  'example',
+                    'use_sudo'                  =>  false,
+                    'fail_on_error'             =>  true,
                 ],
             ],
         ];

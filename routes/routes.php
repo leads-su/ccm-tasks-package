@@ -7,20 +7,30 @@ Route::prefix('task-manager')->group(static function (): void {
         Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionListController::class)
             ->name('domain.tasks.actions.list');
 
-        Route::get('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionGetController::class)
-            ->name('domain.tasks.actions.information');
-
-        Route::delete('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionDeleteController::class)
-            ->name('domain.tasks.actions.delete');
-
         Route::post('', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionCreateController::class)
             ->name('domain.tasks.actions.create');
 
-        Route::patch('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionUpdateController::class)
-            ->name('domain.tasks.actions.update');
+        Route::prefix('{identifier}')->group(static function (): void {
+            Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionGetController::class)
+                ->name('domain.tasks.actions.information');
 
-        Route::patch('{identifier}/restore', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionRestoreController::class)
-            ->name('domain.tasks.actions.restore');
+            Route::delete('', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionDeleteController::class)
+                ->name('domain.tasks.actions.delete');
+
+            Route::patch('', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionUpdateController::class)
+                ->name('domain.tasks.actions.update');
+
+            Route::patch('restore', \ConsulConfigManager\Tasks\Http\Controllers\Action\ActionRestoreController::class)
+                ->name('domain.tasks.actions.restore');
+
+            Route::prefix('executions')->group(static function (): void {
+                Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\ActionExecution\ActionExecutionListController::class)
+                    ->name('domain.task.actions.executions');
+
+                Route::get('{execution}', \ConsulConfigManager\Tasks\Http\Controllers\ActionExecution\ActionExecutionGetController::class)
+                    ->name('domain.task.actions.executions.information');
+            });
+        });
     });
 
     Route::prefix('pipelines')->group(static function (): void {
@@ -29,6 +39,9 @@ Route::prefix('task-manager')->group(static function (): void {
 
         Route::post('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineCreateController::class)
             ->name('domain.tasks.pipelines.create');
+
+        Route::get('executions', \ConsulConfigManager\Tasks\Http\Controllers\PipelineExecution\PipelineExecutionListController::class)
+            ->name('domain.tasks.pipelines.executions');
 
         Route::prefix('{identifier}')->group(static function (): void {
             Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineGetController::class)
@@ -42,6 +55,12 @@ Route::prefix('task-manager')->group(static function (): void {
 
             Route::patch('restore', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineRestoreController::class)
                 ->name('domain.tasks.pipelines.restore');
+
+            Route::get('execution', \ConsulConfigManager\Tasks\Http\Controllers\PipelineExecution\PipelineExecutionGetController::class)
+                ->name('domain.tasks.pipelines.execution');
+
+            Route::get('run', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineRunController::class)
+                ->name('domain.tasks.pipelines.run');
 
             Route::prefix('tasks')->group(static function (): void {
                 Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineTask\PipelineTaskListController::class)

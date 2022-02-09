@@ -14,14 +14,19 @@ use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
  * Class TaskRepository
  * @package ConsulConfigManager\Tasks\Repositories
  */
-class TaskRepository implements TaskRepositoryInterface
+class TaskRepository extends AbstractRepository implements TaskRepositoryInterface
 {
+    /**
+     * @inheritDoc
+     */
+    protected string $modelClass = Task::class;
+
     /**
      * @inheritDoc
      */
     public function all(array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection
     {
-        return Task::withTrashed($withDeleted)->with($with)->get($columns)->each->setAppends($append);
+        return $this->getModelQueryWithTrashed($withDeleted)->with($with)->get($columns)->each->setAppends($append);
     }
 
     /**
@@ -59,7 +64,7 @@ class TaskRepository implements TaskRepositoryInterface
      */
     public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null
     {
-        return Task::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
+        return $this->getModelQueryWithTrashed($withDeleted)->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
     }
 
     /**
@@ -67,7 +72,7 @@ class TaskRepository implements TaskRepositoryInterface
      */
     public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface
     {
-        return Task::withTrashed($withDeleted)->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
+        return $this->getModelQueryWithTrashed($withDeleted)->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
     }
 
     /**
@@ -75,14 +80,12 @@ class TaskRepository implements TaskRepositoryInterface
      */
     public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface|null
     {
-        $query = Task::withTrashed($withDeleted)->with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+            withDeleted: $withDeleted,
+        );
         $result = $query->first($columns);
         if (!$result) {
             return $result;
@@ -95,14 +98,12 @@ class TaskRepository implements TaskRepositoryInterface
      */
     public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): TaskInterface
     {
-        $query = Task::withTrashed($withDeleted)->with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+            withDeleted: $withDeleted,
+        );
         return $query->firstOrFail($columns)->setAppends($append);
     }
 

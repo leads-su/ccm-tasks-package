@@ -1,8 +1,7 @@
 <?php
 
-namespace ConsulConfigManager\Tasks\Services\TaskRunner\Manager;
+namespace ConsulConfigManager\Tasks\Services\TaskRunner\Tasks;
 
-use Closure;
 use Exception;
 use React\Http\Browser;
 use React\Promise\Deferred;
@@ -13,9 +12,9 @@ use Clue\React\EventSource\MessageEvent;
 
 /**
  * Class RemoteTask
- * @package ConsulConfigManager\Tasks\Services\TaskRunner\Manager
+ * @package ConsulConfigManager\Tasks\Services\TaskRunner\Tasks
  */
-class RemoteTask
+class RemoteTask extends AbstractTask
 {
     /**
      * Host for runner which will process this task
@@ -105,7 +104,6 @@ class RemoteTask
      */
     private array $output = [];
 
-    private Closure $onResult;
 
     /**
      * RemoteTask constructor.
@@ -117,19 +115,6 @@ class RemoteTask
     {
         $this->runnerHost = $runnerHost;
         $this->runnerPort = $runnerPort;
-    }
-
-    /**
-     * Execute task on remote runner
-     * @param Closure $onResult
-     * @return void
-     */
-    public function execute(Closure $onResult): void
-    {
-        $this->onResult = $onResult;
-        $this
-            ->createNewTask()
-            ->retrieveOutput();
     }
 
     /**
@@ -387,8 +372,7 @@ class RemoteTask
     }
 
     /**
-     * Convert class to task array
-     * @return array
+     * @inheritDoc
      */
     public function toTaskArray(): array
     {
@@ -452,7 +436,7 @@ class RemoteTask
      * Create new task on the remote runner
      * @return RemoteTask
      */
-    private function createNewTask(): RemoteTask
+    protected function createNewTask(): RemoteTask
     {
         Http::post($this->getTaskCreationUrl(), $this->toTaskArray());
         return $this;
@@ -462,7 +446,7 @@ class RemoteTask
      * Retrieve output from remote runner
      * @return void
      */
-    private function retrieveOutput(): void
+    protected function retrieveOutput(): void
     {
         $deferred = new Deferred();
 

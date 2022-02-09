@@ -2,14 +2,23 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
 
 /**
  * Interface ActionExecutionInterface
  * @package ConsulConfigManager\Tasks\Interfaces
+ *
+ * @property ActionInterface $action
+ * @property TaskInterface $task
+ * @property PipelineInterface $pipeline
+ * @property ActionExecutionLogInterface $log
+ * @property ServiceInterface $server
+ * @property PipelineExecutionInterface $pipelineExecution
  */
-interface ActionExecutionInterface
+interface ActionExecutionInterface extends Arrayable
 {
     /**
      * Get action execution id
@@ -125,6 +134,12 @@ interface ActionExecutionInterface
      * @return HasOne
      */
     public function log(): HasOne;
+
+    /**
+     * Get server associated with action execution
+     * @return HasOne
+     */
+    public function server(): HasOne;
 
     /**
      * Get instance of pipeline execution model

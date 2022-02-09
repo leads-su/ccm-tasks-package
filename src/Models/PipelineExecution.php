@@ -6,12 +6,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Factories\PipelineExecutionFactory;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 
 /**
  * Class PipelineExecution
  * @package ConsulConfigManager\Tasks\Models
+ *
+ * @property PipelineInterface $pipeline
  */
 class PipelineExecution extends AbstractSourcedModel implements PipelineExecutionInterface
 {

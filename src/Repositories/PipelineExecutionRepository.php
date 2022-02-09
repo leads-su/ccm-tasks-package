@@ -14,46 +14,77 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionRepositoryInterface;
  * Class PipelineExecutionRepository
  * @package ConsulConfigManager\Tasks\Repositories
  */
-class PipelineExecutionRepository implements PipelineExecutionRepositoryInterface
+class PipelineExecutionRepository extends AbstractRepository implements PipelineExecutionRepositoryInterface
 {
     /**
      * @inheritDoc
      */
-    public function all(array $columns = ['*'], bool $withDeleted = false): Collection
+    protected string $modelClass = PipelineExecution::class;
+
+    /**
+     * @inheritDoc
+     */
+    public function all(array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection
     {
-        return PipelineExecution::withTrashed($withDeleted)->get($columns);
+        return $this->getModelQueryWithTrashed($withDeleted)
+            ->with($with)
+            ->get($columns)
+            ->each
+            ->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function find(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface|null
+    public function find(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null
     {
-        return $this->findBy('id', $id, $columns, $withDeleted);
+        return $this->findBy(
+            field: 'id',
+            value: $id,
+            columns: $columns,
+            with: $with,
+            append: $append,
+            withDeleted: $withDeleted,
+        );
     }
 
     /**
      * @inheritDoc
      */
-    public function findOrFail(int $id, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface
+    public function findOrFail(int $id, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface
     {
-        return $this->findByOrFail('id', $id, $columns, $withDeleted);
+        return $this->findByOrFail(
+            field: 'id',
+            value: $id,
+            columns: $columns,
+            with: $with,
+            append: $append,
+            withDeleted: $withDeleted,
+        );
     }
 
     /**
      * @inheritDoc
      */
-    public function findBy(string $field, mixed $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface|null
+    public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null
     {
-        return PipelineExecution::withTrashed($withDeleted)->where($field, '=', $value)->first($columns);
+        return $this->getModelQueryWithTrashed($withDeleted)
+            ->with($with)
+            ->where($field, '=', $value)
+            ->first($columns)
+            ?->setAppends($append);
     }
 
     /**
      * @inheritDoc
      */
-    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], bool $withDeleted = false): PipelineExecutionInterface
+    public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface
     {
-        return PipelineExecution::withTrashed($withDeleted)->where($field, '=', $value)->firstOrFail($columns);
+        return $this->getModelQueryWithTrashed($withDeleted)
+            ->with($with)
+            ->where($field, '=', $value)
+            ->firstOrFail($columns)
+            ->setAppends($append);
     }
 
     /**
@@ -61,14 +92,12 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
      */
     public function findByMany(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null
     {
-        $query = PipelineExecution::withTrashed($withDeleted)->with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+            withDeleted: $withDeleted,
+        );
         $result = $query->first($columns);
         if (!$result) {
             return $result;
@@ -81,14 +110,12 @@ class PipelineExecutionRepository implements PipelineExecutionRepositoryInterfac
      */
     public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface
     {
-        $query = PipelineExecution::withTrashed($withDeleted)->with($with);
-        foreach ($fields as $index => $field) {
-            if ($index === 0) {
-                $query = $query->where($field, '=', $value);
-            } else {
-                $query = $query->orWhere($field, '=', $value);
-            }
-        }
+        $query = $this->mapModelMultipleQuery(
+            fields: $fields,
+            value: $value,
+            with: $with,
+            withDeleted: $withDeleted,
+        );
         return $query->firstOrFail($columns)->setAppends($append);
     }
 

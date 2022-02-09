@@ -151,6 +151,8 @@ class TasksServiceProvider extends DomainServiceProvider
         $this->registerTaskActionInterceptors();
         $this->registerPipelineTaskInterceptors();
         $this->registerServiceInterceptors();
+        $this->registerActionExecutionInterceptors();
+        $this->registerPipelineExecutionInterceptors();
     }
 
 
@@ -249,6 +251,13 @@ class TasksServiceProvider extends DomainServiceProvider
             UseCases\Pipeline\Restore\PipelineRestoreInteractor::class,
             Http\Controllers\Pipeline\PipelineRestoreController::class,
             Presenters\Pipeline\PipelineRestoreHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\Pipeline\Run\PipelineRunInputPort::class,
+            UseCases\Pipeline\Run\PipelineRunInteractor::class,
+            Http\Controllers\Pipeline\PipelineRunController::class,
+            Presenters\Pipeline\PipelineRunHttpPresenter::class,
         );
     }
 
@@ -396,6 +405,48 @@ class TasksServiceProvider extends DomainServiceProvider
             UseCases\PipelineTask\Restore\PipelineTaskRestoreInteractor::class,
             Http\Controllers\PipelineTask\PipelineTaskRestoreController::class,
             Presenters\PipelineTask\PipelineTaskRestoreHttpPresenter::class,
+        );
+    }
+
+    /**
+     * Register pipeline execution specific interceptors
+     * @return void
+     */
+    private function registerPipelineExecutionInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineExecution\List\PipelineExecutionListInputPort::class,
+            UseCases\PipelineExecution\List\PipelineExecutionListInteractor::class,
+            Http\Controllers\PipelineExecution\PipelineExecutionListController::class,
+            Presenters\PipelineExecution\PipelineExecutionListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineExecution\Get\PipelineExecutionGetInputPort::class,
+            UseCases\PipelineExecution\Get\PipelineExecutionGetInteractor::class,
+            Http\Controllers\PipelineExecution\PipelineExecutionGetController::class,
+            Presenters\PipelineExecution\PipelineExecutionGetHttpPresenter::class,
+        );
+    }
+
+    /**
+     * Register pipeline execution specific interceptors
+     * @return void
+     */
+    private function registerActionExecutionInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\ActionExecution\List\ActionExecutionListInputPort::class,
+            UseCases\ActionExecution\List\ActionExecutionListInteractor::class,
+            Http\Controllers\ActionExecution\ActionExecutionListController::class,
+            Presenters\ActionExecution\ActionExecutionListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\ActionExecution\Get\ActionExecutionGetInputPort::class,
+            UseCases\ActionExecution\Get\ActionExecutionGetInteractor::class,
+            Http\Controllers\ActionExecution\ActionExecutionGetController::class,
+            Presenters\ActionExecution\ActionExecutionGetHttpPresenter::class,
         );
     }
 

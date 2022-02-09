@@ -3,6 +3,7 @@
 namespace ConsulConfigManager\Tasks\Test\Unit\Repositories;
 
 use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Collection;
 use ConsulConfigManager\Tasks\Models\TaskExecution;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
@@ -154,6 +155,31 @@ class TaskExecutionRepositoryTest extends AbstractRepositoryTest
     {
         $this->expectException(ModelNotFoundException::class);
         $this->repository()->findByManyOrFail(['id', 'uuid'], Arr::get($data, 'id'));
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfEmptyCollectionIsReturnedFromFindManyByRequest(array $data): void
+    {
+        $result = $this->repository()->findManyBy('pipeline_execution_uuid', Arr::get($data, 'pipeline_execution_uuid'));
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertCount(0, $result);
+    }
+
+    /**
+     * @param array $data
+     * @dataProvider entityDataProvider
+     * @return void
+     */
+    public function testShouldPassIfNonEmptyCollectionIsReturnedFromFindManyByRequest(array $data): void
+    {
+        $this->createEntity($data);
+        $result = $this->repository()->findManyBy('pipeline_execution_uuid', Arr::get($data, 'pipeline_execution_uuid'));
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertCount(1, $result);
     }
 
     /**

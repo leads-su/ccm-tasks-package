@@ -5,18 +5,28 @@ namespace ConsulConfigManager\Tasks\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use ConsulConfigManager\Consul\Agent\Models\Service;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Factories\ActionExecutionFactory;
+use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionExecutionLogInterface;
 
 /**
  * Class ActionExecution
  * @package ConsulConfigManager\Tasks\Models
  *
- * @property Pipeline pipeline
- * @property ActionExecutionLog log
- * @property PipelineExecution pipelineExecution
+ * @property ActionInterface $action
+ * @property TaskInterface $task
+ * @property PipelineInterface $pipeline
+ * @property ActionExecutionLogInterface $log
+ * @property ServiceInterface $server
+ * @property PipelineExecutionInterface $pipelineExecution
  *
  */
 class ActionExecution extends Model implements ActionExecutionInterface
@@ -249,6 +259,18 @@ class ActionExecution extends Model implements ActionExecutionInterface
             ActionExecutionLog::class,
             'action_execution_id',
             'id'
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function server(): HasOne
+    {
+        return $this->hasOne(
+            Service::class,
+            'uuid',
+            'server_uuid'
         );
     }
 

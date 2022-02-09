@@ -29,6 +29,7 @@ phpunit:
     - shared-docker-runner
   only:
     - main
+    - merge_requests
   script:
     - composer install
     - composer test:coverage-gitlab
@@ -42,7 +43,7 @@ phpunit:
     expire_in: 30 minutes
 
 sonarqube-check:
-  image: 
+  image:
     name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]
   stage: sonarqube
@@ -57,7 +58,8 @@ sonarqube-check:
       - .sonar/cache
   only:
     - main
-  script: 
+    - merge_requests
+  script:
     - sonar-scanner
   allow_failure: true
   dependencies:

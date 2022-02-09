@@ -7,6 +7,7 @@ use ConsulConfigManager\Tasks\Models\ActionExecution;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
+use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionLogInterface;
@@ -220,6 +221,16 @@ class ActionExecutionTest extends AbstractModelTest
         $this->createCompletePipeline();
         $entity = ActionExecution::where('action_uuid', '=', self::$actionUUID)->first();
         $this->assertInstanceOf(PipelineInterface::class, $entity->pipeline);
+    }
+
+    /**
+     * @return void
+     */
+    public function testShouldPassIfValidDataReturnedFromServerRelation(): void
+    {
+        $this->createCompletePipeline();
+        $entity = ActionExecution::where('action_uuid', '=', self::$actionUUID)->first();
+        $this->assertInstanceOf(ServiceInterface::class, $entity->server);
     }
 
     /**

@@ -6,69 +6,68 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use ConsulConfigManager\Tasks\Models\TaskExecution;
 use ConsulConfigManager\Tasks\Models\ActionExecution;
-use Symfony\Component\Console\Output\OutputInterface;
 use ConsulConfigManager\Tasks\Models\PipelineExecution;
 use ConsulConfigManager\Tasks\Models\ActionExecutionLog;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
  * Class Runner
  * @package ConsulConfigManager\Tasks\Services\TaskRunner
  */
-class Runner
+class Runner extends LoggableClass
 {
     /**
      * Pipeline identifier reference
-     * @var string
+     * @var string|int
      */
     private string|int $pipelineIdentifier;
 
     /**
-     * Output interface instance
-     * @var OutputInterface|null
-     */
-    private ?OutputInterface $output = null;
-
-    /**
-     * Indicates whether debugging is enabled
-     * @var bool
-     */
-    private bool $debug = false;
-
-    /**
      * Runner constructor.
      * @param string|int $pipelineIdentifier
-     * @param bool $withTruncate
+     * @param bool $truncate
      * @return void
      */
-    public function __construct(string|int $pipelineIdentifier, bool $withTruncate = false)
+    public function __construct(string|int $pipelineIdentifier, bool $truncate = false)
     {
-        $this->truncate($withTruncate);
+        // @codeCoverageIgnoreStart
+        $this->truncate($truncate);
+        // @codeCoverageIgnoreEnd
         $this->pipelineIdentifier = $pipelineIdentifier;
-        $this->debug = env('TASK_RUNNER_ENABLE_DEBUG', false);
     }
 
     /**
-     * Set output interface for debugging
-     * @param OutputInterface|null $output
-     * @return $this
+     * @inheritDoc
      */
-    public function setOutputInterface(?OutputInterface $output): Runner
+    public function bootstrap(): void
     {
-        $this->output = $output;
-        return $this;
+        $this->setDebug(env('TASK_RUNNER_ENABLE_DEBUG', false));
     }
 
     /**
      * Start runner
      * @return void
+     * @throws BindingResolutionException
      */
     public function run(): void
     {
+        $resolver = new Resolver($this->pipelineIdentifier);
+        $resolver->setDebug($this->getDebug())
+            ->setOutputInterface($this->getOutputInterface())
+            ->bootstrap();
+
+        $handler = new Handler($resolver->getPipelineEntity());
+        $handler
+            ->setDebug($this->getDebug())
+            ->setOutputInterface($this->getOutputInterface())
+            ->bootstrap();
+        $handler->run();
     }
 
+    // @codeCoverageIgnoreStart
     /**
-     * Clean execution tables.
-     * This should only be used for development/testing
+     * Clean database tables related to runner.
+     * This should only be used for development/testing.
      * @param bool $truncate
      * @return void
      */
@@ -91,4 +90,5 @@ class Runner
             }
         }
     }
+    // @codeCoverageIgnoreEnd
 }

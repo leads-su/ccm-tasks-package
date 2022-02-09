@@ -2,6 +2,7 @@
 
 namespace ConsulConfigManager\Tasks\Interfaces;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * Interface ActionInterface
  * @package ConsulConfigManager\Tasks\Interfaces
  */
-interface ActionInterface extends SourcedInterface
+interface ActionInterface extends SourcedInterface, Arrayable
 {
     /**
      * Get action instance by UUID

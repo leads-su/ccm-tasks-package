@@ -14,11 +14,21 @@ use ConsulConfigManager\Tasks\Models\Pipeline;
 use ConsulConfigManager\Tasks\Enums\ActionType;
 use ConsulConfigManager\Tasks\Models\TaskAction;
 use ConsulConfigManager\Tasks\Models\PipelineTask;
+use ConsulConfigManager\Tasks\Enums\ExecutionState;
+use ConsulConfigManager\Tasks\Models\TaskExecution;
+use ConsulConfigManager\Tasks\Models\ActionExecution;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
+use ConsulConfigManager\Tasks\Models\PipelineExecution;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionInterface;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
+use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
+use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
+use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
+use ConsulConfigManager\Consul\Agent\Interfaces\ServiceRepositoryInterface;
 
 /**
  * Class AbstractFeatureTest
@@ -27,12 +37,82 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 abstract class AbstractFeatureTest extends TestCase
 {
     /**
+     * Server identifier for execution
+     * @var string
+     */
+    protected string $serverIdentifier = "a2ec83ed-2a05-437a-b438-58559eaa7ffe";
+
+    /**
+     * Action identifier for execution
+     * @var string
+     */
+    protected string $actionIdentifier = "ba6addfc-c524-415e-8f68-b60dd1146840";
+
+    /**
+     * Task identifier for execution
+     * @var string
+     */
+    protected string $taskIdentifier = "55dfebdd-a386-482c-a16b-cd2afa4e50cb";
+
+    /**
+     * Pipeline identifier for execution
+     * @var string
+     */
+    protected string $pipelineIdentifier = "ec019e70-ec3d-4ecd-b744-7870b4fbc7a6";
+
+    /**
+     * Execution identifier for execution
+     * @var string
+     */
+    protected string $executionIdentifier = "c4f935d8-f539-4207-9824-1e6e2da6a211";
+
+    /**
+     * Create service through repository and return its instance
+     * @return ServiceInterface
+     * @throws BindingResolutionException
+     */
+    protected function createServiceThroughRepository(): ServiceInterface
+    {
+        $result = app()->make(ServiceRepositoryInterface::class)->create([
+            'id'                =>  'ccm-example.local-127.0.0.1',
+            'service'           =>  'ccm',
+            'tags'              =>  [],
+            'meta'              =>  [
+                'environment'   =>  'testing',
+            ],
+            'port'              =>  32175,
+            'address'           =>  '127.0.0.1',
+            'online'            =>  true,
+            'datacenter'        =>  'leads',
+        ]);
+        $this->serverIdentifier = $result->getUuid();
+        return $result;
+    }
+
+    /**
+     * Create and get new action execution
+     * @param int $state
+     * @return ActionExecutionInterface
+     */
+    protected function createAndGetActionExecution(int $state = ExecutionState::CREATED): ActionExecutionInterface
+    {
+        return ActionExecution::create([
+            'server_uuid'               =>  $this->serverIdentifier,
+            'action_uuid'               =>  $this->actionIdentifier,
+            'task_uuid'                 =>  $this->taskIdentifier,
+            'pipeline_uuid'             =>  $this->pipelineIdentifier,
+            'pipeline_execution_uuid'   =>  $this->executionIdentifier,
+            'state'                     =>  $state,
+        ]);
+    }
+
+    /**
      * Create new action through HTTP request
      * @return TestResponse
      */
     protected function createAndGetAction(): TestResponse
     {
-        return $this->post('/task-manager/actions', [
+        $response = $this->post('/task-manager/actions', [
             'name'          =>  'Example Action',
             'description'   =>  'This is description for Example Action',
             'type'          =>  ActionType::REMOTE,
@@ -45,6 +125,10 @@ abstract class AbstractFeatureTest extends TestCase
             'use_sudo'      =>  false,
             'fail_on_error' =>  true,
         ]);
+
+        $this->actionIdentifier = Arr::get($response->json('data'), 'uuid');
+
+        return $response;
     }
 
     /**
@@ -57,17 +141,35 @@ abstract class AbstractFeatureTest extends TestCase
     }
 
     /**
+     * Create and get task execution
+     * @return TaskExecutionInterface
+     */
+    protected function createAndGetTaskExecution(): TaskExecutionInterface
+    {
+        return TaskExecution::create([
+            'task_uuid'                 =>  $this->taskIdentifier,
+            'pipeline_uuid'             =>  $this->pipelineIdentifier,
+            'pipeline_execution_uuid'   =>  $this->executionIdentifier,
+            'state'                     =>  ExecutionState::CREATED,
+        ]);
+    }
+
+    /**
      * Create new task through HTTP request
      * @return TestResponse
      */
     protected function createAndGetTask(): TestResponse
     {
-        return $this->post('/task-manager/tasks', [
+        $response = $this->post('/task-manager/tasks', [
             'name'              =>  'Example Task',
             'description'       =>  'This is description for Example Task',
             'type'              =>  TaskType::REMOTE,
             'fail_on_error'     =>  false,
         ]);
+
+        $this->taskIdentifier = Arr::get($response->json('data'), 'uuid');
+
+        return $response;
     }
 
     /**
@@ -318,15 +420,32 @@ abstract class AbstractFeatureTest extends TestCase
     }
 
     /**
+     * Create and get pipeline execution
+     * @return PipelineExecutionInterface
+     */
+    protected function createAndGetPipelineExecution(): PipelineExecutionInterface
+    {
+        return PipelineExecution::create([
+            'uuid'          =>  $this->executionIdentifier,
+            'pipeline_uuid' =>  $this->pipelineIdentifier,
+            'state'         =>  ExecutionState::CREATED,
+        ]);
+    }
+
+    /**
      * Create new pipeline through HTTP request
      * @return TestResponse
      */
     protected function createAndGetPipeline(): TestResponse
     {
-        return $this->post('/task-manager/pipelines', [
+        $response = $this->post('/task-manager/pipelines', [
             'name'              =>  'Example Pipeline',
             'description'       =>  'This is description for Example Pipeline',
         ]);
+
+        $this->pipelineIdentifier = Arr::get($response->json('data'), 'uuid');
+
+        return $response;
     }
 
     /**

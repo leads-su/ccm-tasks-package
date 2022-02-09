@@ -6,12 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineInterface;
 use ConsulConfigManager\Tasks\Factories\TaskExecutionFactory;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
+use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 
 /**
  * Class TaskExecution
  * @package ConsulConfigManager\Tasks\Models
+ *
+ * @property TaskInterface $task
+ * @property PipelineInterface $pipeline
+ * @property PipelineExecutionInterface $pipelineExecution
  */
 class TaskExecution extends Model implements TaskExecutionInterface
 {
