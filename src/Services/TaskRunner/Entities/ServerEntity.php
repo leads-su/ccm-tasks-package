@@ -179,6 +179,9 @@ class ServerEntity extends LoggableClass implements Arrayable
     public function runHandler(): void
     {
         $this->selectNextAction();
+        if ($this->currentAction === null) {
+            return;
+        }
         $actionExecutionState = $this->currentAction->getExecutionState();
 
         switch ($actionExecutionState) {
