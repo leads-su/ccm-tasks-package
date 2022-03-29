@@ -107,6 +107,6 @@ abstract class AbstractEvent extends ShouldBeStored
                 // @codeCoverageIgnoreEnd
             }
         }
-        return 1;
+        return config('domain.tasks.system_user.identifier', 1);
     }
 }
