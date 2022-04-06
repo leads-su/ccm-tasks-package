@@ -7,7 +7,6 @@ use Illuminate\Support\Carbon;
 use ConsulConfigManager\Tasks\Models\Task;
 use ConsulConfigManager\Tasks\Models\Action;
 use ConsulConfigManager\Tasks\Test\TestCase;
-use ConsulConfigManager\Tasks\Enums\TaskType;
 use ConsulConfigManager\Tasks\Models\Pipeline;
 use ConsulConfigManager\Tasks\Enums\ActionType;
 use ConsulConfigManager\Tasks\Models\ActionHost;
@@ -27,12 +26,12 @@ use ConsulConfigManager\Tasks\Interfaces\PipelineTaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskExecutionInterface;
 use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
-use ConsulConfigManager\Tasks\Services\TaskRunner\Tasks\RemoteTask;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
-use ConsulConfigManager\Tasks\Services\TaskRunner\Tasks\AbstractTask;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\TaskEntity;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Actions\RemoteAction;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\ActionEntity;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\ServerEntity;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Actions\AbstractAction;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\PipelineEntity;
 
 /**
@@ -85,12 +84,12 @@ abstract class AbstractEntityTest extends TestCase
 
     /**
      * Create and get remote task
-     * @return RemoteTask
+     * @return RemoteAction
      */
-    protected function createAndGetRemoteTask(): RemoteTask
+    protected function createAndGetRemoteAction(): RemoteAction
     {
         $data = $this->runnerDataProvider();
-        $instance = new RemoteTask(
+        $instance = new RemoteAction(
             Arr::get($data, 'host'),
             Arr::get($data, 'port'),
         );
@@ -191,7 +190,6 @@ abstract class AbstractEntityTest extends TestCase
             'uuid'          =>  $this->taskIdentifier,
             'name'          =>  'Example Task',
             'description'   =>  'Description for Example Task',
-            'type'          =>  TaskType::REMOTE,
             'fail_on_error' =>  $failOnError,
         ]);
     }
@@ -345,13 +343,13 @@ abstract class AbstractEntityTest extends TestCase
 
     /**
      * Assert that provided runner is the same
-     * @param AbstractTask $new
+     * @param AbstractAction $new
      * @return void
      */
-    protected function assertSameRunner(AbstractTask $new): void
+    protected function assertSameRunner(AbstractAction $new): void
     {
-        $old = $this->createAndGetRemoteTask();
-        $this->assertSame($new->toTaskArray(), $old->toTaskArray());
+        $old = $this->createAndGetRemoteAction();
+        $this->assertSame($new->toActionArray(), $old->toActionArray());
     }
 
     /**
@@ -429,7 +427,6 @@ abstract class AbstractEntityTest extends TestCase
         $this->assertSame($old->getUuid(), $new->getUuid());
         $this->assertSame($old->getName(), $new->getName());
         $this->assertSame($old->getDescription(), $new->getDescription());
-        $this->assertSame($old->getType(), $new->getType());
         $this->assertSame($old->isFailingOnError(), $new->isFailingOnError());
     }
 
@@ -487,7 +484,7 @@ abstract class AbstractEntityTest extends TestCase
     {
         $execution = $this->getActionExecutionInstance();
         $action = $this->getActionInstance();
-        $runner = $this->createAndGetRemoteTask();
+        $runner = $this->createAndGetRemoteAction();
 
         return [
             'execution'                     =>  [
@@ -529,6 +526,7 @@ abstract class AbstractEntityTest extends TestCase
                 'run_as'                    =>  $runner->getRunAs(),
                 'use_sudo'                  =>  $runner->getUseSudo(),
                 'fail_on_error'             =>  $runner->getFailOnError(),
+                'type'                      =>  ActionType::REMOTE,
             ],
         ];
     }
@@ -587,7 +585,6 @@ abstract class AbstractEntityTest extends TestCase
                 'uuid'                      =>  $task->getUuid(),
                 'name'                      =>  $task->getName(),
                 'description'               =>  $task->getDescription(),
-                'type'                      =>  $task->getType(),
                 'fail_on_error'             =>  $task->isFailingOnError(),
                 'deleted_at'                =>  null,
                 'created_at'                =>  $this->carbonToString($task->created_at),

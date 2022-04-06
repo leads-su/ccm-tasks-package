@@ -98,22 +98,20 @@ interface TaskRepositoryInterface
      * Create new task
      * @param string $name
      * @param string $description
-     * @param int $type
      * @param bool $failOnError
      * @return TaskInterface
      */
-    public function create(string $name, string $description, int $type, bool $failOnError = false): TaskInterface;
+    public function create(string $name, string $description, bool $failOnError = false): TaskInterface;
 
     /**
      * Update existing task
      * @param int $id
      * @param string $name
      * @param string $description
-     * @param int $type
      * @param bool $failOnError
      * @return TaskInterface
      */
-    public function update(int $id, string $name, string $description, int $type, bool $failOnError = false): TaskInterface;
+    public function update(int $id, string $name, string $description, bool $failOnError = false): TaskInterface;
 
     /**
      * Delete task

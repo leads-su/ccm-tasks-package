@@ -110,14 +110,13 @@ class TaskRepository extends AbstractRepository implements TaskRepositoryInterfa
     /**
      * @inheritDoc
      */
-    public function create(string $name, string $description, int $type, bool $failOnError = false): TaskInterface
+    public function create(string $name, string $description, bool $failOnError = false): TaskInterface
     {
         $uuid = Str::uuid()->toString();
         TaskAggregateRoot::retrieve($uuid)
             ->createEntity(
                 $name,
                 $description,
-                $type,
                 $failOnError,
             )
             ->persist();
@@ -127,7 +126,7 @@ class TaskRepository extends AbstractRepository implements TaskRepositoryInterfa
     /**
      * @inheritDoc
      */
-    public function update(int $id, string $name, string $description, int $type, bool $failOnError = false): TaskInterface
+    public function update(int $id, string $name, string $description, bool $failOnError = false): TaskInterface
     {
         $model = $this->findOrFail(
             id: $id,
@@ -137,7 +136,6 @@ class TaskRepository extends AbstractRepository implements TaskRepositoryInterfa
             ->updateEntity(
                 $name,
                 $description,
-                $type,
                 $failOnError,
             )
             ->persist();

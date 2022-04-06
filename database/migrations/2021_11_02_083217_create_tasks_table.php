@@ -26,10 +26,6 @@ class CreateTasksTable extends Migration
             $table->uuid('uuid');
             $table->string('name');
             $table->string('description');
-            /**
-             * @see \ConsulConfigManager\Tasks\Enums\TaskType
-             */
-            $table->integer('type');
             $table->boolean('fail_on_error');
             $table->softDeletes();
             $table->timestamps();

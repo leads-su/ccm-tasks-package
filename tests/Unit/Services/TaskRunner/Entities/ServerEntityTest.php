@@ -219,7 +219,7 @@ class ServerEntityTest extends AbstractEntityTest
         $this->createAndGetAction();
         $actionEntity = new ActionEntity(
             $this->createAndGetActionExecution($state),
-            $this->createAndGetRemoteTask()
+            $this->createAndGetRemoteAction()
         );
         $actionEntity->bootstrap();
         return $actionEntity;

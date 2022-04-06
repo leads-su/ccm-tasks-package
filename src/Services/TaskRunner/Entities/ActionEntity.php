@@ -12,7 +12,7 @@ use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
 use ConsulConfigManager\Tasks\Services\TaskRunner\LoggableClass;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
-use ConsulConfigManager\Tasks\Services\TaskRunner\Tasks\AbstractTask;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Actions\AbstractAction;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionRepositoryInterface;
 
 /**
@@ -35,17 +35,17 @@ class ActionEntity extends LoggableClass implements Arrayable
 
     /**
      * Action runner instance
-     * @var AbstractTask
+     * @var AbstractAction
      */
-    private AbstractTask $runner;
+    private AbstractAction $runner;
 
     /**
      * ActionEntity constructor.
      * @param ActionExecutionInterface $execution
-     * @param AbstractTask $runner
+     * @param AbstractAction $runner
      * @return void
      */
-    public function __construct(ActionExecutionInterface $execution, AbstractTask $runner)
+    public function __construct(ActionExecutionInterface $execution, AbstractAction $runner)
     {
         $this->execution = $execution;
         $this->runner = $runner;
@@ -166,19 +166,19 @@ class ActionEntity extends LoggableClass implements Arrayable
 
     /**
      * Get action runner instance
-     * @return AbstractTask
+     * @return AbstractAction
      */
-    public function getRunner(): AbstractTask
+    public function getRunner(): AbstractAction
     {
         return $this->runner;
     }
 
     /**
      * Set action runner instance
-     * @param AbstractTask $runner
+     * @param AbstractAction $runner
      * @return $this
      */
-    public function setRunner(AbstractTask $runner): ActionEntity
+    public function setRunner(AbstractAction $runner): ActionEntity
     {
         $this->runner = $runner;
         return $this;
@@ -201,7 +201,7 @@ class ActionEntity extends LoggableClass implements Arrayable
         return [
             'execution'         =>  $this->getExecution()->toArray(),
             'action'            =>  $this->getAction()->toArray(),
-            'runner'            =>  $this->getRunner()->toTaskArray(),
+            'runner'            =>  $this->getRunner()->toActionArray(),
         ];
     }
 

@@ -266,7 +266,6 @@ class TaskRepositoryTest extends AbstractRepositoryTest
         $entity = $this->repository()->create(
             Arr::get($data, 'name'),
             Arr::get($data, 'description'),
-            Arr::get($data, 'type'),
         );
         $this->assertSameReturned($entity, $data);
         return $entity;
@@ -285,7 +284,6 @@ class TaskRepositoryTest extends AbstractRepositoryTest
         $this->assertArrayHasKey('uuid', $entity);
         $this->assertSame(Arr::get($data, 'name'), $entity->getName());
         $this->assertSame(Arr::get($data, 'description'), $entity->getDescription());
-        $this->assertSame(Arr::get($data, 'type'), $entity->getType());
     }
 
     /**
@@ -301,7 +299,6 @@ class TaskRepositoryTest extends AbstractRepositoryTest
                     'uuid'          =>  '73f66d30-ad58-4641-8b25-05b245031b50',
                     'name'          =>  'Example Task',
                     'description'   =>  'Example Task Description',
-                    'type'          =>  1,
                 ],
             ],
         ];

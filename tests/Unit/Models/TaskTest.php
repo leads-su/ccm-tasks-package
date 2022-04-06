@@ -120,38 +120,12 @@ class TaskTest extends AbstractModelTest
      * @dataProvider modelDataProvider
      * @return void
      */
-    public function testShouldPassIfValidDataReturnedFromGetTypeMethod(array $data): void
-    {
-        $response = $this->model($data)->getType();
-        $this->assertEquals(Arr::get($data, 'type'), $response);
-    }
-
-    /**
-     * @param array $data
-     *
-     * @dataProvider modelDataProvider
-     * @return void
-     */
-    public function testShouldPassIfValidDataReturnedFromSetTypeMethod(array $data): void
-    {
-        $model = $this->model($data);
-        $model->setType(2);
-        $this->assertEquals(2, $model->getType());
-    }
-
-    /**
-     * @param array $data
-     *
-     * @dataProvider modelDataProvider
-     * @return void
-     */
     public function testShouldPassIfValidDataReturnedFromUuidMethod(array $data): void
     {
         TaskAggregateRoot::retrieve(Arr::get($data, 'uuid'))
             ->createEntity(
                 Arr::get($data, 'name'),
                 Arr::get($data, 'description'),
-                Arr::get($data, 'type'),
             )
             ->persist();
 
@@ -162,7 +136,6 @@ class TaskTest extends AbstractModelTest
         $this->assertSame(Arr::get($data, 'uuid'), $modelNoTrashed->getUuid());
         $this->assertSame(Arr::get($data, 'name'), $modelNoTrashed->getName());
         $this->assertSame(Arr::get($data, 'description'), $modelNoTrashed->getDescription());
-        $this->assertSame(Arr::get($data, 'type'), $modelNoTrashed->getType());
     }
 
     /**

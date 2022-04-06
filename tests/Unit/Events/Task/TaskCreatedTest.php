@@ -50,17 +50,6 @@ class TaskCreatedTest extends AbstractTaskEventTest
     }
 
     /**
-     * @param array $data
-     *
-     * @return void
-     * @dataProvider eventDataProvider
-     */
-    public function testShouldPassIfValidDataReturnedFromGetTypeMethod(array $data): void
-    {
-        $this->assertEquals(Arr::get($data, 'type'), $this->createClassInstance($data)->getType());
-    }
-
-    /**
      * @inheritDoc
      * @param array $data
      * @return TaskCreated
@@ -69,8 +58,7 @@ class TaskCreatedTest extends AbstractTaskEventTest
     {
         return new $this->activeEventHandler(
             Arr::get($data, 'name'),
-            Arr::get($data, 'description'),
-            Arr::get($data, 'type'),
+            Arr::get($data, 'description')
         );
     }
 }

@@ -3,6 +3,7 @@
 namespace ConsulConfigManager\Tasks\Services\TaskRunner;
 
 use Illuminate\Database\Eloquent\Collection;
+use ConsulConfigManager\Tasks\Enums\ActionType;
 use ConsulConfigManager\Tasks\Enums\ExecutionState;
 use ConsulConfigManager\Tasks\Interfaces\TaskInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionInterface;
@@ -15,11 +16,12 @@ use ConsulConfigManager\Consul\Agent\Interfaces\ServiceInterface;
 use ConsulConfigManager\Tasks\Interfaces\TaskRepositoryInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\ActionRepositoryInterface;
-use ConsulConfigManager\Tasks\Services\TaskRunner\Tasks\RemoteTask;
 use ConsulConfigManager\Tasks\Interfaces\PipelineExecutionInterface;
 use ConsulConfigManager\Tasks\Interfaces\PipelineRepositoryInterface;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Actions\LocalAction;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\TaskEntity;
 use ConsulConfigManager\Tasks\Interfaces\TaskActionRepositoryInterface;
+use ConsulConfigManager\Tasks\Services\TaskRunner\Actions\RemoteAction;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\ActionEntity;
 use ConsulConfigManager\Tasks\Services\TaskRunner\Entities\ServerEntity;
 use ConsulConfigManager\Tasks\Interfaces\PipelineTaskRepositoryInterface;
@@ -106,15 +108,6 @@ class Resolver extends LoggableClass
     }
 
     /**
-     * Get configured pipeline entity
-     * @return PipelineEntity
-     */
-    public function getPipelineEntity(): PipelineEntity
-    {
-        return $this->pipelineEntity;
-    }
-
-    /**
      * @inheritDoc
      * @throws BindingResolutionException
      */
@@ -129,6 +122,15 @@ class Resolver extends LoggableClass
         $this->actionRepository = app()->make(ActionRepositoryInterface::class);
         $this->actionExecutionRepository = app()->make(ActionExecutionRepositoryInterface::class);
         $this->generatePipelineEntity();
+    }
+
+    /**
+     * Get configured pipeline entity
+     * @return PipelineEntity
+     */
+    public function getPipelineEntity(): PipelineEntity
+    {
+        return $this->pipelineEntity;
     }
 
     /**
@@ -305,13 +307,23 @@ class Resolver extends LoggableClass
                         $executionIdentifier,
                     );
 
-                    $actionRunner = $this->createRunner(
-                        $execution,
-                        $pipeline,
-                        $pipelineTask,
-                        $taskAction,
-                        $server,
-                    );
+                    if ($taskAction->getType() === ActionType::REMOTE) {
+                        $actionRunner = $this->createRemoteActionRunner(
+                            $execution,
+                            $pipeline,
+                            $pipelineTask,
+                            $taskAction,
+                            $server,
+                        );
+                    } else {
+                        $actionRunner = $this->createLocalActionRunner(
+                            $execution,
+                            $pipeline,
+                            $pipelineTask,
+                            $taskAction,
+                            $server,
+                        );
+                    }
 
                     $actionEntity = new ActionEntity($actionExecution, $actionRunner);
 
@@ -329,33 +341,66 @@ class Resolver extends LoggableClass
     }
 
     /**
-     * Create new runner
+     * Create new runner for remote action
      * @param PipelineExecutionInterface $execution
      * @param PipelineInterface $pipeline
      * @param TaskInterface $task
      * @param ActionInterface $action
-     * @param ServiceInterface $server
-     * @return RemoteTask
+     * @param ServiceInterface $service
+     * @return RemoteAction
      */
-    private function createRunner(
+    private function createRemoteActionRunner(
         PipelineExecutionInterface $execution,
         PipelineInterface $pipeline,
         TaskInterface $task,
         ActionInterface $action,
-        ServiceInterface $server,
-    ): RemoteTask {
-        $remoteTask = new RemoteTask($server->getAddress(), $server->getPort());
-        $remoteTask->setExecutionIdentifier($execution->getUuid());
-        $remoteTask->setPipelineIdentifier($pipeline->getUuid());
-        $remoteTask->setTaskIdentifier($task->getUuid());
-        $remoteTask->setActionIdentifier($action->getUuid());
-        $remoteTask->setServerIdentifier($server->getUuid());
-        $remoteTask->setCommand($action->getCommand());
-        $remoteTask->setArguments($action->getArguments());
-        $remoteTask->setRunAs($action->getRunAs());
-        $remoteTask->setUseSudo($action->isUsingSudo());
-        $remoteTask->setFailOnError($action->isFailingOnError());
-        $remoteTask->setWorkingDirectory($action->getWorkingDirectory());
-        return $remoteTask;
+        ServiceInterface $service,
+    ): RemoteAction {
+        $remoteAction = new RemoteAction($service->getAddress(), $service->getPort());
+
+        $remoteAction->setExecutionIdentifier($execution->getUuid());
+        $remoteAction->setPipelineIdentifier($pipeline->getUuid());
+        $remoteAction->setTaskIdentifier($task->getUuid());
+        $remoteAction->setActionIdentifier($action->getUuid());
+        $remoteAction->setServerIdentifier($service->getUuid());
+        $remoteAction->setCommand($action->getCommand());
+        $remoteAction->setArguments($action->getArguments());
+        $remoteAction->setRunAs($action->getRunAs());
+        $remoteAction->setUseSudo($action->isUsingSudo());
+        $remoteAction->setFailOnError($action->isFailingOnError());
+        $remoteAction->setWorkingDirectory($action->getWorkingDirectory());
+
+        return $remoteAction;
+    }
+
+    /**
+     * Create new runner for local action
+     * @param PipelineExecutionInterface $execution
+     * @param PipelineInterface $pipeline
+     * @param TaskInterface $task
+     * @param ActionInterface $action
+     * @param ServiceInterface $service
+     * @return LocalAction
+     */
+    private function createLocalActionRunner(
+        PipelineExecutionInterface $execution,
+        PipelineInterface $pipeline,
+        TaskInterface $task,
+        ActionInterface $action,
+        ServiceInterface $service,
+    ): LocalAction {
+        $localAction = new LocalAction();
+
+        $localAction->setExecutionIdentifier($execution->getUuid());
+        $localAction->setPipelineIdentifier($pipeline->getUuid());
+        $localAction->setTaskIdentifier($task->getUuid());
+        $localAction->setActionIdentifier($action->getUuid());
+        $localAction->setServerIdentifier($service->getUuid());
+        $localAction->setCommand($action->getCommand());
+        $localAction->setArguments($action->getArguments());
+        $localAction->setRunAs($action->getRunAs());
+        $localAction->setFailOnError($action->isFailingOnError());
+
+        return $localAction;
     }
 }

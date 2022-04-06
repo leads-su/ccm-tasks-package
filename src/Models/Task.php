@@ -36,7 +36,6 @@ class Task extends AbstractSourcedModel implements TaskInterface
         'uuid',
         'name',
         'description',
-        'type',
         'fail_on_error',
     ];
 
@@ -48,7 +47,6 @@ class Task extends AbstractSourcedModel implements TaskInterface
         'uuid'          =>  'string',
         'name'          =>  'string',
         'description'   =>  'string',
-        'type'          =>  'integer',
         'fail_on_error' =>  'boolean',
     ];
 
@@ -156,23 +154,6 @@ class Task extends AbstractSourcedModel implements TaskInterface
     public function setDescription(string $description): TaskInterface
     {
         $this->attributes['description'] = (string) $description;
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getType(): int
-    {
-        return (int) $this->attributes['type'];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setType(int $type): TaskInterface
-    {
-        $this->attributes['type'] = (int) $type;
         return $this;
     }
 

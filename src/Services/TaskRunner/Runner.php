@@ -56,6 +56,11 @@ class Runner extends LoggableClass
             ->setOutputInterface($this->getOutputInterface())
             ->bootstrap();
 
+        // TODO: DO NOT TOUCH
+        // This is necessary if MySQL is not running in Docker.
+        // We have no idea why.
+        sleep(3);
+
         $handler = new Handler($resolver->getPipelineEntity());
         $handler
             ->setDebug($this->getDebug())

@@ -253,7 +253,6 @@ abstract class AbstractModelTest extends TestCase
                     'uuid'          =>  self::$taskUUID,
                     'name'          =>  'Example Task',
                     'description'   =>  'Example Task Description',
-                    'type'          =>  1,
                     'fail_on_error' =>  false,
                 ],
             ],
@@ -537,7 +536,6 @@ abstract class AbstractModelTest extends TestCase
             'uuid'          =>  $taskUUID,
             'name'          =>  Arr::get($taskData, 'name'),
             'description'   =>  Arr::get($taskData, 'description'),
-            'type'          =>  Arr::get($taskData, 'type'),
             'fail_on_error' =>  Arr::get($taskData, 'fail_on_error'),
         ], true);
 

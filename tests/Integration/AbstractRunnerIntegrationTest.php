@@ -7,7 +7,6 @@ use Illuminate\Support\Str;
 use ConsulConfigManager\Tasks\Models\Task;
 use ConsulConfigManager\Tasks\Models\Action;
 use ConsulConfigManager\Tasks\Test\TestCase;
-use ConsulConfigManager\Tasks\Enums\TaskType;
 use ConsulConfigManager\Tasks\Models\Pipeline;
 use ConsulConfigManager\Tasks\Enums\ActionType;
 use ConsulConfigManager\Consul\Agent\Models\Service;
@@ -356,7 +355,6 @@ abstract class AbstractRunnerIntegrationTest extends TestCase
         $instance->setUuid(Str::uuid()->toString());
         $instance->setName(sprintf('Example Task #%d', $taskIndex));
         $instance->setDescription(sprintf('Description for Example Task #%d', $taskIndex));
-        $instance->setType(TaskType::REMOTE);
         $instance->failOnError($failOnError);
         $instance->save();
 
@@ -374,7 +372,6 @@ abstract class AbstractRunnerIntegrationTest extends TestCase
         return $this->taskRepository()->create(
             name: sprintf('Example Task #%d', $taskIndex),
             description: sprintf('Description for Example Task #%d', $taskIndex),
-            type: TaskType::REMOTE,
             failOnError: $failOnError,
         );
     }

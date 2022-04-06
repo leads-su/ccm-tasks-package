@@ -24,12 +24,6 @@ class TaskCreated extends AbstractEvent
     private string $description;
 
     /**
-     * Task type
-     * @var int
-     */
-    private int $type;
-
-    /**
      * Fail task on error
      * @var bool
      */
@@ -38,13 +32,11 @@ class TaskCreated extends AbstractEvent
     public function __construct(
         string $name,
         string $description,
-        int $type,
         bool $failOnError = false,
         UserEntity|int|null $user = null,
     ) {
         $this->name = $name;
         $this->description = $description;
-        $this->type = $type;
         $this->failOnError = $failOnError;
         $this->user = $user;
         parent::__construct();
@@ -66,15 +58,6 @@ class TaskCreated extends AbstractEvent
     public function getDescription(): string
     {
         return $this->description;
-    }
-
-    /**
-     * Get task type
-     * @return int
-     */
-    public function getType(): int
-    {
-        return $this->type;
     }
 
     /**

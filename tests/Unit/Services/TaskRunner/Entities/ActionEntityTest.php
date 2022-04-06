@@ -102,7 +102,7 @@ class ActionEntityTest extends AbstractEntityTest
     public function testShouldPassIfSetRunnerMethodCanBeUsed(): void
     {
         $instance = $this->createInstance();
-        $instance->setRunner($this->createAndGetRemoteTask());
+        $instance->setRunner($this->createAndGetRemoteAction());
         $this->assertSameRunner($instance->getRunner());
     }
 
@@ -156,7 +156,7 @@ class ActionEntityTest extends AbstractEntityTest
         $this->createAndGetAction();
         return new ActionEntity(
             $this->createAndGetActionExecution(),
-            $this->createAndGetRemoteTask(),
+            $this->createAndGetRemoteAction(),
         );
     }
 }

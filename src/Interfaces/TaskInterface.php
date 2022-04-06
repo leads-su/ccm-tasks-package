@@ -73,19 +73,6 @@ interface TaskInterface extends SourcedInterface, Arrayable
     public function setDescription(string $description): self;
 
     /**
-     * Get task type
-     * @return int
-     */
-    public function getType(): int;
-
-    /**
-     * Set task type
-     * @param int $type
-     * @return $this
-     */
-    public function setType(int $type): self;
-
-    /**
      * Check whether task should fail on error
      * @return bool
      */

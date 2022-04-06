@@ -23,7 +23,6 @@ class TaskProjector extends Projector
         $model->setUuid($event->aggregateRootUuid());
         $model->setName($event->getName());
         $model->setDescription($event->getDescription());
-        $model->setType($event->getType());
         $model->failOnError($event->shouldFailOnError());
         $model->save();
     }
@@ -38,7 +37,6 @@ class TaskProjector extends Projector
         $model = Task::uuid($event->aggregateRootUuid());
         $model->setName($event->getName());
         $model->setDescription($event->getDescription());
-        $model->setType($event->getType());
         $model->failOnError($event->shouldFailOnError());
         $model->save();
     }

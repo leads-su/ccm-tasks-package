@@ -3,7 +3,6 @@
 namespace ConsulConfigManager\Tasks\Test\Feature;
 
 use Illuminate\Support\Arr;
-use ConsulConfigManager\Tasks\Enums\TaskType;
 
 /**
  * Class TaskTest
@@ -82,7 +81,6 @@ class TaskTest extends AbstractFeatureTest
         $response = $this->patch('/task-manager/tasks/100', [
             'name'              =>  'Example Task',
             'description'       =>  'This is description for Example Task',
-            'type'              =>  TaskType::REMOTE,
         ]);
         $response->assertStatus(404);
     }
@@ -95,7 +93,6 @@ class TaskTest extends AbstractFeatureTest
         $response = $this->patch('/task-manager/tasks/ced57182-a253-44f4-9d76-b6e04e5b2890', [
             'name'              =>  'Example Task',
             'description'       =>  'This is description for Example Task',
-            'type'              =>  TaskType::REMOTE,
         ]);
         $response->assertStatus(404);
     }
@@ -112,7 +109,6 @@ class TaskTest extends AbstractFeatureTest
         $response = $this->patch('/task-manager/tasks/' . Arr::get($createData, 'id'), [
             'name'              =>  'New Example Task',
             'description'       =>  'This is description for Example Task',
-            'type'              =>  TaskType::REMOTE,
             'fail_on_error'     =>  Arr::get($createData, 'fail_on_error'),
             'actions'           =>  array_merge(
                 $this->getTaskActions($createData)->toArray(),
@@ -123,7 +119,6 @@ class TaskTest extends AbstractFeatureTest
             task: $response->json('data'),
             expectedNew: [
                 'name'              =>  'New Example Task',
-                'type'              =>  TaskType::REMOTE,
             ]
         );
     }
@@ -140,7 +135,6 @@ class TaskTest extends AbstractFeatureTest
         $response = $this->patch('/task-manager/tasks/' . Arr::get($createData, 'uuid'), [
             'name'              =>  'New Example Task',
             'description'       =>  'This is description for Example Task',
-            'type'              =>  TaskType::REMOTE,
             'fail_on_error'     =>  Arr::get($createData, 'fail_on_error'),
             'actions'           =>  array_merge(
                 $this->getTaskActions($createData)->toArray(),
@@ -151,7 +145,6 @@ class TaskTest extends AbstractFeatureTest
             task: $response->json('data'),
             expectedNew: [
                 'name'              =>  'New Example Task',
-                'type'              =>  TaskType::REMOTE,
             ]
         );
     }

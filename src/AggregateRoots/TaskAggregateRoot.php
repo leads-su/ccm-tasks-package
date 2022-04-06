@@ -16,17 +16,15 @@ class TaskAggregateRoot extends AggregateRoot
      * Handle `create` event
      * @param string $name
      * @param string $description
-     * @param int $type
      * @param bool $failOnError
      * @param UserEntity|int|null $user
      * @return $this
      */
-    public function createEntity(string $name, string $description, int $type, bool $failOnError = false, UserEntity|int|null $user = null): TaskAggregateRoot
+    public function createEntity(string $name, string $description, bool $failOnError = false, UserEntity|int|null $user = null): TaskAggregateRoot
     {
         $this->recordThat(new Events\Task\TaskCreated(
             $name,
             $description,
-            $type,
             $failOnError,
             $user,
         ));
@@ -37,17 +35,15 @@ class TaskAggregateRoot extends AggregateRoot
      * Handle `update` event
      * @param string $name
      * @param string $description
-     * @param int $type
      * @param bool $failOnError
      * @param UserEntity|int|null $user
      * @return $this
      */
-    public function updateEntity(string $name, string $description, int $type, bool $failOnError = false, UserEntity|int|null $user = null): TaskAggregateRoot
+    public function updateEntity(string $name, string $description, bool $failOnError = false, UserEntity|int|null $user = null): TaskAggregateRoot
     {
         $this->recordThat(new Events\Task\TaskUpdated(
             $name,
             $description,
-            $type,
             $failOnError,
             $user,
         ));

@@ -28,7 +28,6 @@ class TaskCreateUpdateRequest extends FormRequest
         return [
             'name'              =>  ['required', 'string'],
             'description'       =>  ['required', 'string'],
-            'type'              =>  ['required', 'integer'],
             'fail_on_error'     =>  ['sometimes', 'required', 'boolean'],
             'actions'           =>  ['sometimes', 'required', 'array'],
             'actions.*.uuid'    =>  ['sometimes', 'required', 'string'],

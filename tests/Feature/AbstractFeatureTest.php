@@ -9,7 +9,6 @@ use ConsulConfigManager\Tasks\Models\Task;
 use ConsulConfigManager\Tasks\Models\Action;
 use ConsulConfigManager\Tasks\Test\TestCase;
 use Illuminate\Database\Eloquent\Collection;
-use ConsulConfigManager\Tasks\Enums\TaskType;
 use ConsulConfigManager\Tasks\Models\Pipeline;
 use ConsulConfigManager\Tasks\Enums\ActionType;
 use ConsulConfigManager\Tasks\Models\TaskAction;
@@ -163,7 +162,6 @@ abstract class AbstractFeatureTest extends TestCase
         $response = $this->post('/task-manager/tasks', [
             'name'              =>  'Example Task',
             'description'       =>  'This is description for Example Task',
-            'type'              =>  TaskType::REMOTE,
             'fail_on_error'     =>  false,
         ]);
 
@@ -778,9 +776,6 @@ abstract class AbstractFeatureTest extends TestCase
                     break;
                 case 'description':
                     $this->assertSameExpected($task, 'description', 'This is description for Example Task', $expectedNew);
-                    break;
-                case 'type':
-                    $this->assertSameExpected($task, 'type', TaskType::REMOTE, $expectedNew);
                     break;
                 case 'fail_on_error':
                     $this->assertSameExpected($task, 'fail_on_error', false, $expectedNew);

@@ -68,7 +68,6 @@ class TaskUpdateInteractor implements TaskUpdateInputPort
                 $model->getID(),
                 $request->get('name'),
                 $request->get('description'),
-                $request->get('type'),
                 $request->get('fail_on_error', false),
             );
             $this->createOrUpdateActionsRelations($entity, $request->get('actions', []));

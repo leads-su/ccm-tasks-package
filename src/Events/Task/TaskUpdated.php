@@ -24,12 +24,6 @@ class TaskUpdated extends AbstractEvent
     private string $description;
 
     /**
-     * Task type
-     * @var int
-     */
-    private int $type;
-
-    /**
      * Fail task on error
      * @var bool
      */
@@ -39,20 +33,17 @@ class TaskUpdated extends AbstractEvent
      * TaskUpdated constructor.
      * @param string $name
      * @param string $description
-     * @param int $type
      * @param bool $failOnError
      * @param UserEntity|int|null $user
      */
     public function __construct(
         string $name,
         string $description,
-        int $type,
         bool $failOnError = false,
         UserEntity|int|null $user = null,
     ) {
         $this->name = $name;
         $this->description = $description;
-        $this->type = $type;
         $this->failOnError = $failOnError;
         $this->user = $user;
         parent::__construct();
@@ -74,15 +65,6 @@ class TaskUpdated extends AbstractEvent
     public function getDescription(): string
     {
         return $this->description;
-    }
-
-    /**
-     * Get task type
-     * @return int
-     */
-    public function getType(): int
-    {
-        return $this->type;
     }
 
     /**

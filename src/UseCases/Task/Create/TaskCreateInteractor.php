@@ -61,7 +61,6 @@ class TaskCreateInteractor implements TaskCreateInputPort
             $entity = $this->repository->create(
                 $request->get('name'),
                 $request->get('description'),
-                $request->get('type'),
                 $request->get('fail_on_error', false),
             );
             $this->createActionsRelations($entity, $request->get('actions', []));

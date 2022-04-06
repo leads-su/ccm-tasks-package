@@ -668,7 +668,6 @@ class PipelineTest extends AbstractFeatureTest
                 'fail_on_error'                 =>  $task->isFailingOnError(),
                 'id'                            =>  $task->getID(),
                 'name'                          =>  $task->getName(),
-                'type'                          =>  $task->getType(),
                 'updated_at'                    =>  $task->updated_at->toDateTimeLocalString('microsecond') . 'Z',
                 'uuid'                          =>  $task->getUuid(),
             ],

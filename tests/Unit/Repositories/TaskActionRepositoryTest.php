@@ -185,7 +185,6 @@ class TaskActionRepositoryTest extends AbstractRepositoryTest
         $this->assertArrayHasKey('uuid', $entity);
         $this->assertSame(Arr::get($data, 'name'), $entity->getName());
         $this->assertSame(Arr::get($data, 'description'), $entity->getDescription());
-        $this->assertSame(Arr::get($data, 'type'), $entity->getType());
     }
 
     /**
