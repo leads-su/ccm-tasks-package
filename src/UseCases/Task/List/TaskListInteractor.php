@@ -47,7 +47,7 @@ class TaskListInteractor implements TaskListInputPort
             $tasks = $this->repository->all(
                 columns: [
                     'id', 'uuid',
-                    'name', 'description', 'type',
+                    'name', 'description',
                     'created_at', 'updated_at', 'deleted_at',
                 ],
                 append: ['actions_list_extended'],
