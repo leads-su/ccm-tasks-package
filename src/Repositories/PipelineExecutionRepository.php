@@ -28,6 +28,7 @@ class PipelineExecutionRepository extends AbstractRepository implements Pipeline
     {
         return $this->getModelQueryWithTrashed($withDeleted)
             ->with($with)
+            ->orderByDesc('created_at')
             ->get($columns)
             ->each
             ->setAppends($append);
