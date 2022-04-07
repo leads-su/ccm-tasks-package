@@ -3,6 +3,7 @@
 namespace ConsulConfigManager\Tasks\Services\TaskRunner\Actions;
 
 use Throwable;
+use JsonException;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Artisan;
@@ -145,7 +146,20 @@ class LocalAction extends AbstractAction
     private function handleArtisanCommandExecution(): array
     {
         try {
-            $exitCode = Artisan::call($this->getCommand(), $this->getArguments());
+            $arguments = [];
+            foreach ($this->getArguments() as $argument) {
+                try {
+                    $data = json_decode($argument, true, 512, JSON_THROW_ON_ERROR);
+                    foreach ($data as $key => $value) {
+                        $arguments[$key] = $value;
+                    }
+                } catch (JsonException) {
+                    // DO NOTHING, user has to fix it on his/her side
+                    // There will be message in UI anyway
+                }
+            }
+
+            $exitCode = Artisan::call($this->getCommand(), $arguments);
             $message = Artisan::output();
         } catch (Throwable $throwable) {
             $exitCode = 255;

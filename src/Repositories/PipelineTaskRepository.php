@@ -30,7 +30,7 @@ class PipelineTaskRepository implements PipelineTaskRepositoryInterface
     public function list(int|string $pipelineIdentifier, array $with = [], array $append = [], bool $withDeleted = false): Collection
     {
         $with['task'] = function ($query): void {
-            $query->select(['id', 'uuid', 'name', 'description', 'type']);
+            $query->select(['id', 'uuid', 'name', 'description']);
         };
         return PipelineTask::withTrashed($withDeleted)
             ->with($with)
