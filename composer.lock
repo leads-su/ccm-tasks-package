@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "60e6743b98b5b15902813232b263bb84",
+    "content-hash": "fc321b9c84f0d23a3b973a77c424fb35",
     "packages": [
         {
             "name": "brick/math",
@@ -484,28 +484,27 @@
         },
         {
             "name": "clue/reactphp-eventsource",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/clue/reactphp-eventsource.git",
-                "reference": "7e6d7fd1878fa1e8a5b493fac247c0afb500cc58"
+                "reference": "11e049f5e8f0b15b4e01f8468c43f8fd8ba6ad0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clue/reactphp-eventsource/zipball/7e6d7fd1878fa1e8a5b493fac247c0afb500cc58",
-                "reference": "7e6d7fd1878fa1e8a5b493fac247c0afb500cc58",
+                "url": "https://api.github.com/repos/clue/reactphp-eventsource/zipball/11e049f5e8f0b15b4e01f8468c43f8fd8ba6ad0a",
+                "reference": "11e049f5e8f0b15b4e01f8468c43f8fd8ba6ad0a",
                 "shasum": ""
             },
             "require": {
                 "evenement/evenement": "^3.0 || ^2.0",
                 "php": ">=5.4",
                 "react/event-loop": "^1.2",
-                "react/http": "^1.5"
+                "react/http": "^1.6"
             },
             "require-dev": {
                 "phpunit/phpunit": "^9.3 || ^5.7 || ^4.8.35"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -522,7 +521,7 @@
                     "email": "christian@clue.engineering"
                 }
             ],
-            "description": "Event-driven EventSource client, receiving streaming messages from any HTML5 Server-Sent Events (SSE) server, built on top of ReactPHP",
+            "description": "Instant real-time updates. Lightweight EventSource client receiving live messages via HTML5 Server-Sent Events (SSE). Fast stream processing built on top of ReactPHP's event-driven architecture.",
             "homepage": "https://github.com/clue/reactphp-eventsource",
             "keywords": [
                 "Server-Side Events",
@@ -534,7 +533,7 @@
             ],
             "support": {
                 "issues": "https://github.com/clue/reactphp-eventsource/issues",
-                "source": "https://github.com/clue/reactphp-eventsource/tree/master"
+                "source": "https://github.com/clue/reactphp-eventsource/tree/v1.0.0"
             },
             "funding": [
                 {
@@ -546,7 +545,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-01T08:38:08+00:00"
+            "time": "2022-04-11T12:07:59+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -11184,9 +11183,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "clue/reactphp-eventsource": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

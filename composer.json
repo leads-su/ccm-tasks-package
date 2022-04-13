@@ -25,7 +25,7 @@
         "ccm/consul-kv": "^1.0",
         "ccm/domain": "^1.0",
         "ccm/users": "^1.0",
-        "clue/reactphp-eventsource": "dev-master",
+        "clue/reactphp-eventsource": "1",
         "react/promise": "^2.8",
         "spatie/laravel-event-sourcing": "^5.0"
     },
