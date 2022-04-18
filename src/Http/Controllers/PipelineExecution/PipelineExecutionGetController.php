@@ -37,12 +37,13 @@ class PipelineExecutionGetController extends Controller
      * Handle incoming request
      * @param Request $request
      * @param string $identifier
+     * @param int $execution
      * @return Response|null
      */
-    public function __invoke(Request $request, string $identifier): ?Response
+    public function __invoke(Request $request, string $identifier, int $execution): ?Response
     {
         $viewModel = $this->interactor->get(
-            new PipelineExecutionGetRequestModel($request, $identifier)
+            new PipelineExecutionGetRequestModel($request, $identifier, $execution)
         );
 
         if ($viewModel instanceof HttpResponseViewModel) {

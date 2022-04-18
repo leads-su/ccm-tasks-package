@@ -17,13 +17,21 @@ class PipelineExecutionListRequestModel
     private Request $request;
 
     /**
-     * PipelineExecutionListRequestModel constructor.
+     * Entity identifier
+     * @var string
+     */
+    private string $identifier;
+
+    /**
+     * ActionExecutionListRequestModel constructor.
      * @param Request $request
+     * @param string $identifier
      * @return void
      */
-    public function __construct(Request $request)
+    public function __construct(Request $request, string $identifier)
     {
         $this->request = $request;
+        $this->identifier = $identifier;
     }
 
     /**
@@ -33,5 +41,14 @@ class PipelineExecutionListRequestModel
     public function getRequest(): Request
     {
         return $this->request;
+    }
+
+    /**
+     * Get entity identifier
+     * @return string
+     */
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
     }
 }

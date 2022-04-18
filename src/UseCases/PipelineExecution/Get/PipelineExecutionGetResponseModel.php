@@ -9,14 +9,15 @@ namespace ConsulConfigManager\Tasks\UseCases\PipelineExecution\Get;
 class PipelineExecutionGetResponseModel
 {
     /**
-     * List of entities
+     * Entity array
      * @var array
      */
     private array $entity;
 
     /**
-     * PipelineExecutionListResponseModel constructor.
+     * PipelineExecutionGetResponseModel constructor.
      * @param array $entity
+     * @return void
      */
     public function __construct(array $entity = [])
     {
@@ -24,7 +25,7 @@ class PipelineExecutionGetResponseModel
     }
 
     /**
-     * Get list of entities
+     * Get entity array
      * @return array
      */
     public function getEntity(): array

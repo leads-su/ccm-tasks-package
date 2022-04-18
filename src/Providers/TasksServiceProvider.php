@@ -33,12 +33,14 @@ class TasksServiceProvider extends DomainServiceProvider
         Interfaces\ActionRepositoryInterface::class             =>  Repositories\ActionRepository::class,
         Interfaces\TaskRepositoryInterface::class               =>  Repositories\TaskRepository::class,
         Interfaces\PipelineRepositoryInterface::class           =>  Repositories\PipelineRepository::class,
+        Interfaces\PipelineHistoryRepositoryInterface::class    =>  Repositories\PipelineHistoryRepository::class,
         Interfaces\PipelineExecutionRepositoryInterface::class  =>  Repositories\PipelineExecutionRepository::class,
         Interfaces\TaskActionRepositoryInterface::class         =>  Repositories\TaskActionRepository::class,
         Interfaces\PipelineTaskRepositoryInterface::class       =>  Repositories\PipelineTaskRepository::class,
         Interfaces\TaskExecutionRepositoryInterface::class      =>  Repositories\TaskExecutionRepository::class,
         Interfaces\ActionExecutionRepositoryInterface::class    =>  Repositories\ActionExecutionRepository::class,
         Interfaces\ActionHostRepositoryInterface::class         =>  Repositories\ActionHostRepository::class,
+        Interfaces\PipelinePermissionRepositoryInterface::class =>  Repositories\PipelinePermissionRepository::class,
     ];
 
 
@@ -152,7 +154,10 @@ class TasksServiceProvider extends DomainServiceProvider
         $this->registerPipelineTaskInterceptors();
         $this->registerServiceInterceptors();
         $this->registerActionExecutionInterceptors();
+        $this->registerTaskExecutionInterceptors();
         $this->registerPipelineExecutionInterceptors();
+        $this->registerPipelineHistoryInterceptors();
+        $this->registerPipelinePermissionInterceptors();
     }
 
 
@@ -430,7 +435,28 @@ class TasksServiceProvider extends DomainServiceProvider
     }
 
     /**
-     * Register pipeline execution specific interceptors
+     * Register pipeline history specific interceptors
+     * @return void
+     */
+    private function registerPipelineHistoryInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineHistory\List\PipelineHistoryListInputPort::class,
+            UseCases\PipelineHistory\List\PipelineHistoryListInteractor::class,
+            Http\Controllers\PipelineHistory\PipelineHistoryListController::class,
+            Presenters\PipelineHistory\PipelineHistoryListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelineHistory\Get\PipelineHistoryGetInputPort::class,
+            UseCases\PipelineHistory\Get\PipelineHistoryGetInteractor::class,
+            Http\Controllers\PipelineHistory\PipelineHistoryGetController::class,
+            Presenters\PipelineHistory\PipelineHistoryGetHttpPresenter::class,
+        );
+    }
+
+    /**
+     * Register action execution specific interceptors
      * @return void
      */
     private function registerActionExecutionInterceptors(): void
@@ -451,6 +477,27 @@ class TasksServiceProvider extends DomainServiceProvider
     }
 
     /**
+     * Register task execution specific interceptors
+     * @return void
+     */
+    private function registerTaskExecutionInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\TaskExecution\List\TaskExecutionListInputPort::class,
+            UseCases\TaskExecution\List\TaskExecutionListInteractor::class,
+            Http\Controllers\TaskExecution\TaskExecutionListController::class,
+            Presenters\TaskExecution\TaskExecutionListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\TaskExecution\Get\TaskExecutionGetInputPort::class,
+            UseCases\TaskExecution\Get\TaskExecutionGetInteractor::class,
+            Http\Controllers\TaskExecution\TaskExecutionGetController::class,
+            Presenters\TaskExecution\TaskExecutionGetHttpPresenter::class,
+        );
+    }
+
+    /**
      * Register service specific interceptors
      * @return void
      */
@@ -461,6 +508,48 @@ class TasksServiceProvider extends DomainServiceProvider
             UseCases\Service\List\ServiceListInteractor::class,
             Http\Controllers\Service\ServiceListController::class,
             Presenters\Service\ServiceListHttpPresenter::class,
+        );
+    }
+
+    /**
+     * Register pipeline permission specific interceptors
+     * @return void
+     */
+    private function registerPipelinePermissionInterceptors(): void
+    {
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelinePermission\List\PipelinePermissionListInputPort::class,
+            UseCases\PipelinePermission\List\PipelinePermissionListInteractor::class,
+            Http\Controllers\PipelinePermission\PipelinePermissionListController::class,
+            Presenters\PipelinePermission\PipelinePermissionListHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelinePermission\Create\PipelinePermissionCreateInputPort::class,
+            UseCases\PipelinePermission\Create\PipelinePermissionCreateInteractor::class,
+            Http\Controllers\PipelinePermission\PipelinePermissionCreateController::class,
+            Presenters\PipelinePermission\PipelinePermissionCreateHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelinePermission\Delete\PipelinePermissionDeleteInputPort::class,
+            UseCases\PipelinePermission\Delete\PipelinePermissionDeleteInteractor::class,
+            Http\Controllers\PipelinePermission\PipelinePermissionDeleteController::class,
+            Presenters\PipelinePermission\PipelinePermissionDeleteHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelinePermission\My\PipelinePermissionMyInputPort::class,
+            UseCases\PipelinePermission\My\PipelinePermissionMyInteractor::class,
+            Http\Controllers\PipelinePermission\PipelinePermissionMyController::class,
+            Presenters\PipelinePermission\PipelinePermissionMyHttpPresenter::class,
+        );
+
+        $this->registerInterceptorFromParameters(
+            UseCases\PipelinePermission\Users\PipelinePermissionUsersInputPort::class,
+            UseCases\PipelinePermission\Users\PipelinePermissionUsersInteractor::class,
+            Http\Controllers\PipelinePermission\PipelinePermissionUsersController::class,
+            Presenters\PipelinePermission\PipelinePermissionUsersHttpPresenter::class,
         );
     }
 

@@ -19,10 +19,17 @@ interface PipelineExecutionListOutputPort
     public function list(PipelineExecutionListResponseModel $responseModel): ViewModel;
 
     /**
-     * Output port for "internal server error"
+     * Output port for "not found"
      * @param PipelineExecutionListResponseModel $responseModel
-     * @param Throwable $throwable
      * @return ViewModel
      */
-    public function internalServerError(PipelineExecutionListResponseModel $responseModel, Throwable $throwable): ViewModel;
+    public function notFound(PipelineExecutionListResponseModel $responseModel): ViewModel;
+
+    /**
+     * Output port for "internal server error"
+     * @param PipelineExecutionListResponseModel $responseModel
+     * @param Throwable $exception
+     * @return ViewModel
+     */
+    public function internalServerError(PipelineExecutionListResponseModel $responseModel, Throwable $exception): ViewModel;
 }

@@ -17,7 +17,8 @@ class PipelineExecutionListRequestModelTest extends TestCase
     public function testShouldPassIfInstanceOfRequestIsReturned(): void
     {
         $request = request();
-        $instance = new PipelineExecutionListRequestModel($request);
+        $instance = new PipelineExecutionListRequestModel($request, '113123132');
         $this->assertSame($request, $instance->getRequest());
+        $this->assertSame('113123132', $instance->getIdentifier());
     }
 }

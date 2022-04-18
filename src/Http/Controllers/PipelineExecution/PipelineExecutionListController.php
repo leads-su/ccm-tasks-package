@@ -36,12 +36,13 @@ class PipelineExecutionListController extends Controller
     /**
      * Handle incoming request
      * @param Request $request
+     * @param string $identifier
      * @return Response|null
      */
-    public function __invoke(Request $request): ?Response
+    public function __invoke(Request $request, string $identifier): ?Response
     {
         $viewModel = $this->interactor->list(
-            new PipelineExecutionListRequestModel($request)
+            new PipelineExecutionListRequestModel($request, $identifier)
         );
 
         if ($viewModel instanceof HttpResponseViewModel) {

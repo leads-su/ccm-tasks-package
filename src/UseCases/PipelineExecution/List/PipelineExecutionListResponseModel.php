@@ -18,7 +18,7 @@ class PipelineExecutionListResponseModel
     private Collection|EloquentCollection $entities;
 
     /**
-     * PipelineExecutionListResponseModel constructor.
+     * ActionExecutionListResponseModel constructor.
      * @param EloquentCollection|Collection|array $entities
      * @return void
      */

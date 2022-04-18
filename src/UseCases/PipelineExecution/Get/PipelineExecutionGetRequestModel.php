@@ -18,20 +18,28 @@ class PipelineExecutionGetRequestModel
 
     /**
      * Entity identifier
-     * @var string
+     * @var string|int
      */
-    private string $identifier;
+    private string|int $identifier;
 
     /**
-     * PipelineExecutionListRequestModel constructor.
+     * Execution identifier
+     * @var string|int
+     */
+    private string|int $execution;
+
+    /**
+     * PipelineExecutionGetRequestModel constructor.
      * @param Request $request
-     * @param string $identifier
+     * @param string|int $identifier
+     * @param string|int $execution
      * @return void
      */
-    public function __construct(Request $request, string $identifier)
+    public function __construct(Request $request, string|int $identifier, string|int $execution)
     {
         $this->request = $request;
         $this->identifier = $identifier;
+        $this->execution = $execution;
     }
 
     /**
@@ -45,10 +53,19 @@ class PipelineExecutionGetRequestModel
 
     /**
      * Get entity identifier
-     * @return string
+     * @return string|int
      */
-    public function getIdentifier(): string
+    public function getIdentifier(): string|int
     {
         return $this->identifier;
+    }
+
+    /**
+     * Get execution identifier
+     * @return string|int
+     */
+    public function getExecution(): string|int
+    {
+        return $this->execution;
     }
 }

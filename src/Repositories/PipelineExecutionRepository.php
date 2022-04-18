@@ -79,6 +79,14 @@ class PipelineExecutionRepository extends AbstractRepository implements Pipeline
     /**
      * @inheritDoc
      */
+    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection
+    {
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->get($columns)->each->setAppends($append);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface
     {
         return $this->getModelQueryWithTrashed($withDeleted)
@@ -117,6 +125,30 @@ class PipelineExecutionRepository extends AbstractRepository implements Pipeline
             with: $with,
             withDeleted: $withDeleted,
         );
+        return $query->firstOrFail($columns)->setAppends($append);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByManyFromMappings(array $mappings, array $columns = ['*'], array $with = [], array $append = []): PipelineExecutionInterface|null
+    {
+        $query = PipelineExecution::with($with);
+        foreach ($mappings as $key => $value) {
+            $query = $query->where($key, '=', $value);
+        }
+        return $query->first($columns)?->setAppends($append);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByManyFromMappingsOrFail(array $mappings, array $columns = ['*'], array $with = [], array $append = []): PipelineExecutionInterface
+    {
+        $query = PipelineExecution::with($with);
+        foreach ($mappings as $key => $value) {
+            $query = $query->where($key, '=', $value);
+        }
         return $query->firstOrFail($columns)->setAppends($append);
     }
 

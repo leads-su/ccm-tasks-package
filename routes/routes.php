@@ -40,8 +40,30 @@ Route::prefix('task-manager')->group(static function (): void {
         Route::post('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineCreateController::class)
             ->name('domain.tasks.pipelines.create');
 
-        Route::get('executions', \ConsulConfigManager\Tasks\Http\Controllers\PipelineExecution\PipelineExecutionListController::class)
-            ->name('domain.tasks.pipelines.executions');
+        Route::prefix('permissions')->group(static function (): void {
+            Route::get('list/{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\PipelinePermission\PipelinePermissionListController::class)
+                ->name('domain.tasks.pipelines.permissions.list');
+
+            Route::get('my', \ConsulConfigManager\Tasks\Http\Controllers\PipelinePermission\PipelinePermissionMyController::class)
+                ->name('domain.tasks.pipelines.permissions.my');
+
+            Route::get('users', \ConsulConfigManager\Tasks\Http\Controllers\PipelinePermission\PipelinePermissionUsersController::class)
+                ->name('domain.tasks.pipelines.permissions.users');
+
+            Route::post('create', \ConsulConfigManager\Tasks\Http\Controllers\PipelinePermission\PipelinePermissionCreateController::class)
+                ->name('domain.tasks.pipelines.permissions.create');
+
+            Route::post('delete', \ConsulConfigManager\Tasks\Http\Controllers\PipelinePermission\PipelinePermissionDeleteController::class)
+                ->name('domain.tasks.pipelines.permissions.delete');
+        });
+
+        Route::prefix('history')->group(static function (): void {
+            Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineHistory\PipelineHistoryListController::class)
+                ->name('domain.tasks.pipelines.history');
+
+            Route::get('{identifier}', \ConsulConfigManager\Tasks\Http\Controllers\PipelineHistory\PipelineHistoryGetController::class)
+                ->name('domain.tasks.pipelines.history.execution');
+        });
 
         Route::prefix('{identifier}')->group(static function (): void {
             Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineGetController::class)
@@ -56,11 +78,16 @@ Route::prefix('task-manager')->group(static function (): void {
             Route::patch('restore', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineRestoreController::class)
                 ->name('domain.tasks.pipelines.restore');
 
-            Route::get('execution', \ConsulConfigManager\Tasks\Http\Controllers\PipelineExecution\PipelineExecutionGetController::class)
-                ->name('domain.tasks.pipelines.execution');
-
             Route::get('run', \ConsulConfigManager\Tasks\Http\Controllers\Pipeline\PipelineRunController::class)
                 ->name('domain.tasks.pipelines.run');
+
+            Route::prefix('executions')->group(static function (): void {
+                Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineExecution\PipelineExecutionListController::class)
+                    ->name('domain.task.pipeline.executions');
+
+                Route::get('{execution}', \ConsulConfigManager\Tasks\Http\Controllers\PipelineExecution\PipelineExecutionGetController::class)
+                    ->name('domain.task.pipeline.executions.information');
+            });
 
             Route::prefix('tasks')->group(static function (): void {
                 Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\PipelineTask\PipelineTaskListController::class)
@@ -126,6 +153,14 @@ Route::prefix('task-manager')->group(static function (): void {
                     Route::patch('restore', \ConsulConfigManager\Tasks\Http\Controllers\TaskAction\TaskActionRestoreController::class)
                         ->name('domain.tasks.task.actions.restore');
                 });
+            });
+
+            Route::prefix('executions')->group(static function (): void {
+                Route::get('', \ConsulConfigManager\Tasks\Http\Controllers\TaskExecution\TaskExecutionListController::class)
+                    ->name('domain.task.task.executions');
+
+                Route::get('{execution}', \ConsulConfigManager\Tasks\Http\Controllers\TaskExecution\TaskExecutionGetController::class)
+                    ->name('domain.task.task.executions.information');
             });
         });
     });

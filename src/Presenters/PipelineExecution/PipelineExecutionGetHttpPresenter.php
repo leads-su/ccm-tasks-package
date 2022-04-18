@@ -34,7 +34,7 @@ class PipelineExecutionGetHttpPresenter implements PipelineExecutionGetOutputPor
     {
         return new HttpResponseViewModel(response_error(
             [],
-            'Unable to find requested pipeline execution'
+            'Unable to find requested pipeline'
         ));
     }
 

@@ -99,6 +99,27 @@ interface TaskExecutionRepositoryInterface
     public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface;
 
     /**
+     * Find entity while using mappings to perform search
+     * @param array $mappings
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @return TaskExecutionInterface|null
+     */
+    public function findByManyFromMappings(array $mappings, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface|null;
+
+    /**
+     * Find entity while using mappings to perform search and fail if none found
+     * @param array $mappings
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @throws ModelNotFoundException
+     * @return TaskExecutionInterface
+     */
+    public function findByManyFromMappingsOrFail(array $mappings, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface;
+
+    /**
      * Create new entity
      * @param string $taskIdentifier
      * @param string $pipelineIdentifier

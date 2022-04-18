@@ -57,6 +57,18 @@ interface PipelineExecutionRepositoryInterface
     public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface|null;
 
     /**
+     * Find many entities by specified field
+     * @param string $field
+     * @param mixed $value
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @param bool $withDeleted
+     * @return Collection
+     */
+    public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): Collection;
+
+    /**
      * Find pipeline execution by specified field or throw exception
      * @param string $field
      * @param string $value
@@ -93,6 +105,27 @@ interface PipelineExecutionRepositoryInterface
      * @throws ModelNotFoundException
      */
     public function findByManyOrFail(array $fields, mixed $value, array $columns = ['*'], array $with = [], array $append = [], bool $withDeleted = false): PipelineExecutionInterface;
+
+    /**
+     * Find entity while using mappings to perform search
+     * @param array $mappings
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @return PipelineExecutionInterface|null
+     */
+    public function findByManyFromMappings(array $mappings, array $columns = ['*'], array $with = [], array $append = []): PipelineExecutionInterface|null;
+
+    /**
+     * Find entity while using mappings to perform search and fail if none found
+     * @param array $mappings
+     * @param array $columns
+     * @param array $with
+     * @param array $append
+     * @throws ModelNotFoundException
+     * @return PipelineExecutionInterface
+     */
+    public function findByManyFromMappingsOrFail(array $mappings, array $columns = ['*'], array $with = [], array $append = []): PipelineExecutionInterface;
 
     /**
      * Create new pipeline execution

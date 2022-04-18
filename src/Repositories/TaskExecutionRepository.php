@@ -61,7 +61,7 @@ class TaskExecutionRepository extends AbstractRepository implements TaskExecutio
      */
     public function findBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface|null
     {
-        return $this->getModelQuery()->with($with)->where($field, '=', $value)->first()?->setAppends($append);
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->first($columns)?->setAppends($append);
     }
 
     /**
@@ -69,7 +69,7 @@ class TaskExecutionRepository extends AbstractRepository implements TaskExecutio
      */
     public function findManyBy(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): Collection
     {
-        return $this->getModelQuery()->with($with)->where($field, '=', $value)->get()->each->setAppends($append);
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->get($columns)->each->setAppends($append);
     }
 
     /**
@@ -77,7 +77,7 @@ class TaskExecutionRepository extends AbstractRepository implements TaskExecutio
      */
     public function findByOrFail(string $field, mixed $value, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface
     {
-        return $this->getModelQuery()->with($with)->where($field, '=', $value)->firstOrFail()->setAppends($append);
+        return $this->getModelQuery()->with($with)->where($field, '=', $value)->firstOrFail($columns)->setAppends($append);
     }
 
     /**
@@ -109,6 +109,31 @@ class TaskExecutionRepository extends AbstractRepository implements TaskExecutio
         );
         return $query->firstOrFail($columns)->setAppends($append);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByManyFromMappings(array $mappings, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface|null
+    {
+        $query = TaskExecution::with($with);
+        foreach ($mappings as $key => $value) {
+            $query = $query->where($key, '=', $value);
+        }
+        return $query->first($columns)?->setAppends($append);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByManyFromMappingsOrFail(array $mappings, array $columns = ['*'], array $with = [], array $append = []): TaskExecutionInterface
+    {
+        $query = TaskExecution::with($with);
+        foreach ($mappings as $key => $value) {
+            $query = $query->where($key, '=', $value);
+        }
+        return $query->firstOrFail($columns)->setAppends($append);
+    }
+
 
     /**
      * @inheritDoc

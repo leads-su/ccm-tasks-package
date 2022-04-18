@@ -27,6 +27,17 @@ class PipelineExecutionListHttpPresenter implements PipelineExecutionListOutputP
         ));
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function notFound(PipelineExecutionListResponseModel $responseModel): ViewModel
+    {
+        return new HttpResponseViewModel(response_error(
+            [],
+            'Unable to find requested pipeline'
+        ));
+    }
+
     // @codeCoverageIgnoreStart
     /**
      * @inheritDoc

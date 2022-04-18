@@ -322,7 +322,7 @@ class PipelineTest extends AbstractFeatureTest
      */
     public function testShouldPassIfEmptyListReturnedFromListExecutions(): void
     {
-        $response = $this->get('/task-manager/pipelines/executions');
+        $response = $this->get('/task-manager/pipelines/history');
         $response->assertStatus(200);
         $response->assertExactJson([
             'success' => true,
@@ -337,7 +337,7 @@ class PipelineTest extends AbstractFeatureTest
      */
     public function testShouldPassIfNotFoundReturnedFromListExecutionsWithUuid(): void
     {
-        $response = $this->get('/task-manager/pipelines/11111111-1111-1111-1111-111111111111/execution');
+        $response = $this->get('/task-manager/pipelines/history/11111111-1111-1111-1111-111111111111');
         $response->assertStatus(404);
     }
 
@@ -346,7 +346,7 @@ class PipelineTest extends AbstractFeatureTest
      */
     public function testShouldPassIfNotFoundReturnedFromListExecutionsWithId(): void
     {
-        $response = $this->get('/task-manager/pipelines/100/execution');
+        $response = $this->get('/task-manager/pipelines/history/100');
         $response->assertStatus(404);
     }
 
@@ -435,7 +435,7 @@ class PipelineTest extends AbstractFeatureTest
             $action
         );
 
-        $response = $this->get('/task-manager/pipelines/executions');
+        $response = $this->get('/task-manager/pipelines/history');
         $response->assertStatus(200);
 
         $response->assertExactJson($validationJson);
@@ -522,7 +522,7 @@ class PipelineTest extends AbstractFeatureTest
             $actionState
         );
 
-        $response = $this->get('/task-manager/pipelines/' . $pipelineExecutionIdentifier . '/execution');
+        $response = $this->get('/task-manager/pipelines/history/' . $pipelineExecutionIdentifier);
         $response->assertStatus(200);
 
         $response->assertExactJson($validationJson);
