@@ -4,7 +4,7 @@ namespace ConsulConfigManager\Tasks\AggregateRoots;
 
 use ConsulConfigManager\Tasks\Events;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class PipelineAggregateRoot
@@ -16,10 +16,10 @@ class PipelineAggregateRoot extends AggregateRoot
      * Handle `create` event
      * @param string $name
      * @param string $description
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function createEntity(string $name, string $description, UserEntity|int|null $user = null): PipelineAggregateRoot
+    public function createEntity(string $name, string $description, UserInterface|int|null $user = null): PipelineAggregateRoot
     {
         $this->recordThat(new Events\Pipeline\PipelineCreated(
             $name,
@@ -33,10 +33,10 @@ class PipelineAggregateRoot extends AggregateRoot
      * Handle `update` event
      * @param string $name
      * @param string $description
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function updateEntity(string $name, string $description, UserEntity|int|null $user = null): PipelineAggregateRoot
+    public function updateEntity(string $name, string $description, UserInterface|int|null $user = null): PipelineAggregateRoot
     {
         $this->recordThat(new Events\Pipeline\PipelineUpdated(
             $name,
@@ -48,10 +48,10 @@ class PipelineAggregateRoot extends AggregateRoot
 
     /**
      * Handle `delete` event
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function deleteEntity(UserEntity|int|null $user = null): PipelineAggregateRoot
+    public function deleteEntity(UserInterface|int|null $user = null): PipelineAggregateRoot
     {
         $this->recordThat(new Events\Pipeline\PipelineDeleted(
             $user,
@@ -61,10 +61,10 @@ class PipelineAggregateRoot extends AggregateRoot
 
     /**
      * Handle `restore` event
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function restoreEntity(UserEntity|int|null $user = null): PipelineAggregateRoot
+    public function restoreEntity(UserInterface|int|null $user = null): PipelineAggregateRoot
     {
         $this->recordThat(new Events\Pipeline\PipelineRestored(
             $user,

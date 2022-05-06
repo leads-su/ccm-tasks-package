@@ -3,7 +3,7 @@
 namespace ConsulConfigManager\Tasks\Events\Action;
 
 use ConsulConfigManager\Tasks\Events\AbstractEvent;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class ActionDeleted
@@ -13,10 +13,10 @@ class ActionDeleted extends AbstractEvent
 {
     /**
      * ActionDeleted constructor.
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return void
      */
-    public function __construct(UserEntity|int|null $user = null)
+    public function __construct(UserInterface|int|null $user = null)
     {
         $this->user = $user;
         parent::__construct();

@@ -3,7 +3,7 @@
 namespace ConsulConfigManager\Tasks\Events\Pipeline;
 
 use ConsulConfigManager\Tasks\Events\AbstractEvent;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class PipelineUpdated
@@ -27,10 +27,10 @@ class PipelineUpdated extends AbstractEvent
      * PipelineUpdated constructor.
      * @param string $name
      * @param string $description
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return void
      */
-    public function __construct(string $name, string $description, UserEntity|int|null $user = null)
+    public function __construct(string $name, string $description, UserInterface|int|null $user = null)
     {
         $this->name = $name;
         $this->description = $description;

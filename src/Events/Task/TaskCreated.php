@@ -3,7 +3,7 @@
 namespace ConsulConfigManager\Tasks\Events\Task;
 
 use ConsulConfigManager\Tasks\Events\AbstractEvent;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class TaskCreated
@@ -33,7 +33,7 @@ class TaskCreated extends AbstractEvent
         string $name,
         string $description,
         bool $failOnError = false,
-        UserEntity|int|null $user = null,
+        UserInterface|int|null $user = null,
     ) {
         $this->name = $name;
         $this->description = $description;

@@ -4,7 +4,7 @@ namespace ConsulConfigManager\Tasks\Events;
 
 use Illuminate\Support\Carbon;
 use Spatie\EventSourcing\StoredEvents\ShouldBeStored;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class AbstractEvent
@@ -20,9 +20,9 @@ abstract class AbstractEvent extends ShouldBeStored
 
     /**
      * Reference for user who triggered event
-     * @var UserEntity|int|null
+     * @var UserInterface|int|null
      */
-    protected UserEntity|int|null $user = null;
+    protected UserInterface|int|null $user = null;
 
     /**
      * AbstractEvent Constructor.
@@ -79,11 +79,11 @@ abstract class AbstractEvent extends ShouldBeStored
 
     /**
      * Set user
-     * @param UserEntity|int $user
+     * @param UserInterface|int $user
      *
      * @return $this
      */
-    public function setUser(UserEntity|int $user): AbstractEvent
+    public function setUser(UserInterface|int $user): AbstractEvent
     {
         $this->user = $user;
         return $this;
@@ -98,7 +98,7 @@ abstract class AbstractEvent extends ShouldBeStored
         $request = request();
         if ($request !== null) {
             /**
-             * @var UserEntity $user
+             * @var UserInterface $user
              */
             $user = $request->user();
             if ($user !== null) {

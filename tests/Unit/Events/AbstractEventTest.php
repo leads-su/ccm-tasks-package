@@ -8,9 +8,9 @@ use Illuminate\Support\Carbon;
 use ConsulConfigManager\Users\Models\User;
 use ConsulConfigManager\Tasks\Test\TestCase;
 use ConsulConfigManager\Tasks\Events\AbstractEvent;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
-use ConsulConfigManager\Users\Domain\ValueObjects\EmailValueObject;
-use ConsulConfigManager\Users\Domain\ValueObjects\UsernameValueObject;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
+use ConsulConfigManager\Users\ValueObjects\EmailValueObject;
+use ConsulConfigManager\Users\ValueObjects\UsernameValueObject;
 
 /**
  * Class AbstractEventTest
@@ -86,7 +86,7 @@ abstract class AbstractEventTest extends TestCase
         }
         $instance = $this->createClassInstance($data);
         /**
-         * @var UserEntity $user
+         * @var UserInterface $user
          */
         $user = Arr::get($data, 'user');
         $user->setID(2);

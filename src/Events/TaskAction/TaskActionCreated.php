@@ -3,7 +3,7 @@
 namespace ConsulConfigManager\Tasks\Events\TaskAction;
 
 use ConsulConfigManager\Tasks\Events\AbstractEvent;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class TaskActionCreated
@@ -34,10 +34,10 @@ class TaskActionCreated extends AbstractEvent
      * @param string $task
      * @param string $action
      * @param int $order
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return void
      */
-    public function __construct(string $task, string $action, int $order, UserEntity|int|null $user = null)
+    public function __construct(string $task, string $action, int $order, UserInterface|int|null $user = null)
     {
         $this->task = $task;
         $this->action = $action;

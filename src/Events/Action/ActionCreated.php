@@ -3,7 +3,7 @@
 namespace ConsulConfigManager\Tasks\Events\Action;
 
 use ConsulConfigManager\Tasks\Events\AbstractEvent;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class ActionCreated
@@ -76,7 +76,7 @@ class ActionCreated extends AbstractEvent
      * @param string|null $runAs
      * @param bool $useSudo
      * @param bool $failOnError
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return void
      */
     public function __construct(
@@ -89,7 +89,7 @@ class ActionCreated extends AbstractEvent
         ?string $runAs = null,
         bool $useSudo = false,
         bool $failOnError = true,
-        UserEntity|int|null $user = null,
+        UserInterface|int|null $user = null,
     ) {
         $this->name = $name;
         $this->description = $description;

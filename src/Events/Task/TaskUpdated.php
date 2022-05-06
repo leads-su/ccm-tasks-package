@@ -3,7 +3,7 @@
 namespace ConsulConfigManager\Tasks\Events\Task;
 
 use ConsulConfigManager\Tasks\Events\AbstractEvent;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class TaskUpdated
@@ -34,13 +34,13 @@ class TaskUpdated extends AbstractEvent
      * @param string $name
      * @param string $description
      * @param bool $failOnError
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      */
     public function __construct(
         string $name,
         string $description,
         bool $failOnError = false,
-        UserEntity|int|null $user = null,
+        UserInterface|int|null $user = null,
     ) {
         $this->name = $name;
         $this->description = $description;

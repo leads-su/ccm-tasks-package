@@ -9,11 +9,11 @@ use ConsulConfigManager\Tasks\TaskDomain;
 use ConsulConfigManager\Testing\Concerns;
 use ConsulConfigManager\Users\Models\User;
 use Spatie\EventSourcing\EventSourcingServiceProvider;
+use ConsulConfigManager\Users\ValueObjects\EmailValueObject;
 use ConsulConfigManager\Tasks\Providers\TasksServiceProvider;
 use ConsulConfigManager\Users\Providers\UsersServiceProvider;
-use ConsulConfigManager\Users\Domain\ValueObjects\EmailValueObject;
-use ConsulConfigManager\Users\Domain\ValueObjects\PasswordValueObject;
-use ConsulConfigManager\Users\Domain\ValueObjects\UsernameValueObject;
+use ConsulConfigManager\Users\ValueObjects\UsernameValueObject;
+use ConsulConfigManager\Users\ValueObjects\PasswordValueObject;
 use ConsulConfigManager\Consul\Agent\Providers\ConsulAgentServiceProvider;
 
 /**

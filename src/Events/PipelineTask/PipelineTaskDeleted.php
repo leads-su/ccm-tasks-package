@@ -3,7 +3,7 @@
 namespace ConsulConfigManager\Tasks\Events\PipelineTask;
 
 use ConsulConfigManager\Tasks\Events\AbstractEvent;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class PipelineTaskDeleted
@@ -20,9 +20,9 @@ class PipelineTaskDeleted extends AbstractEvent
     /**
      * PipelineTaskDeleted constructor.
      * @param bool $force
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      */
-    public function __construct(bool $force = false, UserEntity|int|null $user = null)
+    public function __construct(bool $force = false, UserInterface|int|null $user = null)
     {
         $this->force = $force;
         $this->user = $user;

@@ -4,7 +4,7 @@ namespace ConsulConfigManager\Tasks\AggregateRoots;
 
 use ConsulConfigManager\Tasks\Events;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class TaskAggregateRoot
@@ -17,10 +17,10 @@ class TaskAggregateRoot extends AggregateRoot
      * @param string $name
      * @param string $description
      * @param bool $failOnError
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function createEntity(string $name, string $description, bool $failOnError = false, UserEntity|int|null $user = null): TaskAggregateRoot
+    public function createEntity(string $name, string $description, bool $failOnError = false, UserInterface|int|null $user = null): TaskAggregateRoot
     {
         $this->recordThat(new Events\Task\TaskCreated(
             $name,
@@ -36,10 +36,10 @@ class TaskAggregateRoot extends AggregateRoot
      * @param string $name
      * @param string $description
      * @param bool $failOnError
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function updateEntity(string $name, string $description, bool $failOnError = false, UserEntity|int|null $user = null): TaskAggregateRoot
+    public function updateEntity(string $name, string $description, bool $failOnError = false, UserInterface|int|null $user = null): TaskAggregateRoot
     {
         $this->recordThat(new Events\Task\TaskUpdated(
             $name,
@@ -52,10 +52,10 @@ class TaskAggregateRoot extends AggregateRoot
 
     /**
      * Handle `delete` event
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function deleteEntity(UserEntity|int|null $user = null): TaskAggregateRoot
+    public function deleteEntity(UserInterface|int|null $user = null): TaskAggregateRoot
     {
         $this->recordThat(new Events\Task\TaskDeleted(
             $user,
@@ -65,10 +65,10 @@ class TaskAggregateRoot extends AggregateRoot
 
     /**
      * Handle `restore` event
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function restoreEntity(UserEntity|int|null $user = null): TaskAggregateRoot
+    public function restoreEntity(UserInterface|int|null $user = null): TaskAggregateRoot
     {
         $this->recordThat(new Events\Task\TaskRestored(
             $user,

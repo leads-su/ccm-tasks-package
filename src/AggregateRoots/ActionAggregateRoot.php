@@ -4,7 +4,7 @@ namespace ConsulConfigManager\Tasks\AggregateRoots;
 
 use ConsulConfigManager\Tasks\Events;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
-use ConsulConfigManager\Users\Domain\Interfaces\UserEntity;
+use ConsulConfigManager\Users\Interfaces\UserInterface;
 
 /**
  * Class ActionAggregateRoot
@@ -23,7 +23,7 @@ class ActionAggregateRoot extends AggregateRoot
      * @param string|null $runAs
      * @param bool $useSudo
      * @param bool $failOnError
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
     public function createEntity(
@@ -36,7 +36,7 @@ class ActionAggregateRoot extends AggregateRoot
         ?string $runAs = null,
         bool $useSudo = false,
         bool $failOnError = true,
-        UserEntity|int|null $user = null,
+        UserInterface|int|null $user = null,
     ): ActionAggregateRoot {
         $this->recordThat(new Events\Action\ActionCreated(
             $name,
@@ -64,7 +64,7 @@ class ActionAggregateRoot extends AggregateRoot
      * @param string|null $runAs
      * @param bool $useSudo
      * @param bool $failOnError
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
     public function updateEntity(
@@ -77,7 +77,7 @@ class ActionAggregateRoot extends AggregateRoot
         ?string $runAs = null,
         bool $useSudo = false,
         bool $failOnError = true,
-        UserEntity|int|null $user = null,
+        UserInterface|int|null $user = null,
     ): ActionAggregateRoot {
         $this->recordThat(new Events\Action\ActionUpdated(
             $name,
@@ -96,10 +96,10 @@ class ActionAggregateRoot extends AggregateRoot
 
     /**
      * Handle `delete` event
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function deleteEntity(UserEntity|int|null $user = null): ActionAggregateRoot
+    public function deleteEntity(UserInterface|int|null $user = null): ActionAggregateRoot
     {
         $this->recordThat(new Events\Action\ActionDeleted($user));
         return $this;
@@ -107,10 +107,10 @@ class ActionAggregateRoot extends AggregateRoot
 
     /**
      * Handle `restore` event
-     * @param UserEntity|int|null $user
+     * @param UserInterface|int|null $user
      * @return $this
      */
-    public function restoreEntity(UserEntity|int|null $user = null): ActionAggregateRoot
+    public function restoreEntity(UserInterface|int|null $user = null): ActionAggregateRoot
     {
         $this->recordThat(new Events\Action\ActionRestored($user));
         return $this;
