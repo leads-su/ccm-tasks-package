@@ -1,0 +1,116 @@
+{
+    "name": "leads-su/ccm-tasks",
+    "description": "Tasks package for CCM backend",
+    "version": "1.0.0",
+    "license": "MIT",
+    "keywords": [
+        "ccm",
+        "leads",
+        "consul",
+        "users",
+        "extension"
+    ],
+    "homepage": "https://github.com/leads-su/ccm-tasks-package",
+    "authors": [
+        {
+            "name": "Zhivolupov Ivan",
+            "email": "iz@leads.su",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "ext-json": "*",
+        "leads-su/ccm-consul-agent": "^1.0",
+        "leads-su/ccm-consul-kv": "^1.0",
+        "leads-su/ccm-domain": "^1.0",
+        "leads-su/ccm-users": "^1.0",
+        "clue/reactphp-eventsource": "1",
+        "react/promise": "^2.8",
+        "spatie/laravel-event-sourcing": "^5.0"
+    },
+    "require-dev": {
+        "leads-su/ccm-testing": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "ConsulConfigManager\\Tasks\\": "src/"
+        },
+        "files": []
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ConsulConfigManager\\Tasks\\Test\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ConsulConfigManager\\Tasks\\Providers\\TasksServiceProvider"
+            ],
+            "aliases": {
+                "TaskDomain": "ConsulConfigManager\\Tasks\\TaskDomain"
+            }
+        }
+    },
+    "scripts": {
+        "psr": [
+            "vendor/bin/php-cs-fixer fix"
+        ],
+        "test": [
+            "phpunit --color=always"
+        ],
+        "test:feature": [
+            "phpunit --color=always --testsuite \"Feature Test Suite\""
+        ],
+        "test:integration": [
+            "phpunit --color=always --testsuite \"Integration Test Suite\""
+        ],
+        "test:unit": [
+            "phpunit --color=always --testsuite \"Unit Test Suite\""
+        ],
+        "test:playground": [
+            "phpunit --color=always --testsuite \"Playground Test Suite\""
+        ],
+        "test:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-clover=\"output/code-coverage/clover.xml\""
+        ],
+        "test:coverage-text": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-text"
+        ],
+        "test:coverage-gitlab": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=never --coverage-text --coverage-clover=\"reports/clover.xml\" --coverage-cobertura=\"reports/cobertura.xml\""
+        ],
+        "test:coverage-html": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --coverage-html=\"output/code-coverage\""
+        ],
+        "test:feature:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --testsuite \"Feature Test Suite\" --coverage-html=\"output/code-coverage\""
+        ],
+        "test:integration:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --testsuite \"Integration Test Suite\" --coverage-html=\"output/code-coverage\""
+        ],
+        "test:unit:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --testsuite \"Unit Test Suite\" --coverage-html=\"output/code-coverage\""
+        ],
+        "test:playground:coverage": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --color=always --testsuite \"Playground Test Suite\" --coverage-html=\"output/code-coverage\""
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "secure-http": false
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

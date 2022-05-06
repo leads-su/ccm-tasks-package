@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    bootstrap="vendor/autoload.php"
+    backupGlobals="false"
+    backupStaticAttributes="false"
+    colors="false"
+    verbose="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+    printerClass="Sempro\PHPUnitPrettyPrinter\PrettyPrinterForPhpUnit9"
+>
+    <coverage>
+        <include>
+            <directory suffix=".php">src/</directory>
+        </include>
+        <report>
+            <clover outputFile="reports/clover.xml"/>
+            <cobertura outputFile="reports/cobertura.xml"/>
+        </report>
+    </coverage>
+    <logging>
+        <junit outputFile="reports/junit.xml"/>
+    </logging>
+    <testsuites>
+        <testsuite name="Playground Test Suite">
+
+        </testsuite>
+        <testsuite name="Unit Test Suite">
+            <directory suffix="Test.php">./tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature Test Suite">
+            <directory>./tests/Feature/ServiceTest.php</directory>
+            <directory>./tests/Feature/ActionTest.php</directory>
+            <directory>./tests/Feature/TaskTest.php</directory>
+            <directory>./tests/Feature/TaskActionTest.php</directory>
+            <directory>./tests/Feature/PipelineTest.php</directory>
+            <directory>./tests/Feature/PipelineTaskTest.php</directory>
+        </testsuite>
+        <testsuite name="Integration Test Suite">
+            <directory suffix="Test.php">./tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <server name="APP_ENV" value="testing"/>
+        <server name="APP_DEBUG" value="false"/>
+        <server name="BCRYPT_ROUNDS" value="4"/>
+        <server name="CACHE_DRIVER" value="array"/>
+        <server name="DB_CONNECTION" value="sqlite"/>
+        <server name="DB_DATABASE" value=":memory:"/>
+        <server name="MAIL_MAILER" value="array"/>
+        <server name="QUEUE_CONNECTION" value="sync"/>
+        <server name="SESSION_DRIVER" value="array"/>
+        <server name="TELESCOPE_ENABLED" value="false"/>
+
+        <env name="PHPUNIT_PRETTY_PRINT_PROGRESS" value="true" />
+    </php>
+</phpunit>

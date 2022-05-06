@@ -1,0 +1,56 @@
+<?php
+
+namespace ConsulConfigManager\Tasks\Http\Controllers\Task;
+
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Symfony\Component\HttpFoundation\Response;
+use ConsulConfigManager\Domain\ViewModels\HttpResponseViewModel;
+use ConsulConfigManager\Tasks\UseCases\Task\Get\TaskGetInputPort;
+use ConsulConfigManager\Tasks\UseCases\Task\Get\TaskGetRequestModel;
+
+/**
+ * Class TaskGetController
+ * @package ConsulConfigManager\Tasks\Http\Controllers\Task
+ */
+class TaskGetController extends Controller
+{
+    /**
+     * Input port interactor instance
+     * @var TaskGetInputPort
+     */
+    private TaskGetInputPort $interactor;
+
+    /**
+     * TaskGetController constructor.
+     * @param TaskGetInputPort $interactor
+     * @return void
+     */
+    public function __construct(TaskGetInputPort $interactor)
+    {
+        $this->interactor = $interactor;
+    }
+
+    // @codeCoverageIgnoreStart
+
+    /**
+     * Handle incoming request
+     * @param Request $request
+     * @param string $identifier
+     * @return Response|null
+     */
+    public function __invoke(Request $request, string $identifier): ?Response
+    {
+        $viewModel = $this->interactor->get(
+            new TaskGetRequestModel($request, $identifier)
+        );
+
+        if ($viewModel instanceof HttpResponseViewModel) {
+            return $viewModel->getResponse();
+        }
+
+        return null;
+    }
+
+    // @codeCoverageIgnoreEnd
+}
