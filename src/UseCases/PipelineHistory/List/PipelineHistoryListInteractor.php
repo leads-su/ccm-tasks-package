@@ -132,7 +132,9 @@ class PipelineHistoryListInteractor implements PipelineHistoryListInputPort
 
         foreach ($executions as $pipelineIndex => $pipelineExecution) {
             $pipelineExecutionIdentifier = $pipelineExecution->getUuid();
-            $pipeline = $this->pipelineRepository->findByOrFail('uuid', $pipelineExecution->getPipelineUuid());
+            if (($pipeline = $this->pipelineRepository->findBy('uuid', $pipelineExecution->getPipelineUuid())) == null) {
+                continue;
+            }
 
             $executionInformation = [
                 'id'                    =>  $pipelineExecution->getID(),
@@ -202,7 +204,7 @@ class PipelineHistoryListInteractor implements PipelineHistoryListInputPort
                 }
             }
 
-            $results[$pipelineIndex] = $executionInformation;
+            $results[] = $executionInformation;
         }
 
         return collect($results);
