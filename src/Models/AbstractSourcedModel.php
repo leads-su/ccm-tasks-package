@@ -61,8 +61,11 @@ abstract class AbstractSourcedModel extends Model implements SourcedInterface
                 'version'   =>  $eventModel->aggregate_version,
             ]);
 
-            $eventUser = User::find($eventModel->event_properties['user'])
-                ->withoutRelations()->toArray();
+            $user = User::find($eventModel->event_properties['user']);
+            if (!$user) {
+                return collect([]);
+            }
+            $eventUser = $user->withoutRelations()->toArray();
 
             Arr::set($history, $index . '.user', Arr::only($eventUser, [
                 'id',
