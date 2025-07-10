@@ -22,7 +22,7 @@ stages:
   - publish
 
 phpunit:
-  image: docker.leads.su:443/ccm/application-image:8.0_debug
+  image: docker.leads.su/ccm/application-image:8.0_debug
   extends: .before_script_template
   stage: phpunit
   tags:
@@ -39,7 +39,9 @@ phpunit:
       - reports/
     reports:
       junit: reports/junit.xml
-      cobertura: reports/cobertura.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: reports/cobertura.xml
     expire_in: 30 minutes
 
 sonarqube-check:
@@ -66,7 +68,7 @@ sonarqube-check:
     - phpunit
 
 test_8.0:
-  image: docker.leads.su:443/ccm/application-image:8.0
+  image: docker.leads.su/ccm/application-image:8.0
   extends: .before_script_template
   stage: test
   tags:
@@ -78,7 +80,7 @@ test_8.0:
     - composer test
 
 test_8.1:
-  image: docker.leads.su:443/ccm/application-image:8.1
+  image: docker.leads.su/ccm/application-image:8.1
   extends: .before_script_template
   stage: test
   tags:

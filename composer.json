@@ -1,7 +1,7 @@
 {
     "name": "ccm/tasks",
     "description": "Tasks package for CCM backend",
-    "version": "1.1.7",
+    "version": "1.1.8",
     "license": "proprietary",
     "keywords": [
         "ccm",
@@ -110,7 +110,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "secure-http": false,
-        "gitlab-domains": ["gitlab.leads.local"]
+        "gitlab-domains": ["gitlab.leads.local"],
+        "process-timeout": 900
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
